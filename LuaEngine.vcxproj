@@ -180,6 +180,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lua_core.h" />
+    <ClInclude Include="lua_register.h" />
     <ClInclude Include="src\game_utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

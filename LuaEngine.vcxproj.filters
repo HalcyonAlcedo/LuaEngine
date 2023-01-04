@@ -35,5 +35,11 @@
     <ClInclude Include="src\game_utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="lua_register.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_core.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
