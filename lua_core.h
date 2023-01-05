@@ -3,8 +3,6 @@
 
 using namespace loader;
 
-lua_State* L = nullptr;
-
 namespace LuaCore {
 	//错误回调
 	static int LuaErrorCallBack(lua_State* L)
@@ -29,21 +27,35 @@ namespace LuaCore {
 		lua_pushstring(L, errorMsg.c_str());
 		return 1;
 	}
-	int LuaErrorRecord(string error) {
+	static int LuaErrorRecord(string error) {
 		LOG(ERR) << error;
 		return 1;
 	}
-
-	static int Lua_Load(string LuaFile)
+	//获取目录中的文件
+	static void Lua_Load(string path, vector<string>& files)
+	{
+		using namespace std::filesystem;
+		if (exists(path) && is_directory(path))
+		{
+			for (auto& fe : directory_iterator(path))
+			{
+				auto fp = fe.path();
+				auto temp = fp.filename();
+				if (fp.extension().string() == ".lua") {
+					LuaHandle::LuaScript[temp.stem().string()] = LuaHandle::LuaScriptData(
+						luaL_newstate(),
+						temp.stem().string(),
+						fp.string());
+					files.push_back(temp.stem().string());
+				}
+			}
+		}
+	}
+	//运行lua脚本
+	static int Lua_Run(lua_State* L, string LuaFile)
 	{
 		int err = 0;
-		if (LuaHandle::LuaCode[LuaFile].hotReload) {
-			err = luaL_dofile(L, LuaHandle::LuaCode[LuaFile].file.c_str());
-		}
-		else {
-			err = luaL_dostring(L, LuaHandle::LuaCode[LuaFile].code.c_str());
-		}
-
+		err = luaL_dofile(L, LuaHandle::LuaScript[LuaFile].file.c_str());
 		if (err != 0)
 		{
 			int type = lua_type(L, -1);

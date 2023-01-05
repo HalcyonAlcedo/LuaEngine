@@ -6,36 +6,20 @@ using namespace std;
 
 #pragma region Lua Handle
 namespace LuaHandle {
-	struct LuaCodeData {
+	struct LuaScriptData {
+		lua_State* L;
 		string name;
-		string code;
 		string file;
 		bool start;
-		bool hotReload;//hotReload模式下lua会直接读取文件而不通过缓存的数据执行代码
-		void Update()
-		{
-			ifstream ifile(file);
-			ostringstream buf;
-			char ch;
-			while (buf && ifile.get(ch))
-				buf.put(ch);
-			code = buf.str();
-			if (string _Tmpy = "--NotHotReload"; string::npos != code.find(_Tmpy))
-				hotReload = false;
-			if (string _Tmpy = "--Disable"; string::npos != code.find(_Tmpy))
-				start = false;
-		};
-		LuaCodeData(
+		LuaScriptData(
+			lua_State* L = nullptr,
 			string name = "",
-			string code = "",
 			string file = "",
-			bool start = true,
-			bool hotReload = true
-		) :name(name), code(code), file(file), start(start), hotReload(hotReload) { };
+			bool start = true
+		) :L(L), name(name), file(file), start(start) { };
 	};
 	vector<string> LuaFiles;
-	vector<string> LuaError;
-	map<string, LuaCodeData> LuaCode;
+	map<string, LuaScriptData> LuaScript;
 }
 #pragma endregion
 
@@ -53,28 +37,6 @@ namespace utils {
 			}
 		}
 		return Plot;
-	}
-	//获取目录中的文件
-	static void getFiles(string path, vector<string>& files)
-	{
-		using namespace std::filesystem;
-		if (exists(path) && is_directory(path))
-		{
-			for (auto& fe : directory_iterator(path))
-			{
-				auto fp = fe.path();
-				auto temp = fp.filename();
-				if (fp.extension().string() == ".lua") {
-					LuaHandle::LuaCode[temp.stem().string()] = LuaHandle::LuaCodeData(
-						temp.stem().string(),
-						"",
-						fp.string(),
-						true);
-					LuaHandle::LuaCode[temp.stem().string()].Update();
-					files.push_back(temp.stem().string());
-				}
-			}
-		}
 	}
 	//获取随机数
 	static float GetRandom(float min, float max)

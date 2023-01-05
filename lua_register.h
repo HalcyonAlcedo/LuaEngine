@@ -154,6 +154,70 @@ static int System_XboxPad_CheckKeyIsPressed(lua_State* pL) {
     return 1;
 }
 #pragma endregion
+#pragma region MemoryFun
+static int System_Memory_GetAddress(lua_State* pL) {
+    vector<int> bytes;
+    long long ptr = (long long)lua_tonumber(pL, 1);
+    lua_pushnil(pL);
+    while (lua_next(pL, 2) != 0)
+    {
+        bytes.push_back((int)lua_tointeger(pL, -1));
+        lua_pop(pL, 1);
+    }
+    void* address = utils::GetPlot((void*)ptr, bytes);
+    long long addr = (long long)address;
+    lua_pushinteger(pL, addr);
+    return 1;
+}
+static int System_Memory_GetAddressData(lua_State* pL) {
+    long long ptr = (long long)lua_tonumber(pL, 1);
+    string type = (string)lua_tostring(pL, 2);
+    void* address = (void*)ptr;
+    if (address != nullptr) {
+        if (type == "int")
+            lua_pushinteger(pL, *(int*)(ptr));
+        else if (type == "float")
+            lua_pushnumber(pL, *(float*)(ptr));
+        else if (type == "bool")
+            lua_pushboolean(pL, *(bool*)(ptr));
+        else if (type == "byte")
+            lua_pushinteger(pL, *(char*)(ptr));
+        else
+            lua_pushinteger(pL, *(char*)(ptr));
+    }
+    else
+        lua_pushstring(pL, "Address error");
+    return 1;
+}
+static int System_Memory_SetAddressData(lua_State* pL) {
+    long long ptr = (long long)lua_tonumber(pL, 1);
+    string type = (string)lua_tostring(pL, 2);
+    void* address = (void*)ptr;
+    if (address != nullptr) {
+        if (type == "int") {
+            *(int*)(ptr) = (int)lua_tointeger(pL, 3);
+            lua_pushboolean(pL, true);
+        }
+        else if (type == "float") {
+            *(float*)(ptr) = (float)lua_tonumber(pL, 3);
+            lua_pushboolean(pL, true);
+        }
+        else if (type == "bool") {
+            *(bool*)(ptr) = (bool)lua_toboolean(pL, 3);
+            lua_pushboolean(pL, true);
+        }
+        else if (type == "byte") {
+            *(char*)(ptr) = (char)lua_tointeger(pL, 3);
+            lua_pushboolean(pL, true);
+        }
+        else
+            lua_pushboolean(pL, false);
+    }
+    else
+        lua_pushboolean(pL, false);
+    return 1;
+}
+#pragma endregion
 static void registerFunc(lua_State* L) {
 #pragma region LuaFun
 	//存入整数变量
@@ -170,7 +234,7 @@ static void registerFunc(lua_State* L) {
 	lua_register(L, "Lua_Variable_ReadStringVariable", Lua_Variable_ReadStringVariable);
 	//销毁变量
 	lua_register(L, "Lua_Variable_DestroyVariable", Lua_Variable_DestroyVariable);
-	//获取随机数
+	//获取随机数(可能用不上，lua5.4重做了随机数生成器)
 	lua_register(L, "Lua_Math_Rander", Lua_Math_Rander);
 #pragma endregion
 #pragma region System
@@ -200,5 +264,13 @@ static void registerFunc(lua_State* L) {
     lua_register(L, "System_Console_Info", System_Console_Info);
     //向控制台发送错误消息
     lua_register(L, "System_Console_Error", System_Console_Error);
+#pragma endregion
+#pragma region Memory
+    //获取内存地址
+    lua_register(L, "System_Memory_GetAddress", System_Memory_GetAddress);
+    //获取内存地址数据
+    lua_register(L, "System_Memory_GetAddressData", System_Memory_GetAddressData);
+    //修改内存地址数据
+    lua_register(L, "System_Memory_SetAddressData", System_Memory_SetAddressData);
 #pragma endregion
 }
