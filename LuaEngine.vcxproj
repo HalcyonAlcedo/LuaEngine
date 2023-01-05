@@ -157,8 +157,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>echo f| xcopy "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)build\$(ProjectName).dll" /i
-echo f| xcopy "$(SolutionDir)examples\examples.lua" "$(SolutionDir)build\Lua\examples.lua" /i</Command>
+      <Command>xcopy  /i /y "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)build\nativePC\plugins\$(ProjectName).dll"
+xcopy  /i /y "$(SolutionDir)examples\examples.lua" "$(SolutionDir)build\Lua\examples.lua"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -184,8 +184,9 @@ echo f| xcopy "$(SolutionDir)examples\examples.lua" "$(SolutionDir)build\Lua\exa
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lua_core.h" />
-    <ClInclude Include="lua_register.h" />
+    <ClInclude Include="src\hook_monster.h" />
+    <ClInclude Include="src\lua_core.h" />
+    <ClInclude Include="src\lua_register.h" />
     <ClInclude Include="src\game_utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

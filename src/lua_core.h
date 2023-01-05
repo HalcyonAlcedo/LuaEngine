@@ -70,5 +70,31 @@ namespace LuaCore {
 		LOG(INFO) << LuaFile;
 		return 1;
 	}
+	//运行lua代码
+	static void run(string func) {
+		for (string file_name : LuaHandle::LuaFiles) {
+			if (LuaHandle::LuaScript[file_name].start) {
+				lua_State* L = LuaHandle::LuaScript[file_name].L;
+				int err = 0;
+				int callBack = lua_gettop(L);
+				lua_getglobal(L, func.c_str());
+				err = lua_pcall(L, 0, 0, callBack);
+				if (err != 0)
+				{
+					string error = lua_tostring(L, -1);
+					LuaCore::LuaErrorRecord(error);
+				}
+			}
+		}
+	}
+	//为lua注册新函数
+	static void Lua_register(string funcName, int(*func)(lua_State* pL)) {
+		for (string file_name : LuaHandle::LuaFiles) {
+			if (LuaHandle::LuaScript[file_name].start) {
+				lua_State* L = LuaHandle::LuaScript[file_name].L;
+				lua_register(L, funcName.c_str(), func);
+			}
+		}
+	}
 }
 

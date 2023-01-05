@@ -157,7 +157,7 @@ static int System_XboxPad_CheckKeyIsPressed(lua_State* pL) {
 #pragma region MemoryFun
 static int System_Memory_GetAddress(lua_State* pL) {
     vector<int> bytes;
-    long long ptr = (long long)lua_tonumber(pL, 1);
+    long long ptr = (long long)lua_tointeger(pL, 1);
     lua_pushnil(pL);
     while (lua_next(pL, 2) != 0)
     {
@@ -170,7 +170,7 @@ static int System_Memory_GetAddress(lua_State* pL) {
     return 1;
 }
 static int System_Memory_GetAddressData(lua_State* pL) {
-    long long ptr = (long long)lua_tonumber(pL, 1);
+    long long ptr = (long long)lua_tointeger(pL, 1);
     string type = (string)lua_tostring(pL, 2);
     void* address = (void*)ptr;
     if (address != nullptr) {
@@ -190,7 +190,7 @@ static int System_Memory_GetAddressData(lua_State* pL) {
     return 1;
 }
 static int System_Memory_SetAddressData(lua_State* pL) {
-    long long ptr = (long long)lua_tonumber(pL, 1);
+    long long ptr = (long long)lua_tointeger(pL, 1);
     string type = (string)lua_tostring(pL, 2);
     void* address = (void*)ptr;
     if (address != nullptr) {
