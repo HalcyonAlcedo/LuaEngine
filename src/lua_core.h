@@ -78,11 +78,14 @@ namespace LuaCore {
 				int err = 0;
 				int callBack = lua_gettop(L);
 				lua_getglobal(L, func.c_str());
-				err = lua_pcall(L, 0, 0, callBack);
-				if (err != 0)
+				if (lua_type(L, -1) == LUA_TFUNCTION)
 				{
-					string error = lua_tostring(L, -1);
-					LuaCore::LuaErrorRecord(error);
+					err = lua_pcall(L, 0, 0, callBack);
+					if (err != 0)
+					{
+						string error = lua_tostring(L, -1);
+						LuaCore::LuaErrorRecord(error);
+					}
 				}
 			}
 		}
