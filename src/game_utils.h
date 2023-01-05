@@ -95,6 +95,11 @@ namespace Chronoscope {
 		}
 		return false;
 	}
+	//计时器更新程序
+	static void chronoscope() {
+		void* TimePlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x88, 0x1B0, 0x308, 0x10, 0x10 });
+		NowTime = *offsetPtr<float>(TimePlot, 0xC24);
+	}
 }
 #pragma endregion
 
