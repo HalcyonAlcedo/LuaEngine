@@ -156,6 +156,10 @@
       </IgnoreSpecificDefaultLibraries>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>echo f| xcopy "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)build\$(ProjectName).dll" /i
+echo f| xcopy "$(SolutionDir)examples\examples.lua" "$(SolutionDir)build\Lua\examples.lua" /i</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
