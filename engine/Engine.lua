@@ -74,25 +74,25 @@ function engine.keypad(Keys, Xbox)
     if type(Keys) == 'table' and next(Keys) ~= nil then
         if Xbox then
             for _, Key in pairs(Keys) do
-                if System_XboxPad_CheckKeyIsPressed(XKeyToKeyId(Keys)) then return true end
+                if XCheckKeyIsPressed(XKeyToKeyId(Keys)) then return true end
             end
         else
             for _, Key in pairs(Keys) do
-                if not System_Keyboard_CheckKeyIsPressed(KeyToKeyId(Key)) then return false end
+                if not CheckKeyIsPressed(KeyToKeyId(Key)) then return false end
             end
         end
         return true
     elseif type(Keys) == 'string' then
         if Xbox then
-            if System_XboxPad_CheckKeyIsPressed(XKeyToKeyId(Keys)) then return true end
+            if XCheckKeyIsPressed(XKeyToKeyId(Keys)) then return true end
         else
-            if System_Keyboard_CheckKeyIsPressed(KeyToKeyId(Keys)) then return true end
+            if CheckKeyIsPressed(KeyToKeyId(Keys)) then return true end
         end
     elseif type(Keys) == 'number' then
         if Xbox then
-            if System_XboxPad_CheckKeyIsPressed(number) then return true end
+            if XCheckKeyIsPressed(number) then return true end
         else
-            if System_Keyboard_CheckKeyIsPressed(number) then return true end
+            if CheckKeyIsPressed(number) then return true end
         end
     end
     return false
