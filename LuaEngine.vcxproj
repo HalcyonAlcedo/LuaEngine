@@ -184,6 +184,7 @@ echo f| xcopy  /i /y "$(SolutionDir)examples\examples.lua" "$(SolutionDir)build\
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\hook_animals.h" />
     <ClInclude Include="src\hook_monster.h" />
     <ClInclude Include="src\lua_core.h" />
     <ClInclude Include="src\lua_register.h" />

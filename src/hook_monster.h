@@ -33,7 +33,7 @@ namespace hook_monster {
 			});
 		MH_ApplyQueued();
 		//注册怪物获取函数
-		LuaCore::Lua_register("Game_Monster_GetAllMonster", [](lua_State * pL) -> int
+		LuaCore::Lua_register("GetAllMonster", [](lua_State * pL) -> int
 		{
 			lua_newtable(pL);//创建一个表格，放在栈顶
 			for (auto [monster, monsterData] : Monsters) {

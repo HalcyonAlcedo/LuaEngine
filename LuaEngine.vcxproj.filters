@@ -44,5 +44,8 @@
     <ClInclude Include="src\hook_monster.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\hook_animals.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
