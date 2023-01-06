@@ -221,56 +221,50 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 static void registerFunc(lua_State* L) {
 #pragma region LuaFun
 	//存入整数变量
-	lua_register(L, "Lua_Variable_SaveIntVariable", Lua_Variable_SaveIntVariable);
+	lua_register(L, "setGlobalVariable_int", Lua_Variable_SaveIntVariable);
 	//存入浮点数变量
-	lua_register(L, "Lua_Variable_SaveFloatVariable", Lua_Variable_SaveFloatVariable);
+	lua_register(L, "setGlobalVariable_float", Lua_Variable_SaveFloatVariable);
 	//存入字符串变量
-	lua_register(L, "Lua_Variable_SaveStringVariable", Lua_Variable_SaveStringVariable);
+	lua_register(L, "setGlobalVariable_string", Lua_Variable_SaveStringVariable);
 	//读取整数变量
-	lua_register(L, "Lua_Variable_ReadIntVariable", Lua_Variable_ReadIntVariable);
+	lua_register(L, "GlobalVariable_int", Lua_Variable_ReadIntVariable);
 	//读取浮点数变量
-	lua_register(L, "Lua_Variable_ReadFloatVariable", Lua_Variable_ReadFloatVariable);
+	lua_register(L, "GlobalVariable_float", Lua_Variable_ReadFloatVariable);
 	//读取字符串变量
-	lua_register(L, "Lua_Variable_ReadStringVariable", Lua_Variable_ReadStringVariable);
+	lua_register(L, "GlobalVariable_string", Lua_Variable_ReadStringVariable);
 	//销毁变量
-	lua_register(L, "Lua_Variable_DestroyVariable", Lua_Variable_DestroyVariable);
-	//获取随机数(可能用不上，lua5.4重做了随机数生成器)
-	lua_register(L, "Lua_Math_Rander", Lua_Math_Rander);
+	lua_register(L, "DestroyGlobalVariable", Lua_Variable_DestroyVariable);
 #pragma endregion
 #pragma region System
     //检查按键
-    lua_register(L, "System_Keyboard_CheckKey", System_Keyboard_CheckKey);
-    //检查按键双击
-    lua_register(L, "System_Keyboard_CheckDoubleKey", System_Keyboard_CheckDoubleKey);
+    lua_register(L, "CheckKey", System_Keyboard_CheckKey);
     //检查按键是否处于按下状态
-    lua_register(L, "System_Keyboard_CheckKeyIsPressed", System_Keyboard_CheckKeyIsPressed);
+    lua_register(L, "CheckKeyIsPressed", System_Keyboard_CheckKeyIsPressed);
     //检查Xbox按键
-    lua_register(L, "System_XboxPad_CheckKey", System_XboxPad_CheckKey);
-    //检查Xbox按键双击
-    lua_register(L, "System_XboxPad_CheckDoubleKey", System_XboxPad_CheckDoubleKey);
+    lua_register(L, "XCheckKey", System_XboxPad_CheckKey);
     //检查Xbox按键是否处于按下状态
-    lua_register(L, "System_XboxPad_CheckKeyIsPressed", System_XboxPad_CheckKeyIsPressed);
+    lua_register(L, "XCheckKeyIsPressed", System_XboxPad_CheckKeyIsPressed);
     //添加计时器
-    lua_register(L, "System_Chronoscope_AddChronoscope", System_Chronoscope_AddChronoscope);
+    lua_register(L, "AddChronoscope", System_Chronoscope_AddChronoscope);
     //检查计时器
-    lua_register(L, "System_Chronoscope_CheckChronoscope", System_Chronoscope_CheckChronoscope);
+    lua_register(L, "CheckChronoscope", System_Chronoscope_CheckChronoscope);
     //检查计时器是否存在
-    lua_register(L, "System_Chronoscope_CheckPresenceChronoscope", System_Chronoscope_CheckPresenceChronoscope);
+    lua_register(L, "CheckPresenceChronoscope", System_Chronoscope_CheckPresenceChronoscope);
     //删除计时器
-    lua_register(L, "System_Chronoscope_DelChronoscope", System_Chronoscope_DelChronoscope);
+    lua_register(L, "DelChronoscope", System_Chronoscope_DelChronoscope);
     //向游戏内发送消息
-    lua_register(L, "System_Message_ShowMessage", System_Message_ShowMessage);
+    lua_register(L, "Message", System_Message_ShowMessage);
     //向控制台发送消息
-    lua_register(L, "System_Console_Info", System_Console_Info);
+    lua_register(L, "Console_Info", System_Console_Info);
     //向控制台发送错误消息
-    lua_register(L, "System_Console_Error", System_Console_Error);
+    lua_register(L, "Console_Error", System_Console_Error);
 #pragma endregion
 #pragma region Memory
     //获取内存地址
-    lua_register(L, "System_Memory_GetAddress", System_Memory_GetAddress);
+    lua_register(L, "GetAddress", System_Memory_GetAddress);
     //获取内存地址数据
-    lua_register(L, "System_Memory_GetAddressData", System_Memory_GetAddressData);
+    lua_register(L, "GetAddressData", System_Memory_GetAddressData);
     //修改内存地址数据
-    lua_register(L, "System_Memory_SetAddressData", System_Memory_SetAddressData);
+    lua_register(L, "SetAddressData", System_Memory_SetAddressData);
 #pragma endregion
 }
