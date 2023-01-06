@@ -20,6 +20,7 @@ namespace LuaHandle {
 	};
 	vector<string> LuaFiles;
 	map<string, LuaScriptData> LuaScript;
+	lua_State* Lc;
 }
 #pragma endregion
 

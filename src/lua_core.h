@@ -31,7 +31,7 @@ namespace LuaCore {
 		LOG(ERR) << error;
 		return 1;
 	}
-	//获取目录中的文件
+	//加载Lua脚本
 	static void Lua_Load(string path, vector<string>& files)
 	{
 		using namespace std::filesystem;
