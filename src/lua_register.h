@@ -224,7 +224,8 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 static int Game_Player_AddEffect(lua_State* pL) {
     int group = (int)lua_tointeger(pL, 1);
     int record = (int)lua_tointeger(pL, 2);
-    void* PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+    void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
+    PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
     void* Effects = *offsetPtr<void*>(PlayerPlot, 0x8808);
     MH::Player::Effects((undefined*)Effects, group, record);
     return 0;
@@ -233,7 +234,8 @@ static int Game_Player_AddEffect(lua_State* pL) {
 static int Game_Player_RunFsmAction(lua_State* pL) {
     int type = (int)lua_tointeger(pL, 1);
     int id = (int)lua_tointeger(pL, 2);
-    void* PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+    void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
+    PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
     *offsetPtr<int>(PlayerPlot, 0x6284) = type;
     *offsetPtr<int>(PlayerPlot, 0x6288) = id;
     *offsetPtr<int>(PlayerPlot, 0x628C) = type;
@@ -243,8 +245,25 @@ static int Game_Player_RunFsmAction(lua_State* pL) {
 //执行Lmt动作
 static int Game_Player_RunLmtAction(lua_State* pL) {
     int id = (int)lua_tointeger(pL, -1);
-    void* PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+    void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
+    PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
     MH::Player::CallLmt((undefined*)PlayerPlot, id, 0);
+    return 0;
+}
+static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
+    int type = (int)lua_tointeger(pL, 1);
+    int id = (int)lua_tointeger(pL, 2);
+    if (type <= 13 and type >= 0 and id >= 0) {
+        void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
+        PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+        if (lua_gettop(pL) > 3) {
+            *offsetPtr<int>(PlayerPlot, 0x13860) = type;
+            *offsetPtr<int>(PlayerPlot, 0x13864) = id;
+            MH::Weapon::CompleteChangeWeapon(PlayerPlot, 1, 0);
+        }
+        else
+            MH::Weapon::ChangeWeapon(PlayerPlot, type, id);
+    }
     return 0;
 }
 #pragma endregion
@@ -304,5 +323,7 @@ static void registerFunc(lua_State* L) {
     lua_register(L, "RunFsmAction", Game_Player_RunFsmAction);
     //执行Lmt动作
     lua_register(L, "RunLmtAction", Game_Player_RunLmtAction);
+    //更换玩家武器
+    lua_register(L, "ChangeWeapons", Game_Player_Weapon_ChangeWeapons);
 #pragma endregion
 }
