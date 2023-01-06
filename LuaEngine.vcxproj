@@ -158,7 +158,9 @@
     </Link>
     <PostBuildEvent>
       <Command>echo f| xcopy  /i /y "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)build\nativePC\plugins\$(ProjectName).dll"
-echo f| xcopy  /i /y "$(SolutionDir)examples\examples.lua" "$(SolutionDir)build\Lua\examples.lua"</Command>
+echo f| xcopy  /i /y "$(SolutionDir)examples\examples.lua" "$(SolutionDir)build\Lua\examples.lua"
+echo f| xcopy  /i /y "$(SolutionDir)engine\Engine.lua" "$(SolutionDir)build\Lua\Engine.lua"
+echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\modules"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

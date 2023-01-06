@@ -31,6 +31,19 @@ namespace LuaCore {
 		LOG(ERR) << error;
 		return 1;
 	}
+	//加载Lua游戏引擎
+	static void loadEngine(lua_State* L) {
+		int err = 0;
+		err = luaL_dofile(L, "Lua\\Engine");
+		if (err != 0)
+		{
+			int type = lua_type(L, -1);
+			if (type == 4) {
+				string error = lua_tostring(L, -1);
+				LuaErrorRecord(error);
+			}
+		}
+	}
 	//加载Lua脚本
 	static void Lua_Load(string path, vector<string>& files)
 	{
@@ -67,6 +80,8 @@ namespace LuaCore {
 		}
 		//设置错误回调函数
 		lua_pushcfunction(L, LuaErrorCallBack);
+		//加载引擎
+		loadEngine(L);
 		LOG(INFO) << LuaFile;
 		return 1;
 	}
