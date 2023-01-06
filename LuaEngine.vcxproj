@@ -157,8 +157,8 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy  /i /y "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)build\nativePC\plugins\$(ProjectName).dll"
-xcopy  /i /y "$(SolutionDir)examples\examples.lua" "$(SolutionDir)build\Lua\examples.lua"</Command>
+      <Command>echo f| xcopy  /i /y "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)build\nativePC\plugins\$(ProjectName).dll"
+echo f| xcopy  /i /y "$(SolutionDir)examples\examples.lua" "$(SolutionDir)build\Lua\examples.lua"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

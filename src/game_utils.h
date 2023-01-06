@@ -2,6 +2,7 @@
 #include <io.h>
 #include <filesystem>
 
+using namespace loader;
 using namespace std;
 
 #pragma region Lua Handle
@@ -29,6 +30,10 @@ namespace utils {
 	//获取偏移地址
 	static void* GetPlot(void* plot, const std::vector<int>& bytes) {
 		void* Plot = plot;
+		//处理基址
+		if ((long long)plot > 0x140000000) {
+			Plot = *(undefined**)plot;
+		}
 		for (int i : bytes) {
 			if (Plot != nullptr) {
 				Plot = *offsetPtr<undefined**>((undefined(*)())Plot, i);
@@ -63,6 +68,24 @@ namespace utils {
 		delete[]pBuf;
 		pwBuf = NULL;
 		pBuf = NULL;
+		return retStr;
+	}
+	//转unicode
+	std::string UTF8_To_string(const std::string& str)
+	{
+		int nwLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+		wchar_t* pwBuf = new wchar_t[nwLen + 1];
+		memset(pwBuf, 0, nwLen * 2 + 2);
+		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), str.length(), pwBuf, nwLen);
+		int nLen = WideCharToMultiByte(CP_ACP, 0, pwBuf, -1, NULL, NULL, NULL, NULL);
+		char* pBuf = new char[nLen + 1];
+		memset(pBuf, 0, nLen + 1);
+		WideCharToMultiByte(CP_ACP, 0, pwBuf, nwLen, pBuf, nLen, NULL, NULL);
+		std::string retStr = pBuf;
+		delete[]pBuf;
+		delete[]pwBuf;
+		pBuf = NULL;
+		pwBuf = NULL;
 		return retStr;
 	}
 }
@@ -116,7 +139,7 @@ namespace Chronoscope {
 	}
 	//计时器更新程序
 	static void chronoscope() {
-		void* TimePlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x88, 0x1B0, 0x308, 0x10, 0x10 });
+		void* TimePlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x7D20 });
 		NowTime = *offsetPtr<float>(TimePlot, 0xC24);
 	}
 }

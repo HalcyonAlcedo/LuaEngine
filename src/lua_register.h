@@ -129,12 +129,12 @@ static int System_Message_ShowMessage(lua_State* pL) {
 }
 static int System_Console_Info(lua_State* pL) {
     string message = (string)lua_tostring(pL, -1);
-    LOG(INFO) << "LUA INFO:" << message;
+    LOG(INFO) << utils::UTF8_To_string(message);
     return 0;
 }
 static int System_Console_Error(lua_State* pL) {
     string message = (string)lua_tostring(pL, -1);
-    LOG(ERR) << "LUA ERR:" << message;
+    LOG(ERR) << utils::UTF8_To_string(message);
     return 0;
 }
 static int System_XboxPad_CheckKey(lua_State* pL) {
@@ -161,7 +161,8 @@ static int System_Memory_GetAddress(lua_State* pL) {
     lua_pushnil(pL);
     while (lua_next(pL, 2) != 0)
     {
-        bytes.push_back((int)lua_tointeger(pL, -1));
+        bytes.push_back((long long)lua_tointeger(pL, -1));
+        
         lua_pop(pL, 1);
     }
     void* address = utils::GetPlot((void*)ptr, bytes);
