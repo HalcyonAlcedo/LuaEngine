@@ -7,15 +7,17 @@ end
 
 --每次切换场景执行的代码
 function on_switch_scenes()
-    ShowMessage('当前地图：'..engine.World.MapId)
+    local world = engine.World:new()
+    Message('当前地图：'..world.MapId)
 end
 
 --每次时间变动执行的代码
 function on_time()
     --按下小键盘5瞬移至目前准星处
     if engine.keypad('Num5') then
-        local collimator = engine.Player.Collimator.straightPos
-        engine.Player.setPos(collimator.x, collimator.y, collimator.z)
+        local player = engine.Player:new()
+        local collimator = player.Collimator.straightPos
+        player.setPos(collimator.x, collimator.y, collimator.z)
     end
 end
 

@@ -7,35 +7,49 @@
     方法
     SetState
 ]]
-Engine_quest = {}
-Engine_quest.pointer = {
-    Time = GetAddress(0x145073ED0,{ 0x50, 0x7D20 }),
-    Quest = 0x14506F240
+engine_quest = {
+    Time = 0,
+    Id = 0,
+    State = 0
 }
+
+local pointer = {
+    time = function() return GetAddress(0x145073ED0,{ 0x50, 0x7D20 }) end,
+    quest = function() return 0x14506F240 end
+}
+
 --获取当前任务时间
-local function getTime()
-    local time = GetAddressData(Engine_quest.pointer.Time + 0xC24, 'float')
+function engine_quest:getTime()
+    local time = GetAddressData(pointer:time() + 0xC24, 'float')
     return time
 end
 --获取任务Id
-local function getId()
-    local time = GetAddressData(Engine_quest.pointer.Quest + 0x4C, 'int')
-    return time
+function engine_quest:getId()
+    local id = GetAddressData(pointer:quest() + 0x4C, 'int')
+    return id
 end
 --获取任务状态
-local function getState()
-    local time = GetAddressData(Engine_quest.pointer.Quest + 0x54, 'int')
-    return time
+function engine_quest:getState()
+    local state = GetAddressData(pointer:quest() + 0x54, 'int')
+    return state
 end
 
-
---任务时间
-Engine_quest.Time = getTime()
-
+function engine_quest:new ()
+    local o = {}
+    --时间
+    o.Time = self:getTime()
+    --Id
+    o.Id = self:getId()
+    --状态
+    o.State = self:getState()
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
 
 --设置任务状态
-function Engine_quest.setState(state)
-    SetAddressData(Engine_quest.pointer.Quest + 0x38,'int',state)
+function engine_quest:setState(state)
+    SetAddressData(self.pointer.Quest + 0x38,'int',state)
 end
 
-return Engine_quest
+return engine_quest

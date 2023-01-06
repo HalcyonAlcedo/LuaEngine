@@ -10,8 +10,8 @@ require "modules/Engine_quest"
 engine = {}
 
 engine.Player = engine_player
-engine.World = Engine_world
-engine.Quest = Engine_quest
+engine.World = engine_world
+engine.Quest = engine_quest
 
 --[[
     按键处理引擎
@@ -98,4 +98,4 @@ function engine.keypad(Keys, Xbox)
     return false
 end
 
-return engine
+_G.engine = engine

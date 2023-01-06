@@ -5,24 +5,35 @@
 
     方法
 ]]
-engine_world = {}
-engine_world.pointer = {
-    Map = GetAddress(0x145073ED0,{ 0x50, 0x7D20 })
+engine_world = {
+    MapId = 0,
+    Time = 0
 }
+
+local pointer = {
+    map = function() return GetAddress(0x145073ED0,{ 0x50, 0x7D20 }) end
+}
+
 --获取地图Id
-local function getMapId()
-    local Id = GetAddressData(engine_world.pointer.Map + 0xB88, 'int')
+function engine_world:getMapId()
+    local Id = GetAddressData(pointer:map() + 0xB88, 'int')
     return Id
 end
 --获取当前时间
-local function getTime()
-    local time = GetAddressData(engine_world.pointer.Map + 0xC24, 'float')
+function engine_world:getTime()
+    local time = GetAddressData(pointer:map() + 0xC24, 'float')
     return time
 end
 
---地图Id
-engine_world.MapId = getMapId()
---时间
-engine_world.Time = getTime()
+function engine_world:new ()
+    local o = {}
+    --地图Id
+    o.MapId = self:getMapId()
+    --时间
+    o.Time = self:getTime()
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
 
 return engine_world

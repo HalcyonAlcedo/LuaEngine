@@ -34,7 +34,7 @@ namespace LuaCore {
 	//加载Lua游戏引擎
 	static void loadEngine(lua_State* L) {
 		int err = 0;
-		err = luaL_dofile(L, "Lua\\Engine");
+		err = luaL_dofile(L, "Lua\\Engine.lua");
 		if (err != 0)
 		{
 			int type = lua_type(L, -1);
@@ -68,6 +68,8 @@ namespace LuaCore {
 	static int Lua_Run(lua_State* L, string LuaFile)
 	{
 		int err = 0;
+		//加载引擎(故障，暂不默认加载，如需使用请手动加载)
+		//loadEngine(L);
 		err = luaL_dofile(L, LuaHandle::LuaScript[LuaFile].file.c_str());
 		if (err != 0)
 		{
@@ -80,8 +82,6 @@ namespace LuaCore {
 		}
 		//设置错误回调函数
 		lua_pushcfunction(L, LuaErrorCallBack);
-		//加载引擎
-		loadEngine(L);
 		LOG(INFO) << LuaFile;
 		return 1;
 	}
