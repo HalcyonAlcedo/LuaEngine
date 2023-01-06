@@ -15,6 +15,10 @@
     <Filter Include="头文件">
       <UniqueIdentifier>{3f3fea3e-0109-400a-8835-8384b2486c06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{017d33c1-721c-4071-bc64-d0384895e66a}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -47,5 +51,11 @@
     <ClInclude Include="src\hook_animals.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LuaEngine.rc">
+      <Filter>静态库</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
