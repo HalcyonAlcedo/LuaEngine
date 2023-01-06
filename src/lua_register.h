@@ -219,6 +219,35 @@ static int System_Memory_SetAddressData(lua_State* pL) {
     return 1;
 }
 #pragma endregion
+#pragma region GameFun
+//添加特效
+static int Game_Player_AddEffect(lua_State* pL) {
+    int group = (int)lua_tointeger(pL, 1);
+    int record = (int)lua_tointeger(pL, 2);
+    void* PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+    void* Effects = *offsetPtr<void*>(PlayerPlot, 0x8808);
+    MH::Player::Effects((undefined*)Effects, group, record);
+    return 0;
+}
+//执行Fsm动作
+static int Game_Player_RunFsmAction(lua_State* pL) {
+    int type = (int)lua_tointeger(pL, 1);
+    int id = (int)lua_tointeger(pL, 2);
+    void* PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+    *offsetPtr<int>(PlayerPlot, 0x6284) = type;
+    *offsetPtr<int>(PlayerPlot, 0x6288) = id;
+    *offsetPtr<int>(PlayerPlot, 0x628C) = type;
+    *offsetPtr<int>(PlayerPlot, 0x6290) = id;
+    return 0;
+}
+//执行Lmt动作
+static int Game_Player_RunLmtAction(lua_State* pL) {
+    int id = (int)lua_tointeger(pL, -1);
+    void* PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+    MH::Player::CallLmt((undefined*)PlayerPlot, id, 0);
+    return 0;
+}
+#pragma endregion
 static void registerFunc(lua_State* L) {
 #pragma region LuaFun
 	//存入整数变量
@@ -267,5 +296,13 @@ static void registerFunc(lua_State* L) {
     lua_register(L, "GetAddressData", System_Memory_GetAddressData);
     //修改内存地址数据
     lua_register(L, "SetAddressData", System_Memory_SetAddressData);
+#pragma endregion
+#pragma region Game
+    //添加特效
+    lua_register(L, "AddEffect", Game_Player_AddEffect);
+    //执行Fsm动作(完全可通过修改内存实现，暂且先加上吧)
+    lua_register(L, "RunFsmAction", Game_Player_RunFsmAction);
+    //执行Lmt动作
+    lua_register(L, "RunLmtAction", Game_Player_RunLmtAction);
 #pragma endregion
 }
