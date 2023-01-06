@@ -54,7 +54,7 @@ namespace LuaCore {
 			{
 				auto fp = fe.path();
 				auto temp = fp.filename();
-				if (fp.extension().string() == ".lua") {
+				if (fp.extension().string() == ".lua" && temp.stem().string() != "Engine") {
 					LuaHandle::LuaScript[temp.stem().string()] = LuaHandle::LuaScriptData(
 						luaL_newstate(),
 						temp.stem().string(),
