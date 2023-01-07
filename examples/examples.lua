@@ -1,5 +1,3 @@
-require "Engine"
-
 --游戏初始化执行的代码
 function on_init()
     Console_Info('这是LueEngine的示例代码')
@@ -16,8 +14,7 @@ function on_time()
     --按下小键盘5瞬移至目前准星处
     if engine.keypad('Num5') then
         local player = engine.Player:new()
-        local collimator = player.Collimator.straightPos
-        player.setPos(collimator.x, collimator.y, collimator.z)
+        player.Position.position = player.Collimator.straightPos
     end
 end
 

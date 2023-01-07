@@ -34,6 +34,35 @@ function engine_quest:getState()
     return state
 end
 
+
+
+--设置任务状态
+function engine_quest:setState(state)
+    SetAddressData(self.pointer.Quest + 0x38,'int',state)
+end
+
+--监听
+local function traceHandle(k,v)
+    
+end
+
+local index = {}
+local mt = {
+	__index = function(t, k)
+		return t[index][k]
+	end,
+    __newindex = function (t,k,v)
+        traceHandle(k,v)
+    	t[index][k] = v
+    end
+}
+local function trace(t)
+	local proxy = {}   --代理
+	proxy[index] = t
+	setmetatable(proxy, mt)
+	return proxy
+end
+
 function engine_quest:new ()
     local o = {}
     --时间
@@ -42,14 +71,10 @@ function engine_quest:new ()
     o.Id = self:getId()
     --状态
     o.State = self:getState()
+
     setmetatable(o, self)
     self.__index = self
     return o
-end
-
---设置任务状态
-function engine_quest:setState(state)
-    SetAddressData(self.pointer.Quest + 0x38,'int',state)
 end
 
 return engine_quest

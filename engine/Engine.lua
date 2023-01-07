@@ -7,6 +7,8 @@ require "modules/Engine_player"
 require "modules/Engine_world"
 require "modules/Engine_quest"
 
+_G.print = function(t) Console_Info(t) end
+
 engine = {}
 
 engine.Player = engine_player

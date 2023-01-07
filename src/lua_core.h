@@ -68,8 +68,8 @@ namespace LuaCore {
 	static int Lua_Run(lua_State* L, string LuaFile)
 	{
 		int err = 0;
-		//加载引擎(故障，暂不默认加载，如需使用请手动加载)
-		//loadEngine(L);
+		//加载引擎
+		loadEngine(L);
 		err = luaL_dofile(L, LuaHandle::LuaScript[LuaFile].file.c_str());
 		if (err != 0)
 		{
@@ -82,7 +82,7 @@ namespace LuaCore {
 		}
 		//设置错误回调函数
 		lua_pushcfunction(L, LuaErrorCallBack);
-		LOG(INFO) << LuaFile;
+		LOG(INFO) << LuaFile << "脚本已加载";
 		return 1;
 	}
 	//运行lua代码

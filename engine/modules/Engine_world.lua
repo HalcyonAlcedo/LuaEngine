@@ -25,12 +25,35 @@ function engine_world:getTime()
     return time
 end
 
+--监听
+local function traceHandle(k,v)
+    
+end
+
+local index = {}
+local mt = {
+	__index = function(t, k)
+		return t[index][k]
+	end,
+    __newindex = function (t,k,v)
+        traceHandle(k,v)
+    	t[index][k] = v
+    end
+}
+local function trace(t)
+	local proxy = {}   --代理
+	proxy[index] = t
+	setmetatable(proxy, mt)
+	return proxy
+end
+
 function engine_world:new ()
     local o = {}
     --地图Id
     o.MapId = self:getMapId()
     --时间
     o.Time = self:getTime()
+
     setmetatable(o, self)
     self.__index = self
     return o
