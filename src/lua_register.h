@@ -1,4 +1,6 @@
 #pragma once
+#include "imgui/imgui.h"
+
 using namespace loader;
 
 namespace LuaData {
@@ -267,7 +269,26 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
     return 0;
 }
 #pragma endregion
+#pragma region UI
+//ImGui::Begin
+static int Imgui_Begin(lua_State* pL) {
+    string title = (string)lua_tostring(pL, 1);
+    ImGui::Begin(title.c_str());
+    return 0;
+}
+static int Imgui_Text(lua_State* pL) {
+    string text = (string)lua_tostring(pL, 1);
+    ImGui::Text(text.c_str());
+    return 0;
+}
+static int Imgui_End(lua_State* pL) {
+    ImGui::End();
+    return 0;
+}
+#pragma endregion
+
 static void registerFunc(lua_State* L) {
+
 #pragma region LuaFun
 	//存入整数变量
 	lua_register(L, "setGlobalVariable_int", Lua_Variable_SaveIntVariable);
@@ -326,4 +347,10 @@ static void registerFunc(lua_State* L) {
     //更换玩家武器
     lua_register(L, "ChangeWeapons", Game_Player_Weapon_ChangeWeapons);
 #pragma endregion
+#pragma region UI
+    lua_register(L, "Imgui_Begin", Imgui_Begin);
+    lua_register(L, "Imgui_Text", Imgui_Text);
+    lua_register(L, "Imgui_End", Imgui_End);
+#pragma endregion
+
 }
