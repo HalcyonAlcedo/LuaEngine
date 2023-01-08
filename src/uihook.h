@@ -79,6 +79,10 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	if (!io.WantCaptureMouse) {
 		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 	}
+	else
+	{
+		ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+	}
 	//impl::showExampleWindow("D3D11");
 	if (LuaCore::luaframe) {
 		LuaCore::luaframe = false;

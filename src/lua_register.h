@@ -186,6 +186,10 @@ static int System_Memory_GetAddressData(lua_State* pL) {
             lua_pushboolean(pL, *(bool*)(ptr));
         else if (type == "byte")
             lua_pushinteger(pL, *(char*)(ptr));
+        else if (type == "string") {
+            string memory_string = (char*)(ptr);
+            lua_pushstring(pL, memory_string.c_str());
+        }
         else
             lua_pushinteger(pL, *(char*)(ptr));
     }
