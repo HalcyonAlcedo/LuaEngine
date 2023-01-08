@@ -2,7 +2,7 @@
 
 轻量化的怪物猎人世界Lua模组，相比LuaScript拥有更高效的Lua代码调用性能，去除了应用较少的功能，不再提供游戏数据直接读取和修改的接口，转而开放内存读写功能，保留部分游戏调用函数。
 
-  
+
 
 ## 脚本控制指令
 
@@ -12,17 +12,25 @@
 
 
 
+## 可用的指令
+
+可用的指令可参考src/lua_register.h和src下所有hook_*.h文件中的相关绑定
+
+
+
+
 ## 有关图形绘制系统
 
 图形绘制系统使用ImGui进行操作，仅支持DX11显示。
+ImGui相关绑定可参考https://github.com/MSeys/sol2_ImGui_Bindings
 
-  
+
 
 ## 与LuaScript的兼容问题
 
 由于注册的函数不同，大部分代码是无法直接兼容的，但可以在后续通过编写lua函数库复现LuaScript中的函数功能，然后加载LuaScript中的脚本。LuaEngine和LuaScript的脚本存放目录不同，两个模组可同时运行，但是并不推荐这种方式。
 
-  
+
 
 ## LuaEngine与LuaScript功能对比
 大部分LuaEngine功能被写在数据解析引擎中，具体使用方式请参考示例脚本
