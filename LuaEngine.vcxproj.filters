@@ -130,6 +130,9 @@
     <ClInclude Include="src\sol_ImGui.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\stb_image.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc">

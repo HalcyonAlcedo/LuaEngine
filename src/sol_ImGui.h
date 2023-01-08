@@ -204,7 +204,7 @@ namespace sol_ImGui
 	inline bool SmallButton(const std::string& label)													{ return ImGui::SmallButton(label.c_str()); }
 	inline bool InvisibleButton(const std::string& stringID, float sizeX, float sizeY)					{ return ImGui::InvisibleButton(stringID.c_str(), { sizeX, sizeY }); }
 	inline bool ArrowButton(const std::string& stringID, int dir)										{ return ImGui::ArrowButton(stringID.c_str(), static_cast<ImGuiDir>(dir)); }
-	inline void Image()																					{ /* TODO: Image(...) ==> UNSUPPORTED */ }
+	inline void Image(long long texture, int width, int height)											{ ImGui::Image((void*)texture, ImVec2(width, height)); }
 	inline void ImageButton()																			{ /* TODO: ImageButton(...) ==> UNSUPPORTED */ }
 	inline std::tuple<bool, bool> Checkbox(const std::string& label, bool v)
 	{
@@ -2242,6 +2242,7 @@ namespace sol_ImGui
 		ImGui.set_function("SmallButton"					, SmallButton);
 		ImGui.set_function("InvisibleButton"				, InvisibleButton);
 		ImGui.set_function("ArrowButton"					, ArrowButton);
+		ImGui.set_function("Image"							, Image);
 		ImGui.set_function("Checkbox"						, Checkbox);
 		ImGui.set_function("RadioButton"					, sol::overload(
 																sol::resolve<bool(const std::string&, bool)>(RadioButton), 
