@@ -190,15 +190,14 @@ namespace uihook {
 			string name = (string)lua_tostring(pL, 2);
 			int image_width = (int)lua_tointeger(pL, 3);
 			int image_height = (int)lua_tointeger(pL, 4);
-			if (TextureList.end() != TextureList.find(name)) {
-				lua_pushinteger(pL, (long long)TextureList[name]);
-			}
-			else {
+			void* ret = nullptr;
+			if (TextureList.end() == TextureList.find(name)) {
 				TextureList[name] = nullptr;
 				bool texture = LoadTextureFromFile(file.c_str(), &TextureList[name], &image_width, &image_height);
 				IM_ASSERT(texture);
-				lua_pushinteger(pL, (long long)TextureList[name]);
 			}
+			ret = (void*)TextureList[name];
+			lua_pushinteger(pL, (long long)ret);
 			return 1;
 		});
 	}
