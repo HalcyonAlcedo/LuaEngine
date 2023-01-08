@@ -30,7 +30,7 @@ namespace hook_animals {
 				return original(environmental);
 			});
 		MH_ApplyQueued();
-		//注册怪物获取函数
+		//注册环境生物获取函数
 		LuaCore::Lua_register("GetAllAnimals", [](lua_State* pL) -> int
 			{
 				lua_newtable(pL);//创建一个表格，放在栈顶

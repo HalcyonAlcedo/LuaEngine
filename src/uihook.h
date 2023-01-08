@@ -39,7 +39,6 @@ void InitImGui()
 		NULL,
 		fonts->GetGlyphRangesChineseFull()
 	);
-	io.ConfigFlags = ImGuiConfigFlags_NoMouseCursorChange;
 	ImGui_ImplWin32_Init(window);
 	ImGui_ImplDX11_Init(pDevice, pContext);
 }
@@ -76,12 +75,16 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	impl::showExampleWindow("D3D11");
+	const ImGuiIO& io = ImGui::GetIO();
+	if (!io.WantCaptureMouse) {
+		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+	}
+	//impl::showExampleWindow("D3D11");
 	if (LuaCore::luaframe) {
 		LuaCore::luaframe = false;
 		LuaCore::run("on_imgui");
 	}
-		
+
 	ImGui::EndFrame();
 	ImGui::Render();
 	pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);

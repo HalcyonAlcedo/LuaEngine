@@ -30,6 +30,7 @@ namespace LuaCore {
 		return 1;
 	}
 	static int LuaErrorRecord(string error) {
+		if(error != "error in error handling")
 		LOG(ERR) << error;
 		return 1;
 	}

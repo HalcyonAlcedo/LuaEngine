@@ -16,7 +16,7 @@ engine_player = {
     Collimator = {
         straightPos = {x = 0, y = 0, z = 0},
         parabolaPos = {x = 0, y = 0, z = 0},
-        aimingState = 0
+        aimingState = false
     },
     Weapon = {
         position = {x = 0, y = 0, z = 0},
@@ -41,6 +41,23 @@ engine_player = {
             stamina_max = 0,
             stamina_eat = 0
         }
+    },
+    Action = {
+        lmtID = 0,
+        fsm = {
+            fsmID = 0,
+            fsmTarget = 0
+        }
+    },
+    Gravity = {
+        gravity = 0,
+        fall = 0,
+        liftoff = false
+    },
+    Frame = {
+        frame = 0,
+        frameEnd = 0,
+        frameSpeed = 0
     }
 }
 
@@ -133,6 +150,32 @@ function engine_player:getPlayerCharacteristic()
         }
     }
 end
+--获取玩家动作信息
+function engine_player:getPlayerActionInfo()
+    return {
+        lmtID = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0xE9C4, 'int'),
+        fsm = {
+            fsmID = GetAddressData(pointer:Player() + 0x6278, 'int'),
+            fsmTarget = GetAddressData(pointer:Player() + 0x6274, 'int')
+        }
+    }
+end
+--获取重力信息
+function engine_player:getPlayerGravityInfo()
+    return {
+        gravity = GetAddressData(pointer:Player() + 0x14B0, 'float'),
+        fall = GetAddressData(pointer:Player() + 0xE178, 'float'),
+        liftoff = GetAddressData(pointer:Player() + 0x112C, 'bool')
+    }
+end
+--获取动作帧信息
+function engine_player:getPlayerFrameInfo()
+    return {
+        frame = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x10C, 'float'),
+        frameEnd = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x114, 'float'),
+        frameSpeed = GetAddressData(pointer:Player() + 0x6c, 'float')
+    }
+end
 
 --监听
 local function traceHandle(k,v)
@@ -156,6 +199,28 @@ local function traceHandle(k,v)
         SetAddressData(pointer:Player() + 0xA58,'float',v.z)
         return
     end
+    --动作修改
+    if k == 'lmtID' then
+        RunLmtAction(v)
+        return
+    end
+    if k == 'fsm' then
+        RunFsmAction(v.fsmTarget, v.fsmID)
+        return
+    end
+    --重力修改
+    if k == 'gravity' then
+        SetAddressData(pointer:Player() + 0x14B0,'float',v)
+        return
+    end
+    if k == 'fall' then
+        SetAddressData(pointer:Player() + 0xE178,'float',v)
+        return
+    end
+    if k == 'frame' then
+        SetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x10C,'float',v)
+        return
+    end
 end
 
 local index = {}
@@ -169,7 +234,7 @@ local mt = {
     end
 }
 local function trace(t)
-	local proxy = {}   --代理
+	local proxy = {}
 	proxy[index] = t
 	setmetatable(proxy, mt)
 	return proxy
@@ -197,11 +262,20 @@ function engine_player:new()
     o.Armor = self:getPlayerArmorInfo()
     --玩家状态
     o.Characteristic = self:getPlayerCharacteristic()
+    --玩家动作
+    o.Action = self:getPlayerActionInfo()
+    --玩家重力
+    o.Gravity = self:getPlayerGravityInfo()
+    --玩家动作帧
+    o.Frame = self:getPlayerFrameInfo()
 
     --创建监听
     o.Characteristic.health = trace(o.Characteristic.health)
     o.Characteristic.stamina = trace(o.Characteristic.stamina)
     o.Position = trace(o.Position)
+    o.Action = trace(o.Action)
+    o.Gravity = trace(o.Gravity)
+    o.Frame = trace(o.Frame)
     
     setmetatable(o, self)
     self.__index = self

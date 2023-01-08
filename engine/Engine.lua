@@ -51,7 +51,7 @@ local function KeyToKeyId(Key)
         [111] = '/', [112] = 'f1', [113] = 'f2', [114] = 'f3',
         [115] = 'f4', [116] = 'f5', [117] = 'f6', [118] = 'f7',
         [119] = 'f8', [120] = 'f9', [121] = 'f10', [122] = 'f11',
-        [123] = 'f12', [144] = 'Numberlock',
+        [123] = 'f12', [144] = 'Numberlock', [192] = '~',
     }
     for id, value in pairs(keyList) do
         if string.lower(value) == string.lower(Key) then return id end
@@ -73,6 +73,7 @@ end
 --获取组合键是否按下
 function engine.keypad(Keys, Xbox)
     if Xbox == nil then Xbox = false end
+
     if type(Keys) == 'table' and next(Keys) ~= nil then
         if Xbox then
             for _, Key in pairs(Keys) do

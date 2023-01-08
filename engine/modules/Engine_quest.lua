@@ -57,7 +57,7 @@ local mt = {
     end
 }
 local function trace(t)
-	local proxy = {}   --代理
+	local proxy = {}
 	proxy[index] = t
 	setmetatable(proxy, mt)
 	return proxy

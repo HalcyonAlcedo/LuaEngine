@@ -1,20 +1,157 @@
+local openDataview = true
+local Switch_Weapon = {
+    type = 0,
+    id = 0
+}
+local FSM_Run = {
+    target = 0,
+    id = 0
+}
+local Keyboard_Shortcut  = '~'
 --游戏初始化执行的代码
 function on_init()
-    Console_Info('这是LueEngine的示例代码')
+    print('这是LueEngine的示例代码')
 end
 
 --每次切换场景执行的代码
 function on_switch_scenes()
-    local world = engine.World:new()
-    Message('当前地图：'..world.MapId)
+    
 end
 
 --每次时间变动执行的代码
 function on_time()
-    --按下小键盘5瞬移至目前准星处
-    if engine.keypad('Num5') then
-        local player = engine.Player:new()
-        player.Position.position = player.Collimator.straightPos
+    --开关数据视图
+    if engine.keypad(Keyboard_Shortcut) and
+    (CheckChronoscope('keypad_keyCD_'..Keyboard_Shortcut)
+    or not CheckPresenceChronoscope('keypad_keyCD_'..Keyboard_Shortcut))
+    then
+        AddChronoscope(1,'keypad_keyCD_'..Keyboard_Shortcut)
+        openDataview = not openDataview
+    end
+end
+
+--图形绘制代码放这里
+function on_imgui()
+    --初始化数据引擎
+    local Data_Player = engine.Player:new()
+    local Data_World = engine.World:new()
+    local Data_Quest = engine.Quest:new()
+
+    if openDataview then
+        ImGui.SetNextWindowBgAlpha(0.35)
+        ImGui.SetNextWindowSize(500, 800)
+        openDataview, shouldDraw = ImGui.Begin('数据窗口', openDataview)
+
+        --玩家数据
+        if ImGui.TreeNode("玩家数据") then
+            if ImGui.TreeNode("玩家坐标") then
+                ImGui.Text("玩家坐标")
+                ImGui.Text("X: "..Data_Player.Position.position.x)
+                ImGui.Text("Y: "..Data_Player.Position.position.y)
+                ImGui.Text("Z: "..Data_Player.Position.position.z)
+                ImGui.Text("玩家遣返坐标")
+                ImGui.Text("X: "..Data_Player.Position.reposition.x)
+                ImGui.Text("Y: "..Data_Player.Position.reposition.y)
+                ImGui.Text("Z: "..Data_Player.Position.reposition.z)
+                ImGui.TreePop()
+            end
+            if ImGui.TreeNode("准星信息") then
+                if Data_Player.Collimator.aimingState then
+                    ImGui.Text("瞄准状态: 是")
+                else
+                    ImGui.Text("瞄准状态: 否")
+                end
+                ImGui.Text("直线瞄准坐标")
+                ImGui.Text("X: "..Data_Player.Collimator.straightPos.x)
+                ImGui.Text("Y: "..Data_Player.Collimator.straightPos.y)
+                ImGui.Text("Z: "..Data_Player.Collimator.straightPos.z)
+                ImGui.Text("抛物线瞄准坐标")
+                ImGui.Text("X: "..Data_Player.Collimator.parabolaPos.x)
+                ImGui.Text("Y: "..Data_Player.Collimator.parabolaPos.y)
+                ImGui.Text("Z: "..Data_Player.Collimator.parabolaPos.z)
+                ImGui.TreePop()
+            end
+            if ImGui.TreeNode("武器信息") then
+                ImGui.Text("武器坐标")
+                ImGui.Text("X: "..Data_Player.Weapon.position.x)
+                ImGui.Text("Y: "..Data_Player.Weapon.position.y)
+                ImGui.Text("Z: "..Data_Player.Weapon.position.z)
+                ImGui.Text("武器类型: "..Data_Player.Weapon.type)
+                ImGui.Text("武器ID: "..Data_Player.Weapon.id)
+                ImGui.Separator()
+                ImGui.Text("更换武器")
+                Switch_Weapon.type = ImGui.InputInt("武器类型", Switch_Weapon.type, 1, 13)
+                Switch_Weapon.id = ImGui.InputInt("武器ID", Switch_Weapon.id)
+                if ImGui.Button("更换") then
+                    ChangeWeapons(Switch_Weapon.type, Switch_Weapon.id)
+                end
+                ImGui.TreePop()
+            end
+            if ImGui.TreeNode("玩家装备") then
+                ImGui.Text("头盔: "..Data_Player.Armor.head)
+                ImGui.Text("胸甲: "..Data_Player.Armor.chest)
+                ImGui.Text("腕甲: "..Data_Player.Armor.arm)
+                ImGui.Text("腰甲: "..Data_Player.Armor.waist)
+                ImGui.Text("鞋子: "..Data_Player.Armor.leg)
+                ImGui.TreePop()
+            end
+            if ImGui.TreeNode("状态") then
+                if ImGui.TreeNode("健康") then
+                    Data_Player.Characteristic.health.health_current = ImGui.SliderFloat("当前生命", Data_Player.Characteristic.health.health_current, 0, Data_Player.Characteristic.health.health_max)
+                    Data_Player.Characteristic.health.health_base = ImGui.SliderFloat("基础生命", Data_Player.Characteristic.health.health_base, 0, 150)
+                    ImGui.Text("最大生命: "..Data_Player.Characteristic.health.health_max)
+                    ImGui.TreePop()
+                end
+                if ImGui.TreeNode("耐力") then
+                    Data_Player.Characteristic.stamina.stamina_current = ImGui.SliderFloat("当前耐力", Data_Player.Characteristic.stamina.stamina_current, 0, Data_Player.Characteristic.stamina.stamina_max)
+                    Data_Player.Characteristic.stamina.stamina_max = ImGui.SliderFloat("最大耐力", Data_Player.Characteristic.stamina.stamina_max, 0, 150)
+                    ImGui.Text("饥饿时间: "..Data_Player.Characteristic.health.health_max)
+                    ImGui.TreePop()
+                end
+                ImGui.TreePop()
+            end
+            if ImGui.TreeNode("动作") then
+                local lmtid = ImGui.InputInt("当前动作", Data_Player.Action.lmtID)
+                if Data_Player.Action.lmtID ~= lmtid then Data_Player.Action.lmtID = lmtid end
+                ImGui.Text("动作帧大小: "..Data_Player.Frame.frameEnd)
+                ImGui.SameLine()
+                ImGui.Text("动作帧速率: "..Data_Player.Frame.frameSpeed)
+                Data_Player.Frame.frame = ImGui.InputInt("当前动作帧", Data_Player.Frame.frame)
+                ImGui.Text("派生id: "..Data_Player.Action.fsm.fsmID)
+                ImGui.Text("派生目标: "..Data_Player.Action.fsm.fsmTarget)
+                FSM_Run.target = ImGui.InputInt("派生目标", FSM_Run.target)
+                FSM_Run.id = ImGui.InputInt("派生id", FSM_Run.id)
+                if ImGui.Button("执行派生动作") then
+                    Data_Player.Action.fsm = { fsmTarget = FSM_Run.target, fsmID = FSM_Run.id }
+                end
+                ImGui.TreePop()
+            end
+            if ImGui.TreeNode("重力") then
+                Data_Player.Gravity.gravity = ImGui.InputInt("重力加速度", Data_Player.Gravity.gravity)
+                Data_Player.Gravity.fall = ImGui.InputInt("下落速度", Data_Player.Gravity.fall)
+                if Data_Player.Gravity.liftoff then
+                    ImGui.Text("是否在空中: 是")
+                else
+                    ImGui.Text("是否在空中: 否")
+                end
+                ImGui.TreePop()
+            end
+            ImGui.TreePop()
+        end
+        --世界数据
+        if ImGui.TreeNode("世界数据") then
+            ImGui.Text("世界时间: "..Data_World.Time)
+            ImGui.Text("世界ID: "..Data_World.MapId)
+            ImGui.TreePop()
+        end
+        --任务数据
+        if ImGui.TreeNode("任务数据") then
+            ImGui.Text("任务时间: "..Data_Quest.Time)
+            ImGui.Text("任务ID: "..Data_Quest.Id)
+            ImGui.Text("任务状态: "..Data_Quest.State)
+            ImGui.TreePop()
+        end
+        ImGui.End()
     end
 end
 
