@@ -1,5 +1,6 @@
 #pragma once
 #include "imgui/imgui.h"
+#include "sol_ImGui.h"
 
 using namespace loader;
 
@@ -271,18 +272,9 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
 #pragma endregion
 #pragma region UI
 //ImGui::Begin
-static int Imgui_Begin(lua_State* pL) {
-    string title = (string)lua_tostring(pL, 1);
-    ImGui::Begin(title.c_str());
-    return 0;
-}
-static int Imgui_Text(lua_State* pL) {
-    string text = (string)lua_tostring(pL, 1);
-    ImGui::Text(text.c_str());
-    return 0;
-}
-static int Imgui_End(lua_State* pL) {
-    ImGui::End();
+int Imgui_Bindings(lua_State* L) {
+    sol::state_view lua(L);
+    sol_ImGui::Init(lua);
     return 0;
 }
 #pragma endregion
@@ -348,9 +340,12 @@ static void registerFunc(lua_State* L) {
     lua_register(L, "ChangeWeapons", Game_Player_Weapon_ChangeWeapons);
 #pragma endregion
 #pragma region UI
-    lua_register(L, "Imgui_Begin", Imgui_Begin);
-    lua_register(L, "Imgui_Text", Imgui_Text);
-    lua_register(L, "Imgui_End", Imgui_End);
+    lua_register(L, "Imgui_Bindings", Imgui_Bindings);
+    if (luaL_dostring(L, "Imgui_Bindings()")) {
+        lua_error(L);
+    }
+
+    
 #pragma endregion
 
 }

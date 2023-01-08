@@ -127,6 +127,9 @@
     <ClInclude Include="deps\imgui\imstb_truetype.h">
       <Filter>资源文件\imgu</Filter>
     </ClInclude>
+    <ClInclude Include="src\sol_ImGui.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc">

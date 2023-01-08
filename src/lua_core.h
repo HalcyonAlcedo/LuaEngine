@@ -4,6 +4,8 @@
 using namespace loader;
 
 namespace LuaCore {
+	//绘制开关
+	bool luaframe = false;
 	//错误回调
 	static int LuaErrorCallBack(lua_State* L)
 	{

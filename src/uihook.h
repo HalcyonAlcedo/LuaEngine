@@ -77,7 +77,11 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	impl::showExampleWindow("D3D11");
-	//LuaCore::run("on_imgui");
+	if (LuaCore::luaframe) {
+		LuaCore::luaframe = false;
+		LuaCore::run("on_imgui");
+	}
+		
 	ImGui::EndFrame();
 	ImGui::Render();
 	pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
