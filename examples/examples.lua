@@ -95,12 +95,14 @@ function on_imgui()
                 ImGui.Separator()
                 ImGui.Text("最后命中的怪物")
                 ImGui.Text("地址 "..Data_Player.Weapon.hit)
-                ImGui.Text("怪物坐标")
-                --初始化目标怪物引擎
-                local hit_monster = engine.Monster:new(Data_Player.Weapon.hit)
-                ImGui.Text("X: "..hit_monster.Position.position.x)
-                ImGui.Text("Y: "..hit_monster.Position.position.y)
-                ImGui.Text("Z: "..hit_monster.Position.position.z)
+                if Data_Player.Weapon.hit ~= 0 then
+                    ImGui.Text("怪物坐标")
+                    --初始化目标怪物引擎
+                    local hit_monster = engine.Monster:new(Data_Player.Weapon.hit)
+                    ImGui.Text("X: "..hit_monster.Position.position.x)
+                    ImGui.Text("Y: "..hit_monster.Position.position.y)
+                    ImGui.Text("Z: "..hit_monster.Position.position.z)
+                end
                 ImGui.TreePop()
             end
             if ImGui.TreeNode("玩家装备") then
@@ -193,8 +195,8 @@ function on_imgui()
                         ImGui.TreePop()
                     end
                     if ImGui.TreeNode("状态") then
-                        Data_Monster.Characteristic.health_current = ImGui.SliderFloat("当前生命", Data_Monster.Characteristic.health_current, 0, Data_Monster.Characteristic.health_max)
-                        Data_Monster.Characteristic.health_max = ImGui.SliderFloat("最大生命", Data_Monster.Characteristic.health_max)
+                        Data_Monster.Characteristic.health_current = ImGui.InputInt("当前生命", Data_Monster.Characteristic.health_current, 0, Data_Monster.Characteristic.health_max)
+                        Data_Monster.Characteristic.health_max = ImGui.InputInt("最大生命", Data_Monster.Characteristic.health_max)
                         ImGui.TreePop()
                     end
                     if ImGui.TreeNode("动作") then
@@ -202,9 +204,7 @@ function on_imgui()
                         ImGui.Text("动作帧大小: "..Data_Monster.Frame.frameEnd)
                         ImGui.SameLine()
                         ImGui.Text("动作帧速率: "..Data_Monster.Frame.frameSpeed)
-                        ImGui.Text("当前动作帧: "..Data_Monster.Frame.Frame)
-                        ImGui.Text("派生id: "..Data_Monster.Action.fsm.fsmID)
-                        ImGui.Text("派生目标: "..Data_Monster.Action.fsm.fsmTarget)
+                        Data_Monster.Frame.frame = ImGui.InputInt("当前动作帧", Data_Monster.Frame.frame)
                         ImGui.TreePop()
                     end
                     ImGui.TreePop()
@@ -236,21 +236,12 @@ function on_imgui()
                         ImGui.Text("Z: "..Data_Animals.Model.size.z)
                         ImGui.TreePop()
                     end
-                    if ImGui.TreeNode("动作") then
-                        ImGui.Text("当前动作: "..Data_Animals.Action.lmtID)
-                        ImGui.Text("动作帧大小: "..Data_Animals.Frame.frameEnd)
-                        ImGui.SameLine()
-                        ImGui.Text("动作帧速率: "..Data_Animals.Frame.frameSpeed)
-                        ImGui.Text("当前动作帧: "..Data_Animals.Frame.Frame)
-                        ImGui.Text("派生id: "..Data_Animals.Action.fsm.fsmID)
-                        ImGui.Text("派生目标: "..Data_Animals.Action.fsm.fsmTarget)
-                        ImGui.TreePop()
-                    end
                     ImGui.TreePop()
                 end
             end
             ImGui.TreePop()
         end
+        ImGui.End()
     end
 end
 

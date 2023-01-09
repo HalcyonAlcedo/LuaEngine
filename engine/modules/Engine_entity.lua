@@ -15,18 +15,6 @@ engine_entity = {
     },
     Model = {
         size = {x = 0, y = 0, z = 0}
-    },
-    Action = {
-        lmtID = 0,
-        fsm = {
-            fsmID = 0,
-            fsmTarget = 0
-        }
-    },
-    Frame = {
-        frame = 0,
-        frameEnd = 0,
-        frameSpeed = 0
     }
 }
 
@@ -61,25 +49,6 @@ function engine_entity:getEntityModelSize()
         z = GetAddressData(pointer.Entity + 0x188, 'float')
     }
 end
---获取实体动作信息
-function engine_entity:getEntityActionInfo()
-    if pointer.Entity == nil then return {lmtID = 0, fsm = {fsmID = 0, fsmTarget = 0}} end
-    return {
-        lmtID = GetAddressData(GetAddress(pointer.Entity, { 0x468 }) + 0xE9C4, 'int'),
-        fsm = {
-            fsmID = GetAddressData(pointer.Entity + 0x6278, 'int'),
-            fsmTarget = GetAddressData(pointer.Entity + 0x6274, 'int')
-        }
-    }
-end
---获取动作帧信息
-function engine_entity:getEntityFrameInfo()
-    return {
-        frame = GetAddressData(GetAddress(pointer.Entity, { 0x468 }) + 0x10C, 'float'),
-        frameEnd = GetAddressData(GetAddress(pointer.Entity, { 0x468 }) + 0x114, 'float'),
-        frameSpeed = GetAddressData(pointer.Entity + 0x6c, 'float')
-    }
-end
 
 --监听
 local function traceHandle(k,v)
@@ -103,11 +72,6 @@ local function traceHandle(k,v)
         SetAddressData(pointer.Entity + 0xA50,'float',v.x)
         SetAddressData(pointer.Entity + 0xA54,'float',v.y)
         SetAddressData(pointer.Entity + 0xA58,'float',v.z)
-        return
-    end
-    --动作帧修改
-    if k == 'frame' then
-        SetAddressData(GetAddress(pointer.Entity, { 0x468 }) + 0x10C,'float',v)
         return
     end
     
@@ -142,15 +106,10 @@ function engine_entity:new(entity)
     o.Model = {
         size = self:getEntityModelSize(),
     }
-    --实体动作
-    o.Action = self:getEntityActionInfo()
-    --实体动作帧
-    o.Frame = self:getEntityFrameInfo()
-
     --创建监听
     o.Position = trace(o.Position)
     o.Model = trace(o.Model)
-
+    
     setmetatable(o, self)
     self.__index = self
     return o

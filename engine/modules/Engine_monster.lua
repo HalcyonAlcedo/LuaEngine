@@ -21,11 +21,7 @@ engine_monster = {
         health_max = 0
     },
     Action = {
-        lmtID = 0,
-        fsm = {
-            fsmID = 0,
-            fsmTarget = 0
-        }
+        lmtID = 0
     },
     Frame = {
         frame = 0,
@@ -69,19 +65,15 @@ end
 function engine_monster:getMonsterCharacteristic()
     if pointer.Monster == nil then return {health_current = 0, health_max = 0} end
     return {
-        health_current = GetAddressData(GetAddress(pointer.Monster, { 0x7630 }) + 0x64, 'float'),
-        health_max = GetAddressData(GetAddress(pointer.Monster, { 0x7630 }) + 0x60, 'float'),
+        health_current = GetAddressData(GetAddress(pointer.Monster, { 0x7670 }) + 0x64, 'float'),
+        health_max = GetAddressData(GetAddress(pointer.Monster, { 0x7670 }) + 0x60, 'float'),
     }
 end
 --获取怪物动作信息
 function engine_monster:getMonsterActionInfo()
     if pointer.Monster == nil then return {lmtID = 0, fsm = {fsmID = 0, fsmTarget = 0}} end
     return {
-        lmtID = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0xE9C4, 'int'),
-        fsm = {
-            fsmID = GetAddressData(pointer.Monster + 0x6278, 'int'),
-            fsmTarget = GetAddressData(pointer.Monster + 0x6274, 'int')
-        }
+        lmtID = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0xE9C4, 'int')
     }
 end
 --获取动作帧信息
@@ -97,8 +89,8 @@ end
 local function traceHandle(k,v)
     if pointer.Monster == nil then return end
     --健康修改
-    if k == 'health_base' then SetAddressData(pointer.Monster + 0x7628, 'float', v) return end
-    if k == 'health_current' then SetAddressData(GetAddress(pointer.Monster, { 0x7630 }) + 0x64, 'float', v) return end
+    if k == 'health_current' then SetAddressData(GetAddress(pointer.Monster, { 0x7670 }) + 0x64, 'float', v) return end
+    if k == 'health_max' then SetAddressData(GetAddress(pointer.Monster, { 0x7670 }) + 0x60, 'float', v) return end
     --坐标修改
     if k == 'position' then
         SetAddressData(pointer.Monster + 0x160,'float',v.x)
@@ -155,7 +147,7 @@ function engine_monster:new(monster)
     }
     --怪物模型
     o.Model = {
-        size = self:getMonsterModelSize(),
+        size = self:getMonsterModelSize()
     }
     --怪物状态
     o.Characteristic = self:getMonsterCharacteristic()
@@ -168,7 +160,7 @@ function engine_monster:new(monster)
     o.Characteristic.health = trace(o.Characteristic.health)
     o.Position = trace(o.Position)
     o.Model = trace(o.Model)
-
+    
     setmetatable(o, self)
     self.__index = self
     return o

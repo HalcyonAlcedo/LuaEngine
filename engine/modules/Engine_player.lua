@@ -136,7 +136,7 @@ function engine_player:getPlayerWeaponInfo()
         --武器Id
         id = GetAddressData(pointer.Weapon:Data() + 0x2EC, 'int'),
         --武器命中的怪物地址
-        hit = GetAddressData(pointer:PlayerData() + 0x2C8, 'int'),
+        hit = GetAddress(pointer:PlayerData(), { 0x2C8 })
     }
 end
 --获取玩家装备信息
