@@ -1,10 +1,14 @@
 --[[
     玩家数据
     Position                坐标信息
+    Model                   模型信息
     Collimator              准星信息
     Weapon                  武器信息
     Equip                   装备信息
     Characteristic          属性信息
+    Action                  动作信息
+    Gravity                 重力信息
+    Frame                   动作帧信息
 
     方法
 ]]
@@ -12,6 +16,9 @@ engine_player = {
     Position = {
         position = {x = 0, y = 0, z = 0},
         reposition = {x = 0, y = 0, z = 0}
+    },
+    Model = {
+        size = {x = 0, y = 0, z = 0},
     },
     Collimator = {
         straightPos = {x = 0, y = 0, z = 0},
@@ -83,6 +90,14 @@ function engine_player:getPlayerRepatriatePos()
         x = GetAddressData(pointer:Player() + 0xA50, 'float'),
         y = GetAddressData(pointer:Player() + 0xA54, 'float'),
         z = GetAddressData(pointer:Player() + 0xA58, 'float')
+    }
+end
+--获取玩家模型大小
+function engine_player:getPlayerModelSize()
+    return {
+        x = GetAddressData(pointer:Player() + 0x180, 'float'),
+        y = GetAddressData(pointer:Player() + 0x184, 'float'),
+        z = GetAddressData(pointer:Player() + 0x188, 'float')
     }
 end
 --获取玩家准星指向坐标
@@ -199,6 +214,13 @@ local function traceHandle(k,v)
         SetAddressData(pointer:Player() + 0xA58,'float',v.z)
         return
     end
+    --模型大小修改
+    if k == 'size' then
+        SetAddressData(pointer:Player() + 0x180,'float',v.x)
+        SetAddressData(pointer:Player() + 0x184,'float',v.y)
+        SetAddressData(pointer:Player() + 0x188,'float',v.z)
+        return
+    end
     --动作修改
     if k == 'lmtID' then
         RunLmtAction(v)
@@ -217,6 +239,7 @@ local function traceHandle(k,v)
         SetAddressData(pointer:Player() + 0xE178,'float',v)
         return
     end
+    --动作帧修改
     if k == 'frame' then
         SetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x10C,'float',v)
         return
@@ -247,6 +270,10 @@ function engine_player:new()
         position = self:getPlayerPosition(),
         reposition = self:getPlayerRepatriatePos()
     }
+    --玩家模型
+    o.Model = {
+        size = self:getPlayerModelSize(),
+    }
     --玩家瞄准信息
     o.Collimator = {
         --直线坐标
@@ -273,6 +300,7 @@ function engine_player:new()
     o.Characteristic.health = trace(o.Characteristic.health)
     o.Characteristic.stamina = trace(o.Characteristic.stamina)
     o.Position = trace(o.Position)
+    o.Model = trace(o.Model)
     o.Action = trace(o.Action)
     o.Gravity = trace(o.Gravity)
     o.Frame = trace(o.Frame)

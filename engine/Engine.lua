@@ -6,6 +6,8 @@
 require "modules/Engine_player"
 require "modules/Engine_world"
 require "modules/Engine_quest"
+require "modules/Engine_monster"
+require "modules/Engine_entity"
 
 _G.print = function(t) Console_Info(t) end
 
@@ -14,6 +16,8 @@ engine = {}
 engine.Player = engine_player
 engine.World = engine_world
 engine.Quest = engine_quest
+engine.Monster = engine_monster
+engine.Entity = engine_entity
 
 --[[
     按键处理引擎
