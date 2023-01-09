@@ -257,6 +257,7 @@ static int Game_Player_RunLmtAction(lua_State* pL) {
     MH::Player::CallLmt((undefined*)PlayerPlot, id, 0);
     return 0;
 }
+//切换武器
 static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
     int type = (int)lua_tointeger(pL, 1);
     int id = (int)lua_tointeger(pL, 2);
@@ -272,6 +273,93 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
             MH::Weapon::ChangeWeapon(PlayerPlot, type, id);
     }
     return 0;
+}
+//发射投射物
+struct Vector3 {
+    float x, y, z;
+    Vector3(float x = 0, float y = 0, float z = 0) :x(x), y(y), z(z) { };
+};
+//执行投射物生成
+static bool CallProjectilesGenerate(int Id, float* Coordinate, void* FromPtr = nullptr) {
+    void* ShlpRoute = MH::Shlp::GetShlp(FromPtr, Id);
+    if (ShlpRoute == nullptr)
+        return false;
+    ShlpRoute = *offsetPtr<void*>(ShlpRoute, 0x8);
+    MH::Shlp::CallShlp(ShlpRoute, *(undefined**)MH::Player::PlayerBasePlot, *(undefined**)MH::Player::PlayerBasePlot, Coordinate);
+    return true;
+}
+//处理投射物路径数据
+static void GenerateProjectilesCoordinateData(float*& CalculationCoordinates, Vector3 startPoint, Vector3 endPoint) {
+    //缓存指针
+    float* temp_float = CalculationCoordinates;
+    //写入起始坐标
+    *temp_float = startPoint.x;
+    temp_float++;
+    *temp_float = startPoint.y;
+    temp_float++;
+    *temp_float = startPoint.z;
+    temp_float++;
+    //起始坐标写入完成，空4个字节
+    *temp_float = 0;
+    temp_float++;
+    //更换指针为单字节并写入1
+    unsigned char* temp_byte = (unsigned char*)temp_float;
+    *temp_byte = 1;
+
+    //重设缓存指针至坐标地址40处
+    temp_float = offsetPtr<float>(CalculationCoordinates, 0x40);
+    //写入结束坐标
+    *temp_float = endPoint.x;
+    temp_float++;
+    *temp_float = endPoint.y;
+    temp_float++;
+    *temp_float = endPoint.z;
+    temp_float++;
+    //结束坐标写入完成，空4个字节
+    *temp_float = 0;
+    temp_float++;
+    //更换指针为单字节并写入1
+    temp_byte = (unsigned char*)temp_float;
+    *temp_byte = 1;
+
+    //重设缓存指针至坐标地址A0处
+    int* tempCoordinateTailData = offsetPtr<int>(CalculationCoordinates, 0xA0);
+    //写入坐标数据尾部信息
+    *tempCoordinateTailData = 0x12;
+    tempCoordinateTailData++;
+    longlong* tempCoordinateTailData_longlong = (longlong*)tempCoordinateTailData;
+    *tempCoordinateTailData_longlong = -1;
+}
+//生成投射物
+static bool CreateProjectiles(int Id, Vector3 startPoint, Vector3 endPoint, void* FromPtr = nullptr) {
+    //创建投射物路径数据缓存指针
+    float* CoordinatesData = new float[73];
+    //填充缓存区数据
+    memset(CoordinatesData, 0, 73 * 4);
+    //处理投射物路径数据
+    GenerateProjectilesCoordinateData(CoordinatesData, startPoint, endPoint);
+    //执行生成投射物
+    bool GenerateResults = CallProjectilesGenerate(Id, CoordinatesData, FromPtr);
+    //清理缓冲区
+    delete[]CoordinatesData;
+    return GenerateResults;
+}
+static int Game_Player_CreateProjectiles(lua_State* pL) {
+    int id = (int)lua_tointeger(pL, 1);
+    float startx = (float)lua_tonumber(pL, 2);
+    float starty = (float)lua_tonumber(pL, 3);
+    float startz = (float)lua_tonumber(pL, 4);
+    float endx = (float)lua_tonumber(pL, 5);
+    float endy = (float)lua_tonumber(pL, 6);
+    float endz = (float)lua_tonumber(pL, 7);
+    long long entity = (long long)lua_tointeger(pL, 8);
+    void* EntityAddress = (void*)entity;
+    if (EntityAddress != nullptr) {
+        lua_pushboolean(pL, CreateProjectiles(
+            id, Vector3(startx, starty, startz), Vector3(endx, endy, endz), EntityAddress
+        ));
+    }
+    return 1;
 }
 #pragma endregion
 #pragma region UI
@@ -342,6 +430,8 @@ static void registerFunc(lua_State* L) {
     lua_register(L, "RunLmtAction", Game_Player_RunLmtAction);
     //更换玩家武器
     lua_register(L, "ChangeWeapons", Game_Player_Weapon_ChangeWeapons);
+    //发射投射物
+    lua_register(L, "CreateProjectiles", Game_Player_CreateProjectiles);
 #pragma endregion
 #pragma region UI
     lua_register(L, "Imgui_Bindings", Imgui_Bindings);
