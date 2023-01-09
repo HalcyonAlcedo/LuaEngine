@@ -53,13 +53,22 @@ HRESULT __stdcall hkResize(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
 {
 	mainRenderTargetView->Release();
 	mainRenderTargetView = nullptr;
-	ViewInit = false;
-	GameInit = false;
+
+	ID3D11Texture2D* pBuffer;
+	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
+	// Perform error handling here!
+
+	pDevice->CreateRenderTargetView(pBuffer, NULL, &mainRenderTargetView);
+	// Perform error handling here!
+	pBuffer->Release();
+
+	pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
+
 	return oResize(pSwapChain, SyncInterval, Flags);
 }
 HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
-	if (!ViewInit && GameInit)
+	if (!ViewInit)
 	{
 		if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&pDevice)))
 		{
