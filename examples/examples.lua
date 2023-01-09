@@ -55,6 +55,13 @@ function on_imgui()
                 ImGui.Text("Z: "..Data_Player.Position.reposition.z)
                 ImGui.TreePop()
             end
+            if ImGui.TreeNode("玩家模型") then
+                ImGui.Text("模型大小")
+                ImGui.Text("X: "..Data_Player.Model.size.x)
+                ImGui.Text("Y: "..Data_Player.Model.size.y)
+                ImGui.Text("Z: "..Data_Player.Model.size.z)
+                ImGui.TreePop()
+            end
             if ImGui.TreeNode("准星信息") then
                 if Data_Player.Collimator.aimingState then
                     ImGui.Text("瞄准状态: 是")
@@ -85,6 +92,15 @@ function on_imgui()
                 if ImGui.Button("更换") then
                     ChangeWeapons(Switch_Weapon.type, Switch_Weapon.id)
                 end
+                ImGui.Separator()
+                ImGui.Text("最后命中的怪物")
+                ImGui.Text("地址 "..Data_Player.Weapon.hit)
+                ImGui.Text("怪物坐标")
+                --初始化目标怪物引擎
+                local hit_monster = engine.Monster:new(Data_Player.Weapon.hit)
+                ImGui.Text("X: "..hit_monster.Position.position.x)
+                ImGui.Text("Y: "..hit_monster.Position.position.y)
+                ImGui.Text("Z: "..hit_monster.Position.position.z)
                 ImGui.TreePop()
             end
             if ImGui.TreeNode("玩家装备") then
@@ -119,6 +135,7 @@ function on_imgui()
                 Data_Player.Frame.frame = ImGui.InputInt("当前动作帧", Data_Player.Frame.frame)
                 ImGui.Text("派生id: "..Data_Player.Action.fsm.fsmID)
                 ImGui.Text("派生目标: "..Data_Player.Action.fsm.fsmTarget)
+                ImGui.Separator()
                 FSM_Run.target = ImGui.InputInt("派生目标", FSM_Run.target)
                 FSM_Run.id = ImGui.InputInt("派生id", FSM_Run.id)
                 if ImGui.Button("执行派生动作") then
@@ -151,7 +168,89 @@ function on_imgui()
             ImGui.Text("任务状态: "..Data_Quest.State)
             ImGui.TreePop()
         end
-        ImGui.End()
+        --怪物数据
+        if ImGui.TreeNode("怪物数据") then
+            local monsterList = GetAllMonster()
+            for monster, monsterData in pairs(monsterList) do
+                local Data_Monster = engine.Monster:new(monster)
+                if ImGui.TreeNode("怪物"..monsterData.Id.." _ "..monster) then
+                    if ImGui.TreeNode("怪物坐标") then
+                        ImGui.Text("怪物坐标")
+                        ImGui.Text("X: "..Data_Monster.Position.position.x)
+                        ImGui.Text("Y: "..Data_Monster.Position.position.y)
+                        ImGui.Text("Z: "..Data_Monster.Position.position.z)
+                        ImGui.Text("怪物遣返坐标")
+                        ImGui.Text("X: "..Data_Monster.Position.reposition.x)
+                        ImGui.Text("Y: "..Data_Monster.Position.reposition.y)
+                        ImGui.Text("Z: "..Data_Monster.Position.reposition.z)
+                        ImGui.TreePop()
+                    end
+                    if ImGui.TreeNode("怪物模型") then
+                        ImGui.Text("模型大小")
+                        ImGui.Text("X: "..Data_Monster.Model.size.x)
+                        ImGui.Text("Y: "..Data_Monster.Model.size.y)
+                        ImGui.Text("Z: "..Data_Monster.Model.size.z)
+                        ImGui.TreePop()
+                    end
+                    if ImGui.TreeNode("状态") then
+                        Data_Monster.Characteristic.health_current = ImGui.SliderFloat("当前生命", Data_Monster.Characteristic.health_current, 0, Data_Monster.Characteristic.health_max)
+                        Data_Monster.Characteristic.health_max = ImGui.SliderFloat("最大生命", Data_Monster.Characteristic.health_max)
+                        ImGui.TreePop()
+                    end
+                    if ImGui.TreeNode("动作") then
+                        ImGui.Text("当前动作: "..Data_Monster.Action.lmtID)
+                        ImGui.Text("动作帧大小: "..Data_Monster.Frame.frameEnd)
+                        ImGui.SameLine()
+                        ImGui.Text("动作帧速率: "..Data_Monster.Frame.frameSpeed)
+                        ImGui.Text("当前动作帧: "..Data_Monster.Frame.Frame)
+                        ImGui.Text("派生id: "..Data_Monster.Action.fsm.fsmID)
+                        ImGui.Text("派生目标: "..Data_Monster.Action.fsm.fsmTarget)
+                        ImGui.TreePop()
+                    end
+                    ImGui.TreePop()
+                end
+            end
+            ImGui.TreePop()
+        end
+        --环境生物数据
+        if ImGui.TreeNode("环境生物数据") then
+            local animalsList = GetAllAnimals()
+            for animals, animalsData in pairs(animalsList) do
+                local Data_Animals = engine.Entity:new(animals)
+                if ImGui.TreeNode("环境生物"..animalsData.Id.." _ "..animals) then
+                    if ImGui.TreeNode("环境生物坐标") then
+                        ImGui.Text("环境生物坐标")
+                        ImGui.Text("X: "..Data_Animals.Position.position.x)
+                        ImGui.Text("Y: "..Data_Animals.Position.position.y)
+                        ImGui.Text("Z: "..Data_Animals.Position.position.z)
+                        ImGui.Text("环境生物遣返坐标")
+                        ImGui.Text("X: "..Data_Animals.Position.reposition.x)
+                        ImGui.Text("Y: "..Data_Animals.Position.reposition.y)
+                        ImGui.Text("Z: "..Data_Animals.Position.reposition.z)
+                        ImGui.TreePop()
+                    end
+                    if ImGui.TreeNode("环境生物模型") then
+                        ImGui.Text("模型大小")
+                        ImGui.Text("X: "..Data_Animals.Model.size.x)
+                        ImGui.Text("Y: "..Data_Animals.Model.size.y)
+                        ImGui.Text("Z: "..Data_Animals.Model.size.z)
+                        ImGui.TreePop()
+                    end
+                    if ImGui.TreeNode("动作") then
+                        ImGui.Text("当前动作: "..Data_Animals.Action.lmtID)
+                        ImGui.Text("动作帧大小: "..Data_Animals.Frame.frameEnd)
+                        ImGui.SameLine()
+                        ImGui.Text("动作帧速率: "..Data_Animals.Frame.frameSpeed)
+                        ImGui.Text("当前动作帧: "..Data_Animals.Frame.Frame)
+                        ImGui.Text("派生id: "..Data_Animals.Action.fsm.fsmID)
+                        ImGui.Text("派生目标: "..Data_Animals.Action.fsm.fsmTarget)
+                        ImGui.TreePop()
+                    end
+                    ImGui.TreePop()
+                end
+            end
+            ImGui.TreePop()
+        end
     end
 end
 

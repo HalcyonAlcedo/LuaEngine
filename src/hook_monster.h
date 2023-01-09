@@ -32,25 +32,27 @@ namespace hook_monster {
 				return original(monster);
 			});
 		MH_ApplyQueued();
+	}
+	static void Registe() {
 		//注册怪物获取函数
-		LuaCore::Lua_register("GetAllMonster", [](lua_State * pL) -> int
-		{
-			lua_newtable(pL);//创建一个表格，放在栈顶
-			for (auto [monster, monsterData] : Monsters) {
-				if (monster != nullptr) {
-					lua_pushinteger(pL, (long long)monster);//压入地址
-					lua_newtable(pL);//压入编号信息表
-					lua_pushstring(pL, "Id");//怪物Id
-					lua_pushinteger(pL, monsterData.Id);
-					lua_settable(pL, -3);
-					lua_pushstring(pL, "SubId");//怪物SubId
-					lua_pushinteger(pL, monsterData.SubId);
-					lua_settable(pL, -3);
-					lua_settable(pL, -3);//弹出到顶层
-				}
+		LuaCore::Lua_register("GetAllMonster", [](lua_State* pL) -> int
+			{
+				lua_newtable(pL);//创建一个表格，放在栈顶
+		for (auto [monster, monsterData] : Monsters) {
+			if (monster != nullptr) {
+				lua_pushinteger(pL, (long long)monster);//压入地址
+				lua_newtable(pL);//压入编号信息表
+				lua_pushstring(pL, "Id");//怪物Id
+				lua_pushinteger(pL, monsterData.Id);
+				lua_settable(pL, -3);
+				lua_pushstring(pL, "SubId");//怪物SubId
+				lua_pushinteger(pL, monsterData.SubId);
+				lua_settable(pL, -3);
+				lua_settable(pL, -3);//弹出到顶层
 			}
-			return 1;
-		});
+		}
+		return 1;
+			});
 	}
 }
 #pragma endregion

@@ -29,7 +29,18 @@ ID3D11Device* pDevice = NULL;
 ID3D11DeviceContext* pContext = NULL;
 ID3D11RenderTargetView* mainRenderTargetView;
 
-map<string, ID3D11ShaderResourceView*> TextureList;
+//纹理
+struct Texture {
+	int width = 0;
+	int height = 0;
+	ID3D11ShaderResourceView* texture = NULL;
+	Texture(
+		int width = 0,
+		int height = 0,
+		ID3D11ShaderResourceView* texture = NULL
+	) :width(width), height(height), texture(texture) { };
+};
+map<string, Texture> TextureList;
 
 static bool ViewInit = false;
 static bool GameInit = false;
@@ -53,7 +64,7 @@ HRESULT __stdcall hkResize(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
 {
 	mainRenderTargetView->Release();
 	mainRenderTargetView = nullptr;
-
+	/*
 	ID3D11Texture2D* pBuffer;
 	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
 	// Perform error handling here!
@@ -63,7 +74,8 @@ HRESULT __stdcall hkResize(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT F
 	pBuffer->Release();
 
 	pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
-
+	*/
+	LOG(ERR) << utils::UTF8_To_string("d3d11发生异常，已禁用图形绘制系统，此问题已知不用联系作者，重启游戏即可修复！");
 	return oResize(pSwapChain, SyncInterval, Flags);
 }
 HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
@@ -197,17 +209,34 @@ namespace uihook {
 		{
 			string file = (string)lua_tostring(pL, 1);
 			string name = (string)lua_tostring(pL, 2);
-			int image_width = 0;
-			int image_height = 0;
 			void* ret = nullptr;
-			TextureList[name] = nullptr;
-			bool texture = LoadTextureFromFile(file.c_str(), &TextureList[name], &image_width, &image_height);
+			TextureList[name] = Texture(0,0, NULL);
+			bool texture = LoadTextureFromFile(file.c_str(), &TextureList[name].texture, &TextureList[name].width, &TextureList[name].height);
 			IM_ASSERT(texture);
-			ret = (void*)TextureList[name];
+			ret = (void*)TextureList[name].texture;
 			lua_pushinteger(pL, (long long)ret);
-			lua_pushinteger(pL, image_width);
-			lua_pushinteger(pL, image_height);
+			lua_pushinteger(pL, TextureList[name].width);
+			lua_pushinteger(pL, TextureList[name].height);
 			return 3;
+		});
+		LuaCore::Lua_register("TextureList", [](lua_State* pL) -> int
+		{
+			lua_newtable(pL);//创建一个表格，放在栈顶
+			for (auto [name, texture] : TextureList) {
+				lua_pushstring(pL, name.c_str());
+				lua_newtable(pL);//压入编号信息表
+				lua_pushstring(pL, "texture");
+				lua_pushinteger(pL, (long long)texture.texture);
+				lua_settable(pL, -3);
+				lua_pushstring(pL, "width");
+				lua_pushinteger(pL, texture.width);
+				lua_settable(pL, -3);
+				lua_pushstring(pL, "height");
+				lua_pushinteger(pL, texture.height);
+				lua_settable(pL, -3);
+				lua_settable(pL, -3);//弹出到顶层
+			}
+			return 1;
 		});
 	}
 }

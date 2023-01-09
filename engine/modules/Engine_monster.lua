@@ -35,94 +35,94 @@ engine_monster = {
 }
 
 local pointer = {
-    Monster = nil,
+    Monster = nil
 }
 
 --获取怪物坐标
 function engine_monster:getMonsterPosition()
-    if pointer:Monster == nil then return {x = 0, y = 0, z = 0} end
+    if pointer.Monster == nil then return {x = 0, y = 0, z = 0} end
     return {
-        x = GetAddressData(pointer:Monster + 0x160, 'float'),
-        y = GetAddressData(pointer:Monster + 0x164, 'float'),
-        z = GetAddressData(pointer:Monster + 0x168, 'float')
+        x = GetAddressData(pointer.Monster + 0x160, 'float'),
+        y = GetAddressData(pointer.Monster + 0x164, 'float'),
+        z = GetAddressData(pointer.Monster + 0x168, 'float')
     }
 end
 --获取遣返坐标
 function engine_monster:getMonsterRepatriatePos()
-    if pointer:Monster == nil then return {x = 0, y = 0, z = 0} end
+    if pointer.Monster == nil then return {x = 0, y = 0, z = 0} end
     return {
-        x = GetAddressData(pointer:Monster + 0xA50, 'float'),
-        y = GetAddressData(pointer:Monster + 0xA54, 'float'),
-        z = GetAddressData(pointer:Monster + 0xA58, 'float')
+        x = GetAddressData(pointer.Monster + 0xA50, 'float'),
+        y = GetAddressData(pointer.Monster + 0xA54, 'float'),
+        z = GetAddressData(pointer.Monster + 0xA58, 'float')
     }
 end
 --获取怪物模型大小
 function engine_monster:getMonsterModelSize()
-    if pointer:Monster == nil then return {x = 0, y = 0, z = 0} end
+    if pointer.Monster == nil then return {x = 0, y = 0, z = 0} end
     return {
-        x = GetAddressData(pointer:Monster + 0x180, 'float'),
-        y = GetAddressData(pointer:Monster + 0x184, 'float'),
-        z = GetAddressData(pointer:Monster + 0x188, 'float')
+        x = GetAddressData(pointer.Monster + 0x180, 'float'),
+        y = GetAddressData(pointer.Monster + 0x184, 'float'),
+        z = GetAddressData(pointer.Monster + 0x188, 'float')
     }
 end
 --获取怪物状态信息
 function engine_monster:getMonsterCharacteristic()
-    if pointer:Monster == nil then return {health_current = 0, health_max = 0} end
+    if pointer.Monster == nil then return {health_current = 0, health_max = 0} end
     return {
-        health_current = GetAddressData(GetAddress(pointer:Monster, { 0x7630 }) + 0x64, 'float'),
-        health_max = GetAddressData(GetAddress(pointer:Monster, { 0x7630 }) + 0x60, 'float'),
+        health_current = GetAddressData(GetAddress(pointer.Monster, { 0x7630 }) + 0x64, 'float'),
+        health_max = GetAddressData(GetAddress(pointer.Monster, { 0x7630 }) + 0x60, 'float'),
     }
 end
 --获取怪物动作信息
 function engine_monster:getMonsterActionInfo()
-    if pointer:Monster == nil then return {lmtID = 0, fsm = {fsmID = 0, fsmTarget = 0}} end
+    if pointer.Monster == nil then return {lmtID = 0, fsm = {fsmID = 0, fsmTarget = 0}} end
     return {
-        lmtID = GetAddressData(GetAddress(pointer:Monster, { 0x468 }) + 0xE9C4, 'int'),
+        lmtID = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0xE9C4, 'int'),
         fsm = {
-            fsmID = GetAddressData(pointer:Monster + 0x6278, 'int'),
-            fsmTarget = GetAddressData(pointer:Monster + 0x6274, 'int')
+            fsmID = GetAddressData(pointer.Monster + 0x6278, 'int'),
+            fsmTarget = GetAddressData(pointer.Monster + 0x6274, 'int')
         }
     }
 end
 --获取动作帧信息
 function engine_monster:getMonsterFrameInfo()
     return {
-        frame = GetAddressData(GetAddress(pointer:Monster, { 0x468 }) + 0x10C, 'float'),
-        frameEnd = GetAddressData(GetAddress(pointer:Monster, { 0x468 }) + 0x114, 'float'),
-        frameSpeed = GetAddressData(pointer:Monster + 0x6c, 'float')
+        frame = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x10C, 'float'),
+        frameEnd = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x114, 'float'),
+        frameSpeed = GetAddressData(pointer.Monster + 0x6c, 'float')
     }
 end
 
 --监听
 local function traceHandle(k,v)
-    if pointer:Monster == nil then return end
+    if pointer.Monster == nil then return end
     --健康修改
-    if k == 'health_base' then SetAddressData(pointer:Monster + 0x7628, 'float', v) return end
-    if k == 'health_current' then SetAddressData(GetAddress(pointer:Monster, { 0x7630 }) + 0x64, 'float', v) return end
+    if k == 'health_base' then SetAddressData(pointer.Monster + 0x7628, 'float', v) return end
+    if k == 'health_current' then SetAddressData(GetAddress(pointer.Monster, { 0x7630 }) + 0x64, 'float', v) return end
     --坐标修改
     if k == 'position' then
-        SetAddressData(pointer:Monster + 0x160,'float',v.x)
-        SetAddressData(pointer:Monster + 0x164,'float',v.y)
-        SetAddressData(pointer:Monster + 0x168,'float',v.z)
+        SetAddressData(pointer.Monster + 0x160,'float',v.x)
+        SetAddressData(pointer.Monster + 0x164,'float',v.y)
+        SetAddressData(pointer.Monster + 0x168,'float',v.z)
         return
     end
     --模型大小修改
     if k == 'size' then
-        SetAddressData(pointer:Monster + 0x180,'float',v.x)
-        SetAddressData(pointer:Monster + 0x184,'float',v.y)
-        SetAddressData(pointer:Monster + 0x188,'float',v.z)
+        SetAddressData(pointer.Monster + 0x180,'float',v.x)
+        SetAddressData(pointer.Monster + 0x184,'float',v.y)
+        SetAddressData(pointer.Monster + 0x188,'float',v.z)
         return
     end
     --遣返坐标修改
     if k == 'reposition' then
-        SetAddressData(pointer:Monster + 0xA50,'float',v.x)
-        SetAddressData(pointer:Monster + 0xA54,'float',v.y)
-        SetAddressData(pointer:Monster + 0xA58,'float',v.z)
+        SetAddressData(pointer.Monster + 0xA50,'float',v.x)
+        SetAddressData(pointer.Monster + 0xA54,'float',v.y)
+        SetAddressData(pointer.Monster + 0xA58,'float',v.z)
         return
     end
     --动作帧修改
     if k == 'frame' then
-        SetAddressData(GetAddress(pointer:Monster, { 0x468 }) + 0x10C,'float',v)
+        SetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x10C,'float',v)
         return
     end
     
@@ -147,7 +147,7 @@ end
 
 function engine_monster:new(monster)
     local o = {}
-    self:pointer.Monster = monster
+    pointer.Monster = monster
     --怪物坐标
     o.Position = {
         position = self:getMonsterPosition(),

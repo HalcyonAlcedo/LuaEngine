@@ -28,7 +28,8 @@ engine_player = {
     Weapon = {
         position = {x = 0, y = 0, z = 0},
         type = 0,
-        id = 0
+        id = 0,
+        hit = 0
     },
     Armor = {
         head = 0,
@@ -70,6 +71,7 @@ engine_player = {
 
 local pointer = {
     Player = function() return GetAddress(0x145073ED0,{ 0x50 }) end,
+    PlayerData = function() return GetAddress(0x14522C850,{ 0x48, 0x58, 0x58, 0x40, 0xD0, 0x8 }) end,
     Weapon = {
         Entity = function() return GetAddress(0x145073ED0,{ 0x50, 0x76B0 }) end,
         Data = function() return GetAddress(0x145073ED0,{ 0x50, 0xc0, 0x8, 0x78 }) end
@@ -132,7 +134,9 @@ function engine_player:getPlayerWeaponInfo()
         --武器类型
         type = GetAddressData(pointer.Weapon:Data() + 0x2E8, 'int'),
         --武器Id
-        id = GetAddressData(pointer.Weapon:Data() + 0x2EC, 'int')
+        id = GetAddressData(pointer.Weapon:Data() + 0x2EC, 'int'),
+        --武器命中的怪物地址
+        hit = GetAddressData(pointer:PlayerData() + 0x2C8, 'int'),
     }
 end
 --获取玩家装备信息

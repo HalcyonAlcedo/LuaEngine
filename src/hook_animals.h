@@ -30,24 +30,26 @@ namespace hook_animals {
 				return original(environmental);
 			});
 		MH_ApplyQueued();
+	}
+	static void Registe() {
 		//注册环境生物获取函数
 		LuaCore::Lua_register("GetAllAnimals", [](lua_State* pL) -> int
 			{
 				lua_newtable(pL);//创建一个表格，放在栈顶
-				for (auto [animals, animalsData] : Animals) {
-					if (animals != nullptr) {
-						lua_pushinteger(pL, (long long)animals);//压入地址
-						lua_newtable(pL);//压入编号信息表
-						lua_pushstring(pL, "Id");//生物Id
-						lua_pushinteger(pL, animalsData.Id);
-						lua_settable(pL, -3);
-						lua_pushstring(pL, "SubId");//生物SubId
-						lua_pushinteger(pL, animalsData.SubId);
-						lua_settable(pL, -3);
-						lua_settable(pL, -3);//弹出到顶层
-					}
-				}
-				return 1;
+		for (auto [animals, animalsData] : Animals) {
+			if (animals != nullptr) {
+				lua_pushinteger(pL, (long long)animals);//压入地址
+				lua_newtable(pL);//压入编号信息表
+				lua_pushstring(pL, "Id");//生物Id
+				lua_pushinteger(pL, animalsData.Id);
+				lua_settable(pL, -3);
+				lua_pushstring(pL, "SubId");//生物SubId
+				lua_pushinteger(pL, animalsData.SubId);
+				lua_settable(pL, -3);
+				lua_settable(pL, -3);//弹出到顶层
+			}
+		}
+		return 1;
 			});
 	}
 }
