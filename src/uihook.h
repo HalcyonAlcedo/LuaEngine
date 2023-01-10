@@ -204,8 +204,8 @@ namespace uihook {
 		}
 		GameInit = true;
 	}
-	static void LuaRegister() {
-		LuaCore::Lua_register("LoadTexture", [](lua_State* pL) -> int
+	static void LuaRegister(lua_State* L) {
+		lua_register(L, "LoadTexture", [](lua_State* pL) -> int
 		{
 			string file = (string)lua_tostring(pL, 1);
 			string name = (string)lua_tostring(pL, 2);
@@ -219,7 +219,7 @@ namespace uihook {
 			lua_pushinteger(pL, TextureList[name].height);
 			return 3;
 		});
-		LuaCore::Lua_register("TextureList", [](lua_State* pL) -> int
+		lua_register(L, "TextureList", [](lua_State* pL) -> int
 		{
 			lua_newtable(pL);//创建一个表格，放在栈顶
 			for (auto [name, texture] : TextureList) {
