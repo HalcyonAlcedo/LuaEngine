@@ -62,16 +62,13 @@ void InitImGui()
 }
 HRESULT __stdcall hkResize(IDXGISwapChain* pChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT Flags)
 {
-	static auto once = []()
-	{
-		return true;
-	}();
-	mainRenderTargetView->Release();
-	mainRenderTargetView = nullptr;
-	ViewInit = false;
-	ImGui_ImplDX11_CreateDeviceObjects();
 	ImGui_ImplDX11_InvalidateDeviceObjects();
-
+	if (nullptr != mainRenderTargetView) {
+		mainRenderTargetView->Release();
+		mainRenderTargetView = nullptr;
+	}
+	HRESULT toReturn = oResize(pChain, BufferCount, Width, Height, NewFormat, Flags);
+	ImGui_ImplDX11_CreateDeviceObjects();
 	return oResize(pChain, BufferCount, Width, Height, NewFormat, Flags);
 }
 HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
@@ -94,6 +91,15 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 		}
 		else
 			return oPresent(pSwapChain, SyncInterval, Flags);
+	}
+
+	//recreate rendertarget on reset
+	if (mainRenderTargetView == NULL)
+	{
+		ID3D11Texture2D* pBackBuffer = NULL;
+		pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+		pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
+		pBackBuffer->Release();
 	}
 
 	ImGui_ImplDX11_NewFrame();
