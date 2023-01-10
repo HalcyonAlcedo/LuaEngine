@@ -190,7 +190,7 @@ bool LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_sr
 }
 
 #endif // KIERO_INCLUDE_D3D11
-namespace uihook {
+namespace hook_ui {
 	bool thread = false;
 	HMODULE hMod;
 	void init() {

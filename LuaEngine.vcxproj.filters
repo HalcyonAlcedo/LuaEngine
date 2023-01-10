@@ -100,7 +100,7 @@
     <ClInclude Include="src\win32_impl.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\uihook.h">
+    <ClInclude Include="src\hook_ui.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="deps\imgui\imconfig.h">

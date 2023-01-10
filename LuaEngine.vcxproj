@@ -216,7 +216,7 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ClInclude Include="src\shared.h" />
     <ClInclude Include="src\sol_ImGui.h" />
     <ClInclude Include="src\stb_image.h" />
-    <ClInclude Include="src\uihook.h" />
+    <ClInclude Include="src\hook_ui.h" />
     <ClInclude Include="src\win32_impl.h" />
   </ItemGroup>
   <ItemGroup>
