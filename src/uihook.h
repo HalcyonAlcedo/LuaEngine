@@ -22,7 +22,8 @@ typedef uintptr_t PTR;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 Present oPresent;
-Present oResize;
+using fResizeBuffers = HRESULT(__fastcall*)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
+fResizeBuffers oResize = NULL;
 HWND window = NULL;
 WNDPROC oWndProc;
 ID3D11Device* pDevice = NULL;
@@ -59,24 +60,19 @@ void InitImGui()
 	ImGui_ImplWin32_Init(window);
 	ImGui_ImplDX11_Init(pDevice, pContext);
 }
-
-HRESULT __stdcall hkResize(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+HRESULT __stdcall hkResize(IDXGISwapChain* pChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT Flags)
 {
+	static auto once = []()
+	{
+		return true;
+	}();
 	mainRenderTargetView->Release();
 	mainRenderTargetView = nullptr;
-	/*
-	ID3D11Texture2D* pBuffer;
-	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer);
-	// Perform error handling here!
+	ViewInit = false;
+	ImGui_ImplDX11_CreateDeviceObjects();
+	ImGui_ImplDX11_InvalidateDeviceObjects();
 
-	pDevice->CreateRenderTargetView(pBuffer, NULL, &mainRenderTargetView);
-	// Perform error handling here!
-	pBuffer->Release();
-
-	pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
-	*/
-	LOG(ERR) << utils::UTF8_To_string("d3d11发生异常，已禁用图形绘制系统，此问题已知不用联系作者，重启游戏即可修复！");
-	return oResize(pSwapChain, SyncInterval, Flags);
+	return oResize(pChain, BufferCount, Width, Height, NewFormat, Flags);
 }
 HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
