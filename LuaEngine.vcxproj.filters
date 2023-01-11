@@ -60,6 +60,12 @@
     <ClCompile Include="deps\imgui\imgui_widgets.cpp">
       <Filter>资源文件\imgu</Filter>
     </ClCompile>
+    <ClCompile Include="src\Player.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sound.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="deps\loader.lib">
@@ -131,6 +137,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\stb_image.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sound.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

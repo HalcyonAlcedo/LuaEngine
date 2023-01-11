@@ -2,6 +2,8 @@
 #include "imgui/imgui.h"
 #include "sol_ImGui.h"
 
+#include "Player.h"
+
 using namespace loader;
 
 namespace LuaData {
@@ -369,6 +371,14 @@ int Imgui_Bindings(lua_State* L) {
     sol_ImGui::Init(lua);
     return 0;
 }
+//音频
+struct audio {
+    string file;
+    Sound* audio_sound;
+    audio(string file = "", Sound* audio_sound = nullptr) :file(file), audio_sound(audio_sound) { };
+};
+map<string, Sound*> audioList;
+
 #pragma endregion
 
 static void registerFunc(lua_State* L) {
@@ -438,8 +448,36 @@ static void registerFunc(lua_State* L) {
     if (luaL_dostring(L, "Imgui_Bindings()")) {
         lua_error(L);
     }
-
-    
 #pragma endregion
-
+#pragma region Audio
+    //加载音频文件
+    lua_register(L, "Load_AudioFile", [](lua_State* pL) -> int
+        {
+            string name = (string)lua_tostring(pL, 1);
+            string file = (string)lua_tostring(pL, 2);
+            audioList[name] = new Sound();
+            audioList[name]->LoadFromFile(file);
+            return 0;
+        });
+    //播放音频
+    lua_register(L, "Play_Audio", [](lua_State* pL) -> int
+        {
+            string name = (string)lua_tostring(pL, 1);
+            Player* player = new Player();
+            player->Create();
+            player->SetSound(*audioList[name]);
+            player->Play();
+            return 0;
+        });
+    //获取音频列表
+    lua_register(L, "AudioList", [](lua_State* pL) -> int
+        {
+            lua_newtable(pL);
+            for (auto [name, audio] : audioList) {
+                lua_pushstring(pL, name.c_str());
+                lua_settable(pL, -2);
+            }
+            return 1;
+        });
+#pragma endregion
 }

@@ -174,7 +174,9 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="src\d3d11_impl.cpp" />
     <ClCompile Include="src\kiero.cpp" />
+    <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\shared.cpp" />
+    <ClCompile Include="src\Sound.cpp" />
     <ClCompile Include="src\win32_impl.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -213,8 +215,10 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ClInclude Include="src\lua_core.h" />
     <ClInclude Include="src\lua_register.h" />
     <ClInclude Include="src\game_utils.h" />
+    <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\shared.h" />
     <ClInclude Include="src\sol_ImGui.h" />
+    <ClInclude Include="src\Sound.h" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\hook_ui.h" />
     <ClInclude Include="src\win32_impl.h" />
