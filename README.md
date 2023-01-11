@@ -38,6 +38,12 @@ ImGui相关绑定可参考https://github.com/MSeys/sol2_ImGui_Bindings
 
 
 
+## lua加载自定义功能
+
+lua可以加载dll实现更高级的功能，dll可参考plugins中的camera项目，examples/CameraControl.lua为调用示例
+
+
+
 ## LuaEngine与LuaScript功能对比
 大部分LuaEngine功能被写在数据解析引擎中，具体使用方式请参考示例脚本，这里只列出差异功能
 
@@ -86,7 +92,6 @@ ImGui相关绑定可参考https://github.com/MSeys/sol2_ImGui_Bindings
 | 获取UUID | 否 | 是 |
 | 控制台 | 否 | 是 |
 | 获取屏幕信息 | 否 | 是 |
-| 播放音频 | 否 | 是 |
 | 游戏外系统操作 | 否 | 是 |
 
 ### 游戏数据
