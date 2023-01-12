@@ -204,7 +204,7 @@ namespace sol_ImGui
 	inline bool SmallButton(const std::string& label)													{ return ImGui::SmallButton(label.c_str()); }
 	inline bool InvisibleButton(const std::string& stringID, float sizeX, float sizeY)					{ return ImGui::InvisibleButton(stringID.c_str(), { sizeX, sizeY }); }
 	inline bool ArrowButton(const std::string& stringID, int dir)										{ return ImGui::ArrowButton(stringID.c_str(), static_cast<ImGuiDir>(dir)); }
-	inline void Image(long long texture, int width, int height)											{ ImGui::Image((void*)texture, ImVec2(width, height)); }
+	inline void Image(long long texture, int width, int height, float alpha)							{ ImGui::Image((void*)texture, ImVec2(width, height), ImVec2(0, 0), ImVec2(1.0, 1.0), ImVec4(1.0, 1.0, 1.0, alpha)); }
 	inline void ImageButton()																			{ /* TODO: ImageButton(...) ==> UNSUPPORTED */ }
 	inline std::tuple<bool, bool> Checkbox(const std::string& label, bool v)
 	{
