@@ -145,6 +145,12 @@
     <ClInclude Include="src\Sound.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\hook_camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hook_hit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc">

@@ -5,11 +5,29 @@
 
 .code
 
-rcxSet0 proc
-
-	mov rcx,0
-
+GetRAXPtr proc
+    mov [rcx], rax
 	ret
-rcxSet0 endp
+GetRAXPtr endp
+
+GetRBXPtr proc
+    mov [rcx], rbx
+	ret
+GetRBXPtr endp
+
+GetRDIPtr proc
+    mov [rcx], rdi
+	ret
+GetRDIPtr endp
+
+SetEDX proc
+    mov edx, [rcx]
+	ret
+SetEDX endp
+
+SetR14D proc
+    mov r14d, [rcx]
+	ret
+SetR14D endp
 
 end

@@ -208,8 +208,10 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ClInclude Include="deps\imgui\imstb_textedit.h" />
     <ClInclude Include="deps\imgui\imstb_truetype.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="src\hook_camera.h" />
     <ClInclude Include="src\d3d11_impl.h" />
     <ClInclude Include="src\hook_animals.h" />
+    <ClInclude Include="src\hook_hit.h" />
     <ClInclude Include="src\hook_monster.h" />
     <ClInclude Include="src\kiero.h" />
     <ClInclude Include="src\lua_core.h" />
