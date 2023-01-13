@@ -204,7 +204,10 @@ namespace sol_ImGui
 	inline bool SmallButton(const std::string& label)													{ return ImGui::SmallButton(label.c_str()); }
 	inline bool InvisibleButton(const std::string& stringID, float sizeX, float sizeY)					{ return ImGui::InvisibleButton(stringID.c_str(), { sizeX, sizeY }); }
 	inline bool ArrowButton(const std::string& stringID, int dir)										{ return ImGui::ArrowButton(stringID.c_str(), static_cast<ImGuiDir>(dir)); }
+	inline void Image(long long texture, int width, int height)											{ ImGui::Image((void*)texture, ImVec2(width, height)); }
 	inline void Image(long long texture, int width, int height, float alpha)							{ ImGui::Image((void*)texture, ImVec2(width, height), ImVec2(0, 0), ImVec2(1.0, 1.0), ImVec4(1.0, 1.0, 1.0, alpha)); }
+	inline void Image(long long texture, int width, int height, 
+		float uv0_x, float uv0_y, float uv1_x, float uv1_y, float R, float G, float B, float alpha)		{ ImGui::Image((void*)texture, ImVec2(width, height), ImVec2(uv0_x, uv0_y), ImVec2(uv1_x, uv1_y), ImVec4(R, G, B, alpha)); }
 	inline void ImageButton()																			{ /* TODO: ImageButton(...) ==> UNSUPPORTED */ }
 	inline std::tuple<bool, bool> Checkbox(const std::string& label, bool v)
 	{
@@ -2242,7 +2245,11 @@ namespace sol_ImGui
 		ImGui.set_function("SmallButton"					, SmallButton);
 		ImGui.set_function("InvisibleButton"				, InvisibleButton);
 		ImGui.set_function("ArrowButton"					, ArrowButton);
-		ImGui.set_function("Image"							, Image);
+		ImGui.set_function("Image"							, sol::overload(
+																sol::resolve<void(long long texture, int width, int height)>(Image),
+																sol::resolve<void(long long texture, int width, int height, float alpha)>(Image),
+																sol::resolve<void(long long texture, int width, int height, float uv0_x, float uv0_y, float uv1_x, float uv1_y, float R, float G, float B, float alpha)>(Image)
+															));
 		ImGui.set_function("Checkbox"						, Checkbox);
 		ImGui.set_function("RadioButton"					, sol::overload(
 																sol::resolve<bool(const std::string&, bool)>(RadioButton), 
