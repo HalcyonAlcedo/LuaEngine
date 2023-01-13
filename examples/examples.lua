@@ -7,6 +7,7 @@ local FSM_Run = {
     target = 0,
     id = 0
 }
+local addFrameSpeed = 0
 local Keyboard_Shortcut  = '~'
 --游戏初始化执行的代码
 function on_init()
@@ -135,6 +136,12 @@ function on_imgui()
                 ImGui.SameLine()
                 ImGui.Text("动作帧速率: "..Data_Player.Frame.frameSpeed)
                 Data_Player.Frame.frame = ImGui.InputInt("当前动作帧", Data_Player.Frame.frame)
+                t_addFrameSpeed = ImGui.SliderFloat("增加速率", addFrameSpeed, -2, 10)
+                if addFrameSpeed ~= t_addFrameSpeed then --减少map访问
+                    addFrameSpeed = t_addFrameSpeed
+                    AddFrameSpeed(GetAddress(0x145073ED0,{ 0x50 }),addFrameSpeed)
+                end
+                ImGui.Separator()
                 ImGui.Text("派生id: "..Data_Player.Action.fsm.fsmID)
                 ImGui.Text("派生目标: "..Data_Player.Action.fsm.fsmTarget)
                 ImGui.Separator()
