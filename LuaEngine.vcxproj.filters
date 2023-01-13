@@ -151,6 +151,9 @@
     <ClInclude Include="src\hook_hit.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\hook_frame.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc">
