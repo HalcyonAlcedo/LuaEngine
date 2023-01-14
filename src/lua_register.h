@@ -171,8 +171,11 @@ static int System_Memory_GetAddress(lua_State* pL) {
         lua_pop(pL, 1);
     }
     void* address = utils::GetPlot((void*)ptr, bytes);
-    long long addr = (long long)address;
-    lua_pushinteger(pL, addr);
+    if (address != nullptr) {
+        long long addr = (long long)address;
+        lua_pushinteger(pL, addr);
+    } else
+        lua_pushboolean(pL, false);
     return 1;
 }
 static int System_Memory_GetAddressData(lua_State* pL) {
@@ -196,7 +199,7 @@ static int System_Memory_GetAddressData(lua_State* pL) {
             lua_pushinteger(pL, *(char*)(ptr));
     }
     else
-        lua_pushstring(pL, "Address error");
+        lua_pushboolean(pL, false);
     return 1;
 }
 static int System_Memory_SetAddressData(lua_State* pL) {
