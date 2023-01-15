@@ -31,7 +31,7 @@ namespace utils {
 	static void* GetPlot(void* plot, const std::vector<int>& bytes) {
 		void* Plot = plot;
 		//´¦Àí»ùÖ·
-		if ((long long)plot > 0x140000000) {
+		if ((long long)plot > 0x140000000 && (long long)plot < 0x14579b000) {
 			Plot = *(undefined**)plot;
 		}
 		for (int i : bytes) {

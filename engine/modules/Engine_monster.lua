@@ -157,7 +157,7 @@ function engine_monster:new(monster)
     o.Frame = self:getMonsterFrameInfo()
 
     --创建监听
-    o.Characteristic.health = trace(o.Characteristic.health)
+    o.Characteristic = trace(o.Characteristic)
     o.Position = trace(o.Position)
     o.Model = trace(o.Model)
     

@@ -214,6 +214,7 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ClInclude Include="src\hook_frame.h" />
     <ClInclude Include="src\hook_hit.h" />
     <ClInclude Include="src\hook_monster.h" />
+    <ClInclude Include="src\hook_shlp.h" />
     <ClInclude Include="src\kiero.h" />
     <ClInclude Include="src\lua_core.h" />
     <ClInclude Include="src\lua_register.h" />
