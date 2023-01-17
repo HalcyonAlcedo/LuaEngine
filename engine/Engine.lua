@@ -104,5 +104,8 @@ function engine.keypad(Keys, Xbox)
     end
     return false
 end
-
+--获取两点间距离
+function engine.distance(p1,p2)
+    return math.sqrt((p1.x-p2.x)^2+(p1.y-p2.y)^2+(p1.z-p2.z)^2)
+end
 _G.engine = engine

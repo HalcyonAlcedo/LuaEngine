@@ -285,12 +285,12 @@ struct Vector3 {
     Vector3(float x = 0, float y = 0, float z = 0) :x(x), y(y), z(z) { };
 };
 //执行投射物生成
-static bool CallProjectilesGenerate(int Id, float* Coordinate, void* FromPtr = nullptr, void* ShlpList = nullptr) {
-    void* ShlpRoute = MH::Shlp::GetShlp(FromPtr, Id);
+static bool CallProjectilesGenerate(int Id, float* Coordinate, void* ShlpList = nullptr, void* FromPtr = nullptr) {
+    void* ShlpRoute = MH::Shlp::GetShlp(ShlpList, Id);
     if (ShlpRoute == nullptr)
         return false;
     ShlpRoute = *offsetPtr<void*>(ShlpRoute, 0x8);
-    MH::Shlp::CallShlp(ShlpRoute, ShlpList, ShlpList, Coordinate);
+    MH::Shlp::CallShlp(ShlpRoute, FromPtr, FromPtr, Coordinate);
     return true;
 }
 //处理投射物路径数据
@@ -336,7 +336,7 @@ static void GenerateProjectilesCoordinateData(float*& CalculationCoordinates, Ve
     *tempCoordinateTailData_longlong = -1;
 }
 //生成投射物
-static bool CreateProjectiles(int Id, Vector3 startPoint, Vector3 endPoint, void* FromPtr = nullptr, void* ShlpList = nullptr) {
+static bool CreateProjectiles(int Id, Vector3 startPoint, Vector3 endPoint, void* ShlpList = nullptr, void* FromPtr = nullptr) {
     //创建投射物路径数据缓存指针
     float* CoordinatesData = new float[73];
     //填充缓存区数据
@@ -344,7 +344,7 @@ static bool CreateProjectiles(int Id, Vector3 startPoint, Vector3 endPoint, void
     //处理投射物路径数据
     GenerateProjectilesCoordinateData(CoordinatesData, startPoint, endPoint);
     //执行生成投射物
-    bool GenerateResults = CallProjectilesGenerate(Id, CoordinatesData, FromPtr, ShlpList);
+    bool GenerateResults = CallProjectilesGenerate(Id, CoordinatesData, ShlpList, FromPtr);
     //清理缓冲区
     delete[]CoordinatesData;
     return GenerateResults;
@@ -363,7 +363,7 @@ static int Game_Player_CreateProjectiles(lua_State* pL) {
     void* ShlpListAddress = (void*)shlpList;
     if (EntityAddress != nullptr) {
         lua_pushboolean(pL, CreateProjectiles(
-            id, Vector3(startx, starty, startz), Vector3(endx, endy, endz), EntityAddress, ShlpListAddress
+            id, Vector3(startx, starty, startz), Vector3(endx, endy, endz), ShlpListAddress, EntityAddress
         ));
     }
     return 1;
