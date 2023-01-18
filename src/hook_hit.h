@@ -15,6 +15,7 @@ namespace hook_hit {
 	};
 	HitData Hit;
 	static void Hook() {
+		framework_logger->info("创建受击处理钩子");
 		MH_Initialize();
 		HookLambda(MH::Player::HitPtr,
 			[](auto rcx, auto rdx) {
@@ -30,6 +31,7 @@ namespace hook_hit {
 		MH_ApplyQueued();
 	}
 	static void Registe(lua_State* L) {
+		engine_logger->info("注册受击相关函数");
 		lua_register(L, "Invulnerable", [](lua_State* pL) -> int
 			{
 				Hit.Invulnerable = (bool)lua_toboolean(pL, 1);

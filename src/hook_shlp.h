@@ -19,6 +19,7 @@ namespace hook_shlp {
 	};
 	map<void*, ProjectilesData> ProjectilesList;
 	static void Hook() {
+		framework_logger->info("创建投射物shlp生成和销毁钩子");
 		MH_Initialize();
 		HookLambda(MH::Shlp::dtor,
 			[](auto rcx) {
@@ -33,6 +34,7 @@ namespace hook_shlp {
 		MH_ApplyQueued();
 	}
 	static void Registe(lua_State* L) {
+		engine_logger->info("注册投射物shlp相关函数");
 		//注册环境生物获取函数
 		lua_register(L, "GetShlp", [](lua_State* pL) -> int
 			{

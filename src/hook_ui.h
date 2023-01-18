@@ -48,21 +48,24 @@ static bool GameInit = false;
 
 void InitImGui()
 {
+	imgui_logger->info("初始化ImGui设备");
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	auto fonts = ImGui::GetIO().Fonts;
+	imgui_logger->info("从{}加载字体数据","c:/windows/fonts/simhei.ttf");
 	fonts->AddFontFromFileTTF(
 		"c:/windows/fonts/simhei.ttf",
 		13.0f,
 		NULL,
 		fonts->GetGlyphRangesChineseFull()
 	);
+	imgui_logger->info("初始化ImGui渲染");
 	ImGui_ImplWin32_Init(window);
 	ImGui_ImplDX11_Init(pDevice, pContext);
 }
 HRESULT __stdcall hkResize(IDXGISwapChain* pChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT Flags)
 {
-	engine_logger->info("重置d3d11数据");
+	imgui_logger->info("重置d3d11数据");
 	ImGui_ImplDX11_InvalidateDeviceObjects();
 	if (nullptr != mainRenderTargetView) {
 		mainRenderTargetView->Release();
@@ -78,7 +81,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	{
 		if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&pDevice)))
 		{
-			engine_logger->info("初始化d3d11视图");
+			imgui_logger->info("初始化d3d11视图");
 			pDevice->GetImmediateContext(&pContext);
 			DXGI_SWAP_CHAIN_DESC sd;
 			pSwapChain->GetDesc(&sd);
@@ -98,6 +101,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	//recreate rendertarget on reset
 	if (mainRenderTargetView == NULL)
 	{
+		imgui_logger->warn("d3d11视图已移除，正在重新加载");
 		ID3D11Texture2D* pBackBuffer = NULL;
 		pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 		pDevice->CreateRenderTargetView(pBackBuffer, NULL, &mainRenderTargetView);
@@ -135,6 +139,7 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 	{
 		if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
 		{
+			framework_logger->info("创建on_imgui钩子");
 			kiero::bind(8, (void**)&oPresent, hkPresent);
 			kiero::bind(13, (void**)&oResize, hkResize);
 			init_hook = true;
@@ -153,7 +158,7 @@ LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 bool LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height)
 {
-	engine_logger->info("加载图片{}到纹理", filename);
+	framework_logger->info("加载图片{}到纹理", filename);
 	// Load from disk into a raw RGBA buffer
 	int image_width = 0;
 	int image_height = 0;
@@ -210,6 +215,7 @@ namespace hook_ui {
 		GameInit = true;
 	}
 	static void LuaRegister(lua_State* L) {
+		engine_logger->info("注册ImGui相关函数");
 		lua_register(L, "LoadTexture", [](lua_State* pL) -> int
 		{
 			string file = (string)lua_tostring(pL, 1);

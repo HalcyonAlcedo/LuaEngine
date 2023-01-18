@@ -15,6 +15,7 @@ namespace hook_animals {
 	};
 	map<void*, AnimalsData> Animals;
 	static void Hook() {
+		framework_logger->info("创建环境生物生成和销毁钩子");
 		MH_Initialize();	
 		HookLambda(MH::EnvironmentalBiological::ctor,
 			[](auto environmental, auto id, auto subId) {
@@ -32,6 +33,7 @@ namespace hook_animals {
 		MH_ApplyQueued();
 	}
 	static void Registe(lua_State* L) {
+		engine_logger->info("注册环境生物相关函数");
 		//注册环境生物获取函数
 		lua_register(L, "GetAllAnimals", [](lua_State* pL) -> int
 			{

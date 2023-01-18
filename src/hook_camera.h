@@ -26,6 +26,7 @@ namespace hook_camera {
 	};
 	CameraData Camera;
 	static void Hook() {
+		framework_logger->info("创建相机操作钩子");
 		MH_Initialize();
 		HookLambda(MH::Player::Visual,
 			[]() {
@@ -45,6 +46,7 @@ namespace hook_camera {
 		MH_ApplyQueued();
 	}
 	static void Registe(lua_State* L) {
+		engine_logger->info("注册相机相关函数");
 		lua_register(L, "GetCameraData", [](lua_State* pL) -> int
 			{
 				lua_pushnumber(pL, Camera.position_x);

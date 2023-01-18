@@ -4,6 +4,7 @@
 namespace hook_frame {
 	map<void*, float> SpeedList;
 	static void Hook() {
+		framework_logger->info("创建动作帧速率调节钩子");
 		MH_Initialize();
 		HookLambda(MH::World::ActionFrameSpeed,
 			[](auto entity) {
@@ -29,6 +30,7 @@ namespace hook_frame {
 		MH_ApplyQueued();
 	}
 	static void Registe(lua_State* L) {
+		engine_logger->info("注册动作帧速率相关函数");
 		lua_register(L, "AddFrameSpeed", [](lua_State* pL) -> int
 			{
 				SpeedList[(void*)(long long)lua_tointeger(pL, 1)] = (float)lua_tonumber(pL, 2);

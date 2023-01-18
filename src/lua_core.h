@@ -37,6 +37,7 @@ namespace LuaCore {
 	}
 	//加载Lua游戏引擎
 	static void loadEngine(lua_State* L) {
+		engine_logger->info("初始化Engine.lua数据引擎");
 		int err = 0;
 		err = luaL_dofile(L, "Lua\\Engine.lua");
 		if (err != 0)
@@ -51,6 +52,7 @@ namespace LuaCore {
 	//加载Lua脚本
 	static void Lua_Load(string path, vector<string>& files)
 	{
+		engine_logger->info("开始进行Lua脚本加载");
 		using namespace std::filesystem;
 		if (exists(path) && is_directory(path))
 		{
@@ -82,11 +84,12 @@ namespace LuaCore {
 				string error = lua_tostring(L, -1);
 				LuaErrorRecord(error);
 			}
+			engine_logger->warn("Lua脚本{}文件加载出现错误", LuaFile);
 			return -1;
 		}
 		//设置错误回调函数
 		lua_pushcfunction(L, LuaErrorCallBack);
-		LOG(INFO) << LuaFile << "脚本已加载";
+		engine_logger->info("加载{}文件至Lua引擎", LuaFile);
 		return 1;
 	}
 	//运行lua代码

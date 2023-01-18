@@ -124,19 +124,37 @@ function engine_player:getPlayerAimingState()
 end
 --获取玩家武器数据
 function engine_player:getPlayerWeaponInfo()
+    --地址检查
+    if pointer.Weapon:Entity() and pointer.Weapon:Data() then
+        local player_weapon_info = {
+            --武器坐标
+            position = {
+                x = GetAddressData(pointer.Weapon:Entity() + 0x160, 'float'),
+                y = GetAddressData(pointer.Weapon:Entity() + 0x164, 'float'),
+                z = GetAddressData(pointer.Weapon:Entity() + 0x168, 'float')
+            },
+            --武器类型
+            type = GetAddressData(pointer.Weapon:Data() + 0x2E8, 'int'),
+            --武器Id
+            id = GetAddressData(pointer.Weapon:Data() + 0x2EC, 'int'),
+            --武器命中的怪物地址
+            hit = GetAddress(pointer:PlayerData(), { 0x2C8 })
+        }
+        if player_weapon_info.position.x
+            and player_weapon_info.position.y
+            and player_weapon_info.position.z
+            and player_weapon_info.type
+            and player_weapon_info.id
+            and player_weapon_info.hit
+        then
+            return player_weapon_info
+        end
+    end
     return {
-        --武器坐标
-        position = {
-            x = GetAddressData(pointer.Weapon:Entity() + 0x160, 'float'),
-            y = GetAddressData(pointer.Weapon:Entity() + 0x164, 'float'),
-            z = GetAddressData(pointer.Weapon:Entity() + 0x168, 'float')
-        },
-        --武器类型
-        type = GetAddressData(pointer.Weapon:Data() + 0x2E8, 'int'),
-        --武器Id
-        id = GetAddressData(pointer.Weapon:Data() + 0x2EC, 'int'),
-        --武器命中的怪物地址
-        hit = GetAddress(pointer:PlayerData(), { 0x2C8 })
+        position = {x = 0, y = 0, z = 0},
+        type = 0,
+        id = 0,
+        hit = 0
     }
 end
 --获取玩家装备信息

@@ -14,7 +14,10 @@
 #pragma warning( disable: 4251 )
 
 namespace loader {
-	auto engine_logger = spdlog::basic_logger_mt("file_logger", "logs/LuaEngine.log");
+	auto engine_logger = spdlog::basic_logger_mt("引擎", "logs/LuaEngine.log");
+	auto framework_logger = spdlog::basic_logger_mt("框架", "logs/LuaEngine.log");
+	auto lua_logger = spdlog::basic_logger_mt("Lua", "logs/LuaEngine.log");
+	auto imgui_logger = spdlog::basic_logger_mt("渲染", "logs/LuaEngine.log");
 
 	enum LogLevel {
 		DEBUG = 0,
@@ -42,19 +45,19 @@ namespace loader {
 			switch (logLevel)
 			{
 			case loader::DEBUG:
-				engine_logger->debug("引擎信息: {}", x);
+				lua_logger->debug(x);
 				break;
 			case loader::INFO:
-				engine_logger->info("引擎信息: {}", x);
+				lua_logger->info(x);
 				break;
 			case loader::WARN:
-				engine_logger->warn("引擎信息: {}", x);
+				lua_logger->warn(x);
 				break;
 			case loader::ERR:
-				engine_logger->error("引擎信息: {}", x);
+				lua_logger->error(x);
 				break;
 			default:
-				engine_logger->info("引擎信息: {}", x);
+				lua_logger->info(x);
 				break;
 			}
 			

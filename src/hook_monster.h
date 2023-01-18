@@ -15,6 +15,7 @@ namespace hook_monster {
 	};
 	map<void*, MonsterData> Monsters;
 	static void Hook() {
+		framework_logger->info("创建怪物生成和销毁钩子");
 		MH_Initialize();
 		HookLambda(MH::Monster::ctor,
 			[](auto monster, auto id, auto subId) {
@@ -35,6 +36,7 @@ namespace hook_monster {
 	}
 	static void Registe(lua_State* L) {
 		//注册怪物获取函数
+		engine_logger->info("注册怪物相关函数");
 		lua_register(L, "GetAllMonster", [](lua_State* pL) -> int
 			{
 				lua_newtable(pL);//创建一个表格，放在栈顶
