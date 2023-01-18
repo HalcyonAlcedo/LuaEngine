@@ -62,6 +62,7 @@ void InitImGui()
 }
 HRESULT __stdcall hkResize(IDXGISwapChain* pChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT Flags)
 {
+	engine_logger->info("重置d3d11数据");
 	ImGui_ImplDX11_InvalidateDeviceObjects();
 	if (nullptr != mainRenderTargetView) {
 		mainRenderTargetView->Release();
@@ -69,7 +70,7 @@ HRESULT __stdcall hkResize(IDXGISwapChain* pChain, UINT BufferCount, UINT Width,
 	}
 	HRESULT toReturn = oResize(pChain, BufferCount, Width, Height, NewFormat, Flags);
 	ImGui_ImplDX11_CreateDeviceObjects();
-	return oResize(pChain, BufferCount, Width, Height, NewFormat, Flags);
+	return toReturn;
 }
 HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
@@ -77,6 +78,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	{
 		if (SUCCEEDED(pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&pDevice)))
 		{
+			engine_logger->info("初始化d3d11视图");
 			pDevice->GetImmediateContext(&pContext);
 			DXGI_SWAP_CHAIN_DESC sd;
 			pSwapChain->GetDesc(&sd);
@@ -151,6 +153,7 @@ LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 bool LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_srv, int* out_width, int* out_height)
 {
+	engine_logger->info("加载图片{}到纹理", filename);
 	// Load from disk into a raw RGBA buffer
 	int image_width = 0;
 	int image_height = 0;

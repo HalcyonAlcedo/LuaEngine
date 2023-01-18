@@ -25,6 +25,7 @@ namespace LuaCore {
 		int errorLine = debug.currentline;
 		std::string errorMsg = "error:" + error + ",errorShort:" + errorShort
 			+ ",line:" + std::to_string(errorLine);
+		LOG(ERR) << errorMsg;
 		//将错误信息压人栈
 		lua_pushstring(L, errorMsg.c_str());
 		return 1;

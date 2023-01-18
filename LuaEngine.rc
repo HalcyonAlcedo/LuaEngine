@@ -67,12 +67,12 @@ BEGIN
     BEGIN
         BLOCK "080404b0"
         BEGIN
-            VALUE "FileVersion", "1.0.5.29"
+            VALUE "FileVersion", "1.0.6.31"
             VALUE "InternalName", "LuaEngin.dll"
             VALUE "LegalCopyright", "Copyright (C) 2023 Alcedo"
             VALUE "OriginalFilename", "LuaEngin.dll"
             VALUE "ProductName", "LuaEngin"
-            VALUE "ProductVersion", "1.0.5.29"
+            VALUE "ProductVersion", "1.0.6.31"
         END
     END
     BLOCK "VarFileInfo"
