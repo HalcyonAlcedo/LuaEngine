@@ -140,7 +140,8 @@ namespace Chronoscope {
 	//计时器更新程序
 	static void chronoscope() {
 		void* TimePlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x7D20 });
-		NowTime = *offsetPtr<float>(TimePlot, 0xC24);
+		if(TimePlot != nullptr)
+			NowTime = *offsetPtr<float>(TimePlot, 0xC24);
 	}
 }
 #pragma endregion

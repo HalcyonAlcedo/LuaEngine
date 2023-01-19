@@ -97,9 +97,9 @@ function engine.keypad(Keys, Xbox)
         end
     elseif type(Keys) == 'number' then
         if Xbox then
-            if XCheckKeyIsPressed(number) then return true end
+            if XCheckKeyIsPressed(Keys) then return true end
         else
-            if CheckKeyIsPressed(number) then return true end
+            if CheckKeyIsPressed(Keys) then return true end
         end
     end
     return false

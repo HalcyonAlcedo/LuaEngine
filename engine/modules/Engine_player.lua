@@ -15,6 +15,7 @@
 engine_player = {
     Position = {
         position = {x = 0, y = 0, z = 0},
+        cntrposition = {x = 0, y = 0, z = 0, h = 0},
         reposition = {x = 0, y = 0, z = 0}
     },
     Model = {
@@ -84,6 +85,15 @@ function engine_player:getPlayerPosition()
         x = GetAddressData(pointer:Player() + 0x160, 'float'),
         y = GetAddressData(pointer:Player() + 0x164, 'float'),
         z = GetAddressData(pointer:Player() + 0x168, 'float')
+    }
+end
+--获取玩家中心点坐标
+function engine_player:getPlayerCNTRPosition()
+    return {
+        x = GetAddressData(pointer:Player() + 0x390, 'float'),
+        y = GetAddressData(pointer:Player() + 0x394, 'float'),
+        z = GetAddressData(pointer:Player() + 0x398, 'float'),
+        h = GetAddressData(pointer:Player() + 0x39c, 'float')
     }
 end
 --获取遣返坐标
@@ -290,6 +300,7 @@ function engine_player:new()
     --玩家坐标
     o.Position = {
         position = self:getPlayerPosition(),
+        cntrposition = self:getPlayerCNTRPosition(),
         reposition = self:getPlayerRepatriatePos()
     }
     --玩家模型

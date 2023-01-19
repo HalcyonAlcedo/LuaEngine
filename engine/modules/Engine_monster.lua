@@ -11,6 +11,7 @@
 engine_monster = {
     Position = {
         position = {x = 0, y = 0, z = 0},
+        cntrposition = {x = 0, y = 0, z = 0, h = 0},
         reposition = {x = 0, y = 0, z = 0}
     },
     Model = {
@@ -41,6 +42,15 @@ function engine_monster:getMonsterPosition()
         x = GetAddressData(pointer.Monster + 0x160, 'float'),
         y = GetAddressData(pointer.Monster + 0x164, 'float'),
         z = GetAddressData(pointer.Monster + 0x168, 'float')
+    }
+end
+--获取怪物中心点坐标
+function engine_monster:getMonsterCNTRPosition()
+    return {
+        x = GetAddressData(pointer.Monster + 0x390, 'float'),
+        y = GetAddressData(pointer.Monster + 0x394, 'float'),
+        z = GetAddressData(pointer.Monster + 0x398, 'float'),
+        h = GetAddressData(pointer.Monster + 0x39c, 'float')
     }
 end
 --获取遣返坐标
@@ -143,6 +153,7 @@ function engine_monster:new(monster)
     --怪物坐标
     o.Position = {
         position = self:getMonsterPosition(),
+        cntrposition = self:getMonsterCNTRPosition(),
         reposition = self:getMonsterRepatriatePos()
     }
     --怪物模型

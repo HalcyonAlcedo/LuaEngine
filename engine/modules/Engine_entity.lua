@@ -11,6 +11,7 @@
 engine_entity = {
     Position = {
         position = {x = 0, y = 0, z = 0},
+        cntrposition = {x = 0, y = 0, z = 0, h = 0},
         reposition = {x = 0, y = 0, z = 0}
     },
     Model = {
@@ -29,6 +30,16 @@ function engine_entity:getEntityPosition()
         x = GetAddressData(pointer.Entity + 0x160, 'float'),
         y = GetAddressData(pointer.Entity + 0x164, 'float'),
         z = GetAddressData(pointer.Entity + 0x168, 'float')
+    }
+end
+--获取实体中心点坐标
+function engine_entity:getEntityCNTRPosition()
+    if pointer.Entity == nil then return {x = 0, y = 0, z = 0, h = 0} end
+    return {
+        x = GetAddressData(pointer.Entity + 0x390, 'float'),
+        y = GetAddressData(pointer.Entity + 0x394, 'float'),
+        z = GetAddressData(pointer.Entity + 0x398, 'float'),
+        h = GetAddressData(pointer.Entity + 0x39c, 'float')
     }
 end
 --获取遣返坐标
@@ -100,6 +111,7 @@ function engine_entity:new(entity)
     --实体坐标
     o.Position = {
         position = self:getEntityPosition(),
+        cntrposition = self:getEntityCNTRPosition(),
         reposition = self:getEntityRepatriatePos()
     }
     --实体模型
