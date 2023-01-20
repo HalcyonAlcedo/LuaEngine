@@ -74,6 +74,7 @@ local function XKeyToKeyId(Key)
         [12] = 'LB', [13] = 'RB', [14] = '↑', [15] = '→', [16] = '↓', [17] = '←',
         [32] = 'Y', [33] = 'B', [34] = 'A', [35] = 'X', [36] = 'Window', [37] = 'Menu',
     }
+    if type(Key) == 'number' then return Key end
     for id, value in pairs(keyList) do
         if string.lower(value) == string.lower(Key) then return id end
     end
