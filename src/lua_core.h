@@ -93,20 +93,36 @@ namespace LuaCore {
 		return 1;
 	}
 	//ÔËÐÐlua´úÂë
-	static void run(string func) {
-		for (string file_name : LuaHandle::LuaFiles) {
-			if (LuaHandle::LuaScript[file_name].start) {
-				lua_State* L = LuaHandle::LuaScript[file_name].L;
-				int err = 0;
-				int callBack = lua_gettop(L);
-				lua_getglobal(L, func.c_str());
-				if (lua_type(L, -1) == LUA_TFUNCTION)
+	static void run(string func, lua_State* runL = nullptr) {
+		if (runL != nullptr) {
+			int err = 0;
+			int callBack = lua_gettop(runL);
+			lua_getglobal(runL, func.c_str());
+			if (lua_type(runL, -1) == LUA_TFUNCTION)
+			{
+				err = lua_pcall(runL, 0, 0, callBack);
+				if (err != 0)
 				{
-					err = lua_pcall(L, 0, 0, callBack);
-					if (err != 0)
+					string error = lua_tostring(runL, -1);
+					LuaCore::LuaErrorRecord(error);
+				}
+			}
+		}
+		else {
+			for (string file_name : LuaHandle::LuaFiles) {
+				if (LuaHandle::LuaScript[file_name].start) {
+					lua_State* L = LuaHandle::LuaScript[file_name].L;
+					int err = 0;
+					int callBack = lua_gettop(L);
+					lua_getglobal(L, func.c_str());
+					if (lua_type(L, -1) == LUA_TFUNCTION)
 					{
-						string error = lua_tostring(L, -1);
-						LuaCore::LuaErrorRecord(error);
+						err = lua_pcall(L, 0, 0, callBack);
+						if (err != 0)
+						{
+							string error = lua_tostring(L, -1);
+							LuaCore::LuaErrorRecord(error);
+						}
 					}
 				}
 			}

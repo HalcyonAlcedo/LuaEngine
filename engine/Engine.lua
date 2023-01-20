@@ -30,6 +30,7 @@ engine.Entity = engine_entity
     engine.keypad({'LB', 'R→'}, true)
     engine.keypad('RB', true)
 ]]
+engine.KeyCustom = {}
 local function KeyToKeyId(Key)
     local keyList = {
         [1] = 'LMouse', [2] = 'RMouse', [3] = 'Break', [4] = 'MMouse',
@@ -57,6 +58,10 @@ local function KeyToKeyId(Key)
         [119] = 'f8', [120] = 'f9', [121] = 'f10', [122] = 'f11',
         [123] = 'f12', [144] = 'Numberlock', [192] = '~',
     }
+    if type(Key) == 'number' then return Key end
+    for id, value in pairs(engine.KeyCustom) do
+        if type(value) == 'string' then keyList[id] = value end
+    end
     for id, value in pairs(keyList) do
         if string.lower(value) == string.lower(Key) then return id end
     end
@@ -107,5 +112,14 @@ end
 --获取两点间距离
 function engine.distance(p1,p2)
     return math.sqrt((p1.x-p2.x)^2+(p1.y-p2.y)^2+(p1.z-p2.z)^2)
+end
+--列表中是否存在某值
+function engine.table_include(value, tab)
+for _,v in ipairs(tab) do
+    if v == value then
+        return true
+    end
+  end
+  return false
 end
 _G.engine = engine

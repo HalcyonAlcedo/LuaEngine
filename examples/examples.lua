@@ -9,6 +9,8 @@ local FSM_Run = {
 }
 local addFrameSpeed = 0
 local Keyboard_Shortcut  = '~'
+local shlpid = 0
+local MonsterShlpTempData = {}
 --游戏初始化执行的代码
 function on_init()
     print('这是LueEngine的示例代码')
@@ -182,7 +184,7 @@ function on_imgui()
             local monsterList = GetAllMonster()
             for monster, monsterData in pairs(monsterList) do
                 local Data_Monster = engine.Monster:new(monster)
-                if ImGui.TreeNode("怪物"..monsterData.Id.." _ "..monster) then
+                if ImGui.TreeNode("怪物"..monsterData.Id.." _ "..string.format("%X", monster)) then
                     if ImGui.TreeNode("怪物坐标") then
                         ImGui.Text("怪物坐标")
                         ImGui.Text("X: "..Data_Monster.Position.position.x)
@@ -212,6 +214,31 @@ function on_imgui()
                         ImGui.SameLine()
                         ImGui.Text("动作帧速率: "..Data_Monster.Frame.frameSpeed)
                         Data_Monster.Frame.frame = ImGui.InputInt("当前动作帧", Data_Monster.Frame.frame)
+                        ImGui.TreePop()
+                    end
+                    if ImGui.TreeNode("投射物") then
+                        if Data_Monster.Shlp.ListPtr then
+                            ImGui.Text("投射物列表地址: "..string.format("%X", Data_Monster.Shlp.ListPtr))
+                            if MonsterShlpTempData[monster] == nil then InitMonsterShlpTempData(monster) end
+                            MonsterShlpTempData[monster].from= ImGui.Combo("投射人", MonsterShlpTempData[monster].from, { "玩家", "怪物" }, 2)
+                            MonsterShlpTempData[monster].shell_shlpid = ImGui.InputInt("投射物id", MonsterShlpTempData[monster].shell_shlpid)
+                            MonsterShlpTempData[monster].startPos = ImGui.InputFloat3("起点坐标", MonsterShlpTempData[monster].startPos)
+                            MonsterShlpTempData[monster].endPos = ImGui.InputFloat3("终点坐标", MonsterShlpTempData[monster].endPos)
+                            if ImGui.Button("发射") and Data_Monster.Shlp.ListPtr then
+                                local fromList = {[0] = GetAddress(0x145073ED0,{ 0x50 }),[1] = monster}
+                                CreateProjectiles(
+                                    MonsterShlpTempData[monster].shell_shlpid,
+                                    MonsterShlpTempData[monster].startPos[1],
+                                    MonsterShlpTempData[monster].startPos[2],
+                                    MonsterShlpTempData[monster].startPos[3],
+                                    MonsterShlpTempData[monster].endPos[1],
+                                    MonsterShlpTempData[monster].endPos[2],
+                                    MonsterShlpTempData[monster].endPos[3],
+                                    fromList[MonsterShlpTempData[monster].from],
+                                    Data_Monster.Shlp.ListPtr
+                                )
+                            end
+                        end
                         ImGui.TreePop()
                     end
                     ImGui.TreePop()
@@ -260,4 +287,14 @@ end
 --每次销毁怪物时执行的代码
 function on_monster_destroy()
 
+end
+
+
+function InitMonsterShlpTempData(monster)
+    MonsterShlpTempData[monster] = {
+        shell_shlpid = 0,
+        from = 0,
+        startPos = {0,0,0},
+        endPos = {0,0,0}
+    }
 end

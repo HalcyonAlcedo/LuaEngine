@@ -28,6 +28,9 @@ engine_monster = {
         frame = 0,
         frameEnd = 0,
         frameSpeed = 0
+    },
+    Shlp = {
+        ListPtr = false
     }
 }
 
@@ -88,10 +91,18 @@ function engine_monster:getMonsterActionInfo()
 end
 --获取动作帧信息
 function engine_monster:getMonsterFrameInfo()
+    if pointer.Monster == nil then return {frame = 0, frameEnd = 0, frameSpeed = 0 } end
     return {
         frame = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x10C, 'float'),
         frameEnd = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x114, 'float'),
         frameSpeed = GetAddressData(pointer.Monster + 0x6c, 'float')
+    }
+end
+--获取投射物信息
+function engine_monster:getMonsterShleInfo()
+    if pointer.Monster == nil then return { ListPtr = false } end
+    return {
+        ListPtr = GetAddress(pointer.Monster, { 0x56E8 })
     }
 end
 
@@ -166,6 +177,8 @@ function engine_monster:new(monster)
     o.Action = self:getMonsterActionInfo()
     --怪物动作帧
     o.Frame = self:getMonsterFrameInfo()
+    --投射物
+    o.Shlp = self:getMonsterShleInfo()
 
     --创建监听
     o.Characteristic = trace(o.Characteristic)
