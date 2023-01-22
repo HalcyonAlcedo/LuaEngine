@@ -70,7 +70,7 @@ namespace MH {
     namespace Shlp {
         static void* (*GetShlp)(void*, int) = (void* (*)(void*, int))0x140F86090;
         static void(*CallShlp)(void*, void*, void*, void*) = (void(*)(void*, void*, void*, void*))0x141ABA910;
-        static void(*ctor)(void*) = (void(*)(void*))0x14210e080;
+        static void*(*ctor)() = (void* (*)())0x141ABA910;
         static void(*dtor)(void*) = (void(*)(void*))0x1422448E0;
     }
     namespace Savefile {

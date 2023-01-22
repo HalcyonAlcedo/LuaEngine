@@ -20,6 +20,11 @@ GetRDIPtr proc
 	ret
 GetRDIPtr endp
 
+GetR12DPtr proc
+    mov [rcx], r12d
+	ret
+GetR12DPtr endp
+
 SetEDX proc
     mov edx, [rcx]
 	ret

@@ -7,6 +7,7 @@ local FSM_Run = {
     target = 0,
     id = 0
 }
+local MFSM_Run = {}
 local addFrameSpeed = 0
 local Keyboard_Shortcut  = '~'
 local shlpid = 0
@@ -144,8 +145,8 @@ function on_imgui()
                     AddFrameSpeed(GetAddress(0x145073ED0,{ 0x50 }),addFrameSpeed)
                 end
                 ImGui.Separator()
-                ImGui.Text("派生id: "..Data_Player.Action.fsm.fsmID)
                 ImGui.Text("派生目标: "..Data_Player.Action.fsm.fsmTarget)
+                ImGui.Text("派生id: "..Data_Player.Action.fsm.fsmID)
                 ImGui.Separator()
                 FSM_Run.target = ImGui.InputInt("派生目标", FSM_Run.target)
                 FSM_Run.id = ImGui.InputInt("派生id", FSM_Run.id)
@@ -209,11 +210,26 @@ function on_imgui()
                         ImGui.TreePop()
                     end
                     if ImGui.TreeNode("动作") then
+                        if MFSM_Run[monster] == nil then 
+                            MFSM_Run[monster] = {
+                                target = 0,
+                                id = 0
+                            }
+                        end
                         ImGui.Text("当前动作: "..Data_Monster.Action.lmtID)
                         ImGui.Text("动作帧大小: "..Data_Monster.Frame.frameEnd)
                         ImGui.SameLine()
                         ImGui.Text("动作帧速率: "..Data_Monster.Frame.frameSpeed)
                         Data_Monster.Frame.frame = ImGui.InputInt("当前动作帧", Data_Monster.Frame.frame)
+                        ImGui.Separator()
+                        ImGui.Text("派生目标: "..Data_Monster.Action.fsm.fsmTarget)
+                        ImGui.Text("派生id: "..Data_Monster.Action.fsm.fsmID)
+                        ImGui.Separator()
+                        MFSM_Run[monster].target = ImGui.InputInt("派生目标", MFSM_Run[monster].target)
+                        MFSM_Run[monster].id = ImGui.InputInt("派生id", MFSM_Run[monster].id)
+                        if ImGui.Button("执行派生动作") then
+                            Data_Monster.Action.fsm = { fsmTarget = MFSM_Run[monster].target, fsmID = MFSM_Run[monster].id }
+                        end
                         ImGui.TreePop()
                     end
                     if ImGui.TreeNode("投射物") then

@@ -22,7 +22,11 @@ engine_monster = {
         health_max = 0
     },
     Action = {
-        lmtID = 0
+        lmtID = 0,
+        fsm = {
+            fsmID = 0,
+            fsmTarget = 0
+        }
     },
     Frame = {
         frame = 0,
@@ -86,7 +90,11 @@ end
 function engine_monster:getMonsterActionInfo()
     if pointer.Monster == nil then return {lmtID = 0, fsm = {fsmID = 0, fsmTarget = 0}} end
     return {
-        lmtID = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0xE9C4, 'int')
+        lmtID = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0xE9C4, 'int'),
+        fsm = {
+            fsmID = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x6278, 'int'),
+            fsmTarget = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x6274, 'int')
+        }
     }
 end
 --获取动作帧信息
@@ -131,6 +139,12 @@ local function traceHandle(k,v)
         SetAddressData(pointer.Monster + 0xA50,'float',v.x)
         SetAddressData(pointer.Monster + 0xA54,'float',v.y)
         SetAddressData(pointer.Monster + 0xA58,'float',v.z)
+        return
+    end
+    --动作修改
+    if k == 'fsm' then
+        SetAddressData(GetAddress(pointer.Monster, { 0x6284 }) + 0x6278,'int',v.fsmTarget)
+        SetAddressData(GetAddress(pointer.Monster, { 0x6288 }) + 0x6278,'int',v.fsmID)
         return
     end
     --动作帧修改
