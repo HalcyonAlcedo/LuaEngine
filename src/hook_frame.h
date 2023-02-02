@@ -36,6 +36,11 @@ namespace hook_frame {
 				SpeedList[(void*)(long long)lua_tointeger(pL, 1)] = (float)lua_tonumber(pL, 2);
 				return 0;
 			});
+		lua_register(L, "GetAddFrameSpeed", [](lua_State* pL) -> int
+			{
+				lua_pushnumber(pL, SpeedList[(void*)(long long)lua_tointeger(pL, 1)]);
+				return 1;
+			});
 	}
 }
 #pragma endregion

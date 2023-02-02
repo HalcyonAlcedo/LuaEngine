@@ -47,7 +47,7 @@ namespace hook_shlp {
 					lua_pushstring(pL, "From");//来源指针
 					lua_pushinteger(pL, (long long)shlpData.From);
 					lua_settable(pL, -3);
-					lua_pushstring(pL, "Id");//来源指针
+					lua_pushstring(pL, "Id");//Id
 					lua_pushinteger(pL, (long long)shlpData.Id);
 					lua_settable(pL, -3);
 					lua_settable(pL, -3);//弹出到顶层

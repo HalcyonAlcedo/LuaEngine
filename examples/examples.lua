@@ -7,7 +7,6 @@ local FSM_Run = {
     target = 0,
     id = 0
 }
-local MFSM_Run = {}
 local addFrameSpeed = 0
 local Keyboard_Shortcut  = '~'
 local shlpid = 0
@@ -145,8 +144,8 @@ function on_imgui()
                     AddFrameSpeed(GetAddress(0x145073ED0,{ 0x50 }),addFrameSpeed)
                 end
                 ImGui.Separator()
-                ImGui.Text("派生目标: "..Data_Player.Action.fsm.fsmTarget)
                 ImGui.Text("派生id: "..Data_Player.Action.fsm.fsmID)
+                ImGui.Text("派生目标: "..Data_Player.Action.fsm.fsmTarget)
                 ImGui.Separator()
                 FSM_Run.target = ImGui.InputInt("派生目标", FSM_Run.target)
                 FSM_Run.id = ImGui.InputInt("派生id", FSM_Run.id)
@@ -157,7 +156,7 @@ function on_imgui()
             end
             if ImGui.TreeNode("重力") then
                 Data_Player.Gravity.gravity = ImGui.InputInt("重力加速度", Data_Player.Gravity.gravity)
-                Data_Player.Gravity.fall = ImGui.InputInt("下落速度", Data_Player.Gravity.fall)
+                Data_Player.Gravity.fall = ImGui.InputFloat("下落速度", Data_Player.Gravity.fall)
                 if Data_Player.Gravity.liftoff then
                     ImGui.Text("是否在空中: 是")
                 else
@@ -171,6 +170,12 @@ function on_imgui()
         if ImGui.TreeNode("世界数据") then
             ImGui.Text("世界时间: "..Data_World.Time)
             ImGui.Text("世界ID: "..Data_World.MapId)
+            if ImGui.TreeNode("导航坐标") then
+                ImGui.Text("X: "..Data_World.Position.wayPosition.x)
+                ImGui.Text("Y: "..Data_World.Position.wayPosition.y)
+                ImGui.Text("Z: "..Data_World.Position.wayPosition.z)
+                ImGui.TreePop()
+            end
             ImGui.TreePop()
         end
         --任务数据
