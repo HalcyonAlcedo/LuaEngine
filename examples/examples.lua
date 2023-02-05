@@ -109,7 +109,7 @@ function on_imgui()
                 end
                 ImGui.Separator()
                 ImGui.Text("最后命中的怪物")
-                ImGui.Text("地址 "..Data_Player.Weapon.hit)
+                ImGui.Text("地址 "..string.format("%X", Data_Player.Weapon.hit))
                 if Data_Player.Weapon.hit ~= 0 then
                     --初始化目标怪物引擎
                     local hit_monster = engine.Monster:new(Data_Player.Weapon.hit)
@@ -312,6 +312,20 @@ function on_imgui()
                     end
                     ImGui.TreePop()
                 end
+            end
+            --屏幕
+            if ImGui.TreeNode("屏幕数据(实验性功能)") then
+                local ScreenList = GetScreenPos()
+                for screen, screenData in pairs(ScreenList) do
+                    if ImGui.TreeNode("元素"..screen) then
+                        ImGui.InputFloat2("坐标", {
+                            screenData.x,
+                            screenData.y}
+                            , "%.1f",ImGuiInputTextFlags.ReadOnly)
+                        ImGui.TreePop()
+                    end
+                end
+                ImGui.TreePop()
             end
             ImGui.TreePop()
         end
