@@ -35,4 +35,10 @@ SetR14D proc
 	ret
 SetR14D endp
 
+GetRBP160 proc
+	push [rbp-00000160h]
+	pop [rcx]
+	ret
+GetRBP160 endp
+
 end

@@ -157,6 +157,9 @@
     <ClInclude Include="src\hook_shlp.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="hook_screen.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc">

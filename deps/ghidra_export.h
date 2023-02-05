@@ -66,6 +66,7 @@ namespace MH {
         static undefined(*Message)() = (undefined(*)())0x144D18278;
         static undefined8(*ActionFrameSpeed)(undefined8*) = (undefined8(*)(undefined8*))0x142245590;
         static void* Assembly = (void*)0x145224BF8;
+        static undefined(*Screen)(undefined*) = (undefined(*)(undefined*))0x14236BC90;
     }
     namespace Shlp {
         static void* (*GetShlp)(void*, int) = (void* (*)(void*, int))0x140F86090;
