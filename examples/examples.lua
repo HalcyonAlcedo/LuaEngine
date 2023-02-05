@@ -48,21 +48,30 @@ function on_imgui()
         --玩家数据
         if ImGui.TreeNode("玩家数据") then
             if ImGui.TreeNode("玩家坐标") then
-                ImGui.Text("玩家坐标")
-                ImGui.Text("X: "..Data_Player.Position.position.x)
-                ImGui.Text("Y: "..Data_Player.Position.position.y)
-                ImGui.Text("Z: "..Data_Player.Position.position.z)
+                ImGui.InputFloat3("玩家坐标", {
+                    Data_Player.Position.position.x,
+                    Data_Player.Position.position.y,
+                    Data_Player.Position.position.z}
+                    , "%.5f",ImGuiInputTextFlags.ReadOnly)
                 ImGui.Text("玩家遣返坐标")
-                ImGui.Text("X: "..Data_Player.Position.reposition.x)
-                ImGui.Text("Y: "..Data_Player.Position.reposition.y)
-                ImGui.Text("Z: "..Data_Player.Position.reposition.z)
+                ImGui.InputFloat3("玩家遣返坐标", {
+                    Data_Player.Position.reposition.x,
+                    Data_Player.Position.reposition.y,
+                    Data_Player.Position.reposition.z}
+                    , "%.5f",ImGuiInputTextFlags.ReadOnly)
                 ImGui.TreePop()
             end
             if ImGui.TreeNode("玩家模型") then
-                ImGui.Text("模型大小")
-                ImGui.Text("X: "..Data_Player.Model.size.x)
-                ImGui.Text("Y: "..Data_Player.Model.size.y)
-                ImGui.Text("Z: "..Data_Player.Model.size.z)
+                ImGui.InputFloat3("模型大小", {
+                    Data_Player.Model.size.x,
+                    Data_Player.Model.size.y,
+                    Data_Player.Model.size.z}
+                    , "%.5f",ImGuiInputTextFlags.ReadOnly)
+                ImGui.TreePop()
+            end
+            if ImGui.TreeNode("角度信息") then
+                ImGui.InputFloat4("四元数", {Data_Player.Angle.Quaternion.x,Data_Player.Angle.Quaternion.y,Data_Player.Angle.Quaternion.z,Data_Player.Angle.Quaternion.w}, "%.5f",ImGuiInputTextFlags.ReadOnly)
+                ImGui.InputFloat3("欧拉角", {Data_Player.Angle.Eulerian.x,Data_Player.Angle.Eulerian.y,Data_Player.Angle.Eulerian.z}, "%.5f",ImGuiInputTextFlags.ReadOnly)
                 ImGui.TreePop()
             end
             if ImGui.TreeNode("准星信息") then
@@ -71,21 +80,24 @@ function on_imgui()
                 else
                     ImGui.Text("瞄准状态: 否")
                 end
-                ImGui.Text("直线瞄准坐标")
-                ImGui.Text("X: "..Data_Player.Collimator.straightPos.x)
-                ImGui.Text("Y: "..Data_Player.Collimator.straightPos.y)
-                ImGui.Text("Z: "..Data_Player.Collimator.straightPos.z)
-                ImGui.Text("抛物线瞄准坐标")
-                ImGui.Text("X: "..Data_Player.Collimator.parabolaPos.x)
-                ImGui.Text("Y: "..Data_Player.Collimator.parabolaPos.y)
-                ImGui.Text("Z: "..Data_Player.Collimator.parabolaPos.z)
+                ImGui.InputFloat3("直线瞄准坐标", {
+                    Data_Player.Collimator.straightPos.x,
+                    Data_Player.Collimator.straightPos.y,
+                    Data_Player.Collimator.straightPos.z}
+                    , "%.5f",ImGuiInputTextFlags.ReadOnly)
+                ImGui.InputFloat3("抛物线瞄准坐标", {
+                    Data_Player.Collimator.parabolaPos.x,
+                    Data_Player.Collimator.parabolaPos.y,
+                    Data_Player.Collimator.parabolaPos.z}
+                    , "%.5f",ImGuiInputTextFlags.ReadOnly)
                 ImGui.TreePop()
             end
             if ImGui.TreeNode("武器信息") then
-                ImGui.Text("武器坐标")
-                ImGui.Text("X: "..Data_Player.Weapon.position.x)
-                ImGui.Text("Y: "..Data_Player.Weapon.position.y)
-                ImGui.Text("Z: "..Data_Player.Weapon.position.z)
+                ImGui.InputFloat3("武器坐标", {
+                    Data_Player.Weapon.position.x,
+                    Data_Player.Weapon.position.y,
+                    Data_Player.Weapon.position.z}
+                    , "%.5f",ImGuiInputTextFlags.ReadOnly)
                 ImGui.Text("武器类型: "..Data_Player.Weapon.type)
                 ImGui.Text("武器ID: "..Data_Player.Weapon.id)
                 ImGui.Separator()
@@ -99,12 +111,13 @@ function on_imgui()
                 ImGui.Text("最后命中的怪物")
                 ImGui.Text("地址 "..Data_Player.Weapon.hit)
                 if Data_Player.Weapon.hit ~= 0 then
-                    ImGui.Text("怪物坐标")
                     --初始化目标怪物引擎
                     local hit_monster = engine.Monster:new(Data_Player.Weapon.hit)
-                    ImGui.Text("X: "..hit_monster.Position.position.x)
-                    ImGui.Text("Y: "..hit_monster.Position.position.y)
-                    ImGui.Text("Z: "..hit_monster.Position.position.z)
+                    ImGui.InputFloat3("怪物坐标", {
+                        hit_monster.Position.position.x,
+                        hit_monster.Position.position.y,
+                        hit_monster.Position.position.z}
+                        , "%.5f",ImGuiInputTextFlags.ReadOnly)
                 end
                 ImGui.TreePop()
             end
@@ -170,12 +183,11 @@ function on_imgui()
         if ImGui.TreeNode("世界数据") then
             ImGui.Text("世界时间: "..Data_World.Time)
             ImGui.Text("世界ID: "..Data_World.MapId)
-            if ImGui.TreeNode("导航坐标") then
-                ImGui.Text("X: "..Data_World.Position.wayPosition.x)
-                ImGui.Text("Y: "..Data_World.Position.wayPosition.y)
-                ImGui.Text("Z: "..Data_World.Position.wayPosition.z)
-                ImGui.TreePop()
-            end
+            ImGui.InputFloat3("导航坐标", {
+                Data_World.Position.wayPosition.x,
+                Data_World.Position.wayPosition.y,
+                Data_World.Position.wayPosition.z}
+                , "%.5f",ImGuiInputTextFlags.ReadOnly)
             ImGui.TreePop()
         end
         --任务数据
@@ -192,21 +204,24 @@ function on_imgui()
                 local Data_Monster = engine.Monster:new(monster)
                 if ImGui.TreeNode("怪物"..monsterData.Id.." _ "..string.format("%X", monster)) then
                     if ImGui.TreeNode("怪物坐标") then
-                        ImGui.Text("怪物坐标")
-                        ImGui.Text("X: "..Data_Monster.Position.position.x)
-                        ImGui.Text("Y: "..Data_Monster.Position.position.y)
-                        ImGui.Text("Z: "..Data_Monster.Position.position.z)
-                        ImGui.Text("怪物遣返坐标")
-                        ImGui.Text("X: "..Data_Monster.Position.reposition.x)
-                        ImGui.Text("Y: "..Data_Monster.Position.reposition.y)
-                        ImGui.Text("Z: "..Data_Monster.Position.reposition.z)
+                        ImGui.InputFloat3("怪物坐标", {
+                            Data_Monster.Position.position.x,
+                            Data_Monster.Position.position.y,
+                            Data_Monster.Position.position.z}
+                            , "%.5f",ImGuiInputTextFlags.ReadOnly)
+                        ImGui.InputFloat3("怪物遣返坐标", {
+                            Data_Monster.Position.reposition.x,
+                            Data_Monster.Position.reposition.y,
+                            Data_Monster.Position.reposition.z}
+                            , "%.5f",ImGuiInputTextFlags.ReadOnly)
                         ImGui.TreePop()
                     end
                     if ImGui.TreeNode("怪物模型") then
-                        ImGui.Text("模型大小")
-                        ImGui.Text("X: "..Data_Monster.Model.size.x)
-                        ImGui.Text("Y: "..Data_Monster.Model.size.y)
-                        ImGui.Text("Z: "..Data_Monster.Model.size.z)
+                        ImGui.InputFloat3("模型大小", {
+                            Data_Monster.Model.size.x,
+                            Data_Monster.Model.size.y,
+                            Data_Monster.Model.size.z}
+                            , "%.5f",ImGuiInputTextFlags.ReadOnly)
                         ImGui.TreePop()
                     end
                     if ImGui.TreeNode("状态") then
@@ -274,21 +289,25 @@ function on_imgui()
                 local Data_Animals = engine.Entity:new(animals)
                 if ImGui.TreeNode("环境生物"..animalsData.Id.." _ "..animals) then
                     if ImGui.TreeNode("环境生物坐标") then
-                        ImGui.Text("环境生物坐标")
-                        ImGui.Text("X: "..Data_Animals.Position.position.x)
-                        ImGui.Text("Y: "..Data_Animals.Position.position.y)
-                        ImGui.Text("Z: "..Data_Animals.Position.position.z)
-                        ImGui.Text("环境生物遣返坐标")
-                        ImGui.Text("X: "..Data_Animals.Position.reposition.x)
-                        ImGui.Text("Y: "..Data_Animals.Position.reposition.y)
-                        ImGui.Text("Z: "..Data_Animals.Position.reposition.z)
+                        ImGui.InputFloat3("环境生物坐标", {
+                            Data_Animals.Position.position.x,
+                            Data_Animals.Position.position.y,
+                            Data_Animals.Position.position.z}
+                            , "%.5f",ImGuiInputTextFlags.ReadOnly)
+                        ImGui.InputFloat3("环境生物遣返坐标", {
+                            Data_Animals.Position.reposition.x,
+                            Data_Animals.Position.reposition.y,
+                            Data_Animals.Position.reposition.z}
+                            , "%.5f",ImGuiInputTextFlags.ReadOnly)
                         ImGui.TreePop()
                     end
                     if ImGui.TreeNode("环境生物模型") then
                         ImGui.Text("模型大小")
-                        ImGui.Text("X: "..Data_Animals.Model.size.x)
-                        ImGui.Text("Y: "..Data_Animals.Model.size.y)
-                        ImGui.Text("Z: "..Data_Animals.Model.size.z)
+                        ImGui.InputFloat3("模型大小", {
+                            Data_Animals.Model.size.x,
+                            Data_Animals.Model.size.y,
+                            Data_Animals.Model.size.z}
+                            , "%.5f",ImGuiInputTextFlags.ReadOnly)
                         ImGui.TreePop()
                     end
                     ImGui.TreePop()

@@ -129,10 +129,10 @@ end
 --获取玩家四元数角
 function engine_player:getPlayerQuaternion()
     return {
-        w = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x170, 'float'),
-        x = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x174, 'float'),
-        y = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x178, 'float'),
-        z = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x17c, 'float')
+        x = GetAddressData(pointer:Player() + 0x174, 'float'),
+        y = GetAddressData(pointer:Player() + 0x178, 'float'),
+        z = GetAddressData(pointer:Player() + 0x17C, 'float'),
+        w = GetAddressData(pointer:Player() + 0x180, 'float')
     }
 end
 --获取玩家欧拉角
@@ -288,10 +288,10 @@ local function traceHandle(k,v)
     end
     --四元数角修改
     if k == 'Quaternion' then
-        SetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x170,'float',v.w)
-        SetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x174,'float',v.x)
-        SetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x178,'float',v.y)
-        SetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x17c,'float',v.z)
+        SetAddressData(pointer:Player() + 0x174,'float',v.x)
+        SetAddressData(pointer:Player() + 0x178,'float',v.y)
+        SetAddressData(pointer:Player() + 0x17C,'float',v.z)
+        SetAddressData(pointer:Player() + 0x180,'float',v.w)
     end
     --动作修改
     if k == 'lmtID' then
@@ -340,7 +340,7 @@ function engine_player:AimPosition(pos)
     local direction_z = pos.z - self.Position.position.z
     local aim_angle = math.atan(direction_x/direction_z)
 
-    local sign = function(x) if x < o then return -1 elseif x == 0 then return 0 else return 1 end
+    local sign = function(x) if x < o then return -1 elseif x == 0 then return 0 else return 1 end end
     local a2q = function(angle) if angle / math.pi > 0.5 then return {x = math.pi, y = angle - math.pi, z = 0} elseif angle / math.pi < -0.5 then return {x = math.pi, y = angle + math.pi, z = 0} else return {x = 0, y = -angle, z = math.pi} end end
     aim_angle = aim_angle + sign(direction_x) * (1 - sing(direction_z)) * math.pi / 2
     
