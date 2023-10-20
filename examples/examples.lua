@@ -7,6 +7,7 @@ local FSM_Run = {
     target = 0,
     id = 0
 }
+local MFSM_Run = {}
 local addFrameSpeed = 0
 local Keyboard_Shortcut  = '~'
 local shlpid = 0
@@ -28,6 +29,7 @@ function on_time()
     (CheckChronoscope('keypad_keyCD_'..Keyboard_Shortcut)
     or not CheckPresenceChronoscope('keypad_keyCD_'..Keyboard_Shortcut))
     then
+        
         AddChronoscope(1,'keypad_keyCD_'..Keyboard_Shortcut)
         openDataview = not openDataview
     end
@@ -44,7 +46,7 @@ function on_imgui()
         ImGui.SetNextWindowBgAlpha(0.35)
         ImGui.SetNextWindowSize(500, 800)
         openDataview, shouldDraw = ImGui.Begin('数据窗口', openDataview)
-
+        
         --玩家数据
         if ImGui.TreeNode("玩家数据") then
             if ImGui.TreeNode("玩家坐标") then
@@ -154,7 +156,7 @@ function on_imgui()
                 t_addFrameSpeed = ImGui.SliderFloat("增加速率", addFrameSpeed, -2, 10)
                 if addFrameSpeed ~= t_addFrameSpeed then --减少map访问
                     addFrameSpeed = t_addFrameSpeed
-                    AddFrameSpeed(GetAddress(0x145073ED0,{ 0x50 }),addFrameSpeed)
+                    AddFrameSpeed(GetAddress(0x145011760,{ 0x50 }),addFrameSpeed)
                 end
                 ImGui.Separator()
                 ImGui.Text("派生id: "..Data_Player.Action.fsm.fsmID)
@@ -165,6 +167,8 @@ function on_imgui()
                 if ImGui.Button("执行派生动作") then
                     Data_Player.Action.fsm = { fsmTarget = FSM_Run.target, fsmID = FSM_Run.id }
                 end
+                ImGui.Separator()
+                ImGui.Text("是否在使用物品: "..Data_Player.Action.useItem)
                 ImGui.TreePop()
             end
             if ImGui.TreeNode("重力") then
@@ -195,6 +199,20 @@ function on_imgui()
             ImGui.Text("任务时间: "..Data_Quest.Time)
             ImGui.Text("任务ID: "..Data_Quest.Id)
             ImGui.Text("任务状态: "..Data_Quest.State)
+            ImGui.TreePop()
+        end
+        --投射物
+        if ImGui.TreeNode("投射物") then
+            local shlpList = GetShlp()
+            for shlp, shlpData in pairs(shlpList) do
+                if ImGui.TreeNode("投射物"..string.format("%X", shlp)) then
+                    if GetAddress(shlp,{ 0X2B0 }) then
+                        ImGui.Text("投射物来源: "..string.format("%X", GetAddress(shlp,{ 0X2B0 })))
+                    end
+                    ImGui.Text("ID: "..shlpData.Id)
+                ImGui.TreePop()
+                end
+            end
             ImGui.TreePop()
         end
         --怪物数据
@@ -261,7 +279,7 @@ function on_imgui()
                             MonsterShlpTempData[monster].startPos = ImGui.InputFloat3("起点坐标", MonsterShlpTempData[monster].startPos)
                             MonsterShlpTempData[monster].endPos = ImGui.InputFloat3("终点坐标", MonsterShlpTempData[monster].endPos)
                             if ImGui.Button("发射") and Data_Monster.Shlp.ListPtr then
-                                local fromList = {[0] = GetAddress(0x145073ED0,{ 0x50 }),[1] = monster}
+                                local fromList = {[0] = GetAddress(0x145011760,{ 0x50 }),[1] = monster}
                                 CreateProjectiles(
                                     MonsterShlpTempData[monster].shell_shlpid,
                                     MonsterShlpTempData[monster].startPos[1],
@@ -313,22 +331,9 @@ function on_imgui()
                     ImGui.TreePop()
                 end
             end
-            --屏幕
-            if ImGui.TreeNode("屏幕数据(实验性功能)") then
-                local ScreenList = GetScreenPos()
-                for screen, screenData in pairs(ScreenList) do
-                    if ImGui.TreeNode("元素"..screen) then
-                        ImGui.InputFloat2("坐标", {
-                            screenData.x,
-                            screenData.y}
-                            , "%.1f",ImGuiInputTextFlags.ReadOnly)
-                        ImGui.TreePop()
-                    end
-                end
-                ImGui.TreePop()
-            end
             ImGui.TreePop()
         end
+
         ImGui.End()
     end
 end

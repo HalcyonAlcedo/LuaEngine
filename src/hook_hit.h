@@ -22,7 +22,7 @@ namespace hook_hit {
 				//受击统计，清除计数器交给逻辑代码，不在这里执行
 				Hit.HitCount += 1;
 				Hit.HitPlot = *((void**)(rdx + 0x8));
-				//如果是怪物，则设置rcx为0，后续交给程序自己执行
+				//如果设定了无敌，则设置rcx为0，后续交给程序自己执行
 				if (Hit.Invulnerable) rcx = 0;
 
 				auto ret = original(rcx, rdx);

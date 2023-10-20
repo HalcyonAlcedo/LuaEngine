@@ -1,6 +1,8 @@
 #pragma once
 #include <io.h>
 #include <filesystem>
+#include <MMSystem.h>
+#pragma comment(lib,"Winmm.lib")
 
 using namespace loader;
 using namespace std;
@@ -155,7 +157,7 @@ namespace Keyboard {
 	//¼ì²é´°¿Ú
 	static bool CheckWindows() {
 		HWND wnd = GetForegroundWindow();
-		HWND mhd = FindWindow(L"MT FRAMEWORK", L"MONSTER HUNTER: WORLD(421471)");
+		HWND mhd = FindWindow(L"MT FRAMEWORK", L"MONSTER HUNTER: WORLD(421631)");
 		if (wnd == mhd)
 			return true;
 		else
@@ -322,6 +324,54 @@ namespace XboxPad {
 		return false;
 	}
 	static void Updata() {
+		JOYINFO joyinfo;
+		JOYINFOEX joyinfoex;
+		joyinfoex.dwSize = sizeof(JOYINFOEX);
+		joyinfoex.dwFlags = JOY_RETURNALL;
+			UINT joy_nums;
+			joy_nums = joyGetNumDevs();
+			if (joy_nums > 0) {
+				MMRESULT joy_ret = joyGetPosEx(JOYSTICKID1, &joyinfoex);
+				if (joy_ret == JOYERR_NOERROR) {
+					if (joyinfoex.dwButtons == 1)
+						KeyState::A = KeyState::A + 0.0166;
+					if (joyinfoex.dwButtons == 2)
+						KeyState::B = KeyState::B + 0.0166;
+					if (joyinfoex.dwButtons == 8)
+						KeyState::Y = KeyState::Y + 0.0166;
+					if (joyinfoex.dwButtons == 32)
+						KeyState::RB = KeyState::RB + 0.0166;
+					if (joyinfoex.dwZpos < 32767)
+						KeyState::RT = KeyState::RT + 0.0166;
+					if (joyinfoex.dwZpos > 32767)
+						KeyState::LT = KeyState::LT + 0.0166;
+				}
+			}
+			if (GetAsyncKeyState(VK_LBUTTON) < 0)
+				KeyState::Y = KeyState::Y + 0.0166;
+			if (GetAsyncKeyState(VK_RBUTTON) < 0)
+				KeyState::B = KeyState::B + 0.0166;
+			if (GetAsyncKeyState(VK_SPACE) < 0)
+				KeyState::A = KeyState::A + 0.0166;
+			if (GetAsyncKeyState(67) < 0)
+				KeyState::LT = KeyState::LT + 0.0166;
+			if (GetAsyncKeyState(VK_LSHIFT) < 0)
+				KeyState::RB = KeyState::RB + 0.0166;
+			if (GetAsyncKeyState(VK_XBUTTON2) < 0)
+				KeyState::RT = KeyState::RT + 0.0166;
+			if (joyinfoex.dwButtons == 0 && GetAsyncKeyState(VK_LBUTTON) == 0)
+				KeyState::Y = 0;
+			if (joyinfoex.dwButtons == 0 && GetAsyncKeyState(VK_RBUTTON) == 0)
+				KeyState::B = 0;
+			if (joyinfoex.dwButtons == 0 && GetAsyncKeyState(VK_SPACE) == 0)
+				KeyState::A = 0;
+			if (joyinfoex.dwButtons == 0 && GetAsyncKeyState(VK_LSHIFT) == 0)
+				KeyState::RB = 0;
+			if (joyinfoex.dwZpos == 32767 && GetAsyncKeyState(VK_XBUTTON2) == 0)
+				KeyState::RT = 0;
+			if (joyinfoex.dwZpos == 32767 && GetAsyncKeyState(67) == 0)
+				KeyState::LT = 0;
+		/*
 		KeyState::LJoystickUp = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC44) > 0.0;
 		KeyState::LJoystickRight = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC40) > 0.0;
 		KeyState::LJoystickDown = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC44) < 0.0;
@@ -346,6 +396,7 @@ namespace XboxPad {
 		KeyState::X = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC9C) != 0.0;
 		KeyState::Window = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC60) != 0.0;
 		KeyState::Menu = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC6C) != 0.0;
+		*/
 	}
 }
 #pragma endregion

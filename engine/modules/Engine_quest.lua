@@ -14,8 +14,8 @@ engine_quest = {
 }
 
 local pointer = {
-    time = function() return GetAddress(0x145073ED0,{ 0x50, 0x7D20 }) end,
-    quest = function() return 0x14506F240 end
+    time = function() return GetAddress(0x145011760,{ 0x50, 0x7D20 }) end,
+    quest = function() return GetAddressData(0x14506F240, 'int') end
 }
 
 --获取当前任务时间

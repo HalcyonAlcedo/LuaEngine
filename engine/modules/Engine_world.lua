@@ -15,8 +15,8 @@ engine_world = {
 }
 
 local pointer = {
-    map = function() return GetAddress(0x145073ED0,{ 0x50, 0x7D20 }) end,
-    WorldData = function() return GetAddress(0x14522C850,{ 0x48, 0x58, 0x58, 0x40 }) end
+    map = function() return GetAddress(0x145011760,{ 0x50, 0x7D20 }) end,
+    WorldData = function() return GetAddress(0x1451ca0c0,{ 0x48, 0x58, 0x58, 0x40 }) end
 }
 
 --获取地图Id

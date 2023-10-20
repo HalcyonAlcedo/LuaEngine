@@ -1,7 +1,7 @@
 --[[
     LuaEngine游戏数据解析引擎
-    版本: 1.3
-    适用于LuaEngine模组1.0.8版本
+    版本: 1.4
+    适用于LuaEngine模组1.0.10版本
 ]]
 require "modules/Engine_player"
 require "modules/Engine_world"

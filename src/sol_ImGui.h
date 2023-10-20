@@ -39,7 +39,9 @@ namespace sol_ImGui
 		return std::make_tuple(open, shouldDraw);
 	}
 	inline void End()																					{ ImGui::End(); }
-	
+	// DisplaySize
+	inline std::tuple<float, float> GetDisplaySize()													{ const ImGuiIO io = ImGui::GetIO();  return std::make_tuple(io.DisplaySize.x, io.DisplaySize.y); }
+
 	// Child Windows
 	inline bool BeginChild(const std::string& name)														{ return ImGui::BeginChild(name.c_str()); }
 	inline bool BeginChild(const std::string& name, float sizeX)										{ return ImGui::BeginChild(name.c_str(), { sizeX, 0 }); }
@@ -2019,7 +2021,7 @@ namespace sol_ImGui
 		InitEnums(lua);
 		
 		sol::table ImGui = lua.create_named_table("ImGui");
-
+		ImGui.set_function("GetDisplaySize"					, GetDisplaySize);
 #pragma region Windows
 		ImGui.set_function("Begin"							, sol::overload(
 																sol::resolve<bool(const std::string&)>(Begin),

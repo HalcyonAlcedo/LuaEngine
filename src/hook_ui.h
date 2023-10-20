@@ -1,4 +1,6 @@
 #include "kiero.h"
+#include <iostream>
+#include <future>
 
 #if KIERO_INCLUDE_D3D11
 
@@ -121,11 +123,10 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	}
 	//impl::showExampleWindow("D3D11");
 	if (LuaCore::luaframe) {
-		LuaCore::luaframe = false;
+		// LuaCore::luaframe = false;
 		LuaCore::run("on_imgui");
 	}
-
-	ImGui::EndFrame();
+	//ImGui::EndFrame();
 	ImGui::Render();
 	pContext->OMSetRenderTargets(1, &mainRenderTargetView, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -143,6 +144,9 @@ DWORD WINAPI MainThread(LPVOID lpReserved)
 			kiero::bind(8, (void**)&oPresent, hkPresent);
 			kiero::bind(13, (void**)&oResize, hkResize);
 			init_hook = true;
+		}
+		else {
+			Sleep(1000);
 		}
 	} while (!init_hook);
 	return TRUE;
