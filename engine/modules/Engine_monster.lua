@@ -31,7 +31,8 @@ engine_monster = {
     Frame = {
         frame = 0,
         frameEnd = 0,
-        frameSpeed = 0
+        frameSpeed = 0,
+        frameSpeedMultiplies = 0
     },
     Shlp = {
         ListPtr = false
@@ -92,18 +93,19 @@ function engine_monster:getMonsterActionInfo()
     return {
         lmtID = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0xE9C4, 'int'),
         fsm = {
-            fsmID = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x6278, 'int'),
-            fsmTarget = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x6274, 'int')
+            fsmID = GetAddressData(pointer.Monster + 0x6278, 'int'),
+            fsmTarget = GetAddressData(pointer.Monster + 0x6274, 'int')
         }
     }
 end
 --获取动作帧信息
 function engine_monster:getMonsterFrameInfo()
-    if pointer.Monster == nil then return {frame = 0, frameEnd = 0, frameSpeed = 0 } end
+    if pointer.Monster == nil then return {frame = 0, frameEnd = 0, frameSpeed = 0, frameSpeedMultiplies = 0} end
     return {
         frame = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x10C, 'float'),
         frameEnd = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x114, 'float'),
-        frameSpeed = GetAddressData(pointer.Monster + 0x6c, 'float')
+        frameSpeed = GetAddressData(pointer.Monster + 0x6c, 'float'),
+        frameSpeedMultiplies = GetAddressData(GetAddressData(0x145121688, 'int') + GetAddressData(pointer.Monster + 0x10, 'int') * 0xf8 + 0x9c, 'float')
     }
 end
 --获取投射物信息
@@ -143,13 +145,20 @@ local function traceHandle(k,v)
     end
     --动作修改
     if k == 'fsm' then
-        SetAddressData(GetAddress(pointer.Monster, { 0x6284 }) + 0x6278,'int',v.fsmTarget)
-        SetAddressData(GetAddress(pointer.Monster, { 0x6288 }) + 0x6278,'int',v.fsmID)
+        SetAddressData(pointer.Monster + 0x6284,'int',v.fsmTarget)
+        SetAddressData(pointer.Monster + 0x6288,'int',v.fsmID)
         return
     end
     --动作帧修改
     if k == 'frame' then
         SetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x10C,'float',v)
+        return
+    end
+    --动作帧速率倍率修改
+    if k == 'frameSpeedMultiplies' then
+        SetAddressData(
+            GetAddressData(0x145121688, 'int') + GetAddressData(pointer.Monster + 0x10, 'int') * 0xf8 + 0x9c
+        ,'float',v)
         return
     end
     
