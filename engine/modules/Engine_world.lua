@@ -21,13 +21,17 @@ local pointer = {
 
 --获取地图Id
 function engine_world:getMapId()
-    local Id = GetAddressData(pointer:map() + 0xB88, 'int')
-    return Id
+    if pointer:map() then
+        local Id = GetAddressData(pointer:map() + 0xB88, 'int')
+        return Id
+    end
 end
 --获取当前时间
 function engine_world:getTime()
+    if pointer:map() then
     local time = GetAddressData(pointer:map() + 0xC24, 'float')
     return time
+    end
 end
 --获取导航坐标
 function engine_world:getWayPosition()
