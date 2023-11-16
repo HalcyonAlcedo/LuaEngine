@@ -157,7 +157,7 @@ namespace Keyboard {
 	//¼ì²é´°¿Ú
 	static bool CheckWindows() {
 		HWND wnd = GetForegroundWindow();
-		HWND mhd = FindWindow(L"MT FRAMEWORK", L"MONSTER HUNTER: WORLD(421631)");
+		HWND mhd = FindWindow(L"MT FRAMEWORK", L"MONSTER HUNTER: WORLD(421652)");
 		if (wnd == mhd)
 			return true;
 		else
