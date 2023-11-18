@@ -8,6 +8,9 @@
     SetState
 ]]
 engine_quest = {
+    info = {
+        name = 'Quest'
+    },
     Time = 0,
     Id = 0,
     State = 0

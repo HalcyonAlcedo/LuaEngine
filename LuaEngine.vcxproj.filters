@@ -66,6 +66,9 @@
     <ClCompile Include="src\Sound.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="deps\imgui\imgui_impl_dx12.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="deps\loader.lib">
@@ -158,6 +161,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="hook_screen.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\imgui\imgui_impl_dx12.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,6 +7,9 @@
     方法
 ]]
 engine_world = {
+    info = {
+        name = 'World'
+    },
     MapId = 0,
     Time = 0,
     Position = {

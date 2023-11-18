@@ -1,23 +1,13 @@
 --[[
     LuaEngine游戏数据解析引擎
-    版本: 1.4
-    适用于LuaEngine模组1.0.10版本
+    版本: 1.5
+    适用于LuaEngine模组1.1.0版本
 ]]
-require "modules/Engine_player"
-require "modules/Engine_world"
-require "modules/Engine_quest"
-require "modules/Engine_monster"
-require "modules/Engine_entity"
+
 
 _G.print = function(t) Console_Info(t) end
 
 engine = {}
-
-engine.Player = engine_player
-engine.World = engine_world
-engine.Quest = engine_quest
-engine.Monster = engine_monster
-engine.Entity = engine_entity
 
 --[[
     按键处理引擎
@@ -116,11 +106,51 @@ function engine.distance(p1,p2)
 end
 --列表中是否存在某值
 function engine.table_include(value, tab)
-for _,v in ipairs(tab) do
-    if v == value then
-        return true
+    for _,v in ipairs(tab) do
+        if v == value then
+            return true
+        end
     end
-  end
-  return false
+    return false
 end
+--获取文件列表
+local allFilePath
+function getFiles(filePath, dir)
+    for entry in lfs.dir(filePath) do
+        if entry~='.' and entry~='..' then
+            local path = filePath.."\\"..entry
+            local attr = lfs.attributes(path)
+            assert(type(attr)=="table")
+            if(attr.mode == "directory" and dir) then
+                getFiles(path)
+            elseif attr.mode=="file" then
+                table.insert(allFilePath,{
+                    path = path,
+                    file = entry
+                })
+            end
+        end
+    end
+end
+function engine.GetAllFiles(rootPath, dir)
+    if dir == nil then dir = false end
+    allFilePath = {}
+    getFiles(rootPath, dir)
+    return allFilePath
+end
+--自动加载引擎模组
+local engineModules = engine.GetAllFiles("./Lua/modules")
+for _, eFile in pairs(engineModules) do
+    if eFile.file:sub(-4) == ".lua" then
+        local engineModule = dofile("./Lua/modules/"..eFile.file)
+        if engineModule.info ~= nil and engineModule.info.name ~= nil then
+            print("加载引擎模组"..engineModule.info.name)
+            engine[engineModule.info.name] = engineModule
+        else
+            print("加载引擎模组"..eFile.file)
+            engine[eFile.file] = engineModule
+        end
+    end
+end
+
 _G.engine = engine

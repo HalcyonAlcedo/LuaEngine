@@ -15,6 +15,9 @@
     AimPosition             使得玩家朝向点
 ]]
 engine_player = {
+    info = {
+        name = 'Player'
+    },
     Position = {
         position = {x = 0, y = 0, z = 0},
         cntrposition = {x = 0, y = 0, z = 0, h = 0},
@@ -73,7 +76,8 @@ engine_player = {
     Frame = {
         frame = 0,
         frameEnd = 0,
-        frameSpeed = 0
+        frameSpeed = 0,
+        frameSpeedMultiplies = 0
     }
 }
 
@@ -289,12 +293,14 @@ function engine_player:getPlayerFrameInfo()
     if not pointer:Player() then return {
         frame = 0,
         frameEnd = 0,
-        frameSpeed = 0
+        frameSpeed = 0,
+        frameSpeedMultiplies = 0
     } end
     return {
         frame = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x10C, 'float'),
         frameEnd = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x114, 'float'),
-        frameSpeed = GetAddressData(pointer:Player() + 0x6c, 'float')
+        frameSpeed = GetAddressData(pointer:Player() + 0x6c, 'float'),
+        frameSpeedMultiplies = GetAddressData(GetAddressData(0x145121688, 'int') + GetAddressData(pointer:Player() + 0x10, 'int') * 0xf8 + 0x9c, 'float')
     }
 end
 
@@ -355,6 +361,13 @@ local function traceHandle(k,v)
     --动作帧修改
     if k == 'frame' then
         SetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x10C,'float',v)
+        return
+    end
+    --动作帧速率倍率修改
+    if k == 'frameSpeedMultiplies' then
+        SetAddressData(
+            GetAddressData(0x145121688, 'int') + GetAddressData(pointer:Player() + 0x10, 'int') * 0xf8 + 0x9c
+        ,'float',v)
         return
     end
 end
