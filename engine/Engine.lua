@@ -169,7 +169,7 @@ function engine.keypad(Keys, Xbox)
     if type(Keys) == 'table' and next(Keys) ~= nil then
         if Xbox then
             for _, Key in pairs(Keys) do
-                if XCheckKeyIsPressed(XKeyToKeyId(Keys)) then return true end
+                if not XCheckKeyIsPressed(XKeyToKeyId(Key)) then return false end
             end
         else
             for _, Key in pairs(Keys) do
