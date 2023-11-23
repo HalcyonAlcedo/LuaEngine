@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,0,261
- PRODUCTVERSION 1,1,0,261
+ FILEVERSION 1,1,0,268
+ PRODUCTVERSION 1,1,0,268
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -67,12 +67,12 @@ BEGIN
     BEGIN
         BLOCK "080404b0"
         BEGIN
-            VALUE "FileVersion", "1.1.0.261"
+            VALUE "FileVersion", "1.1.0.268"
             VALUE "InternalName", "LuaEngin.dll"
             VALUE "LegalCopyright", "Copyright (C) 2023 Alcedo"
             VALUE "OriginalFilename", "LuaEngin.dll"
             VALUE "ProductName", "LuaEngin"
-            VALUE "ProductVersion", "1.1.0.261"
+            VALUE "ProductVersion", "1.1.0.268"
         END
     END
     BLOCK "VarFileInfo"

@@ -151,7 +151,10 @@ function on_imgui()
                 ImGui.Text("动作帧大小: "..Data_Player.Frame.frameEnd)
                 ImGui.SameLine()
                 ImGui.Text("动作帧速率: "..Data_Player.Frame.frameSpeed)
+                ImGui.SameLine()
+                ImGui.Text("动作帧速率倍率: "..Data_Player.Frame.frameSpeedMultiplies)
                 Data_Player.Frame.frame = ImGui.InputInt("当前动作帧", Data_Player.Frame.frame)
+                Data_Player.Frame.frameSpeedMultiplies = ImGui.SliderFloat("增加速率倍率", Data_Player.Frame.frameSpeedMultiplies, -2, 10)
                 t_addFrameSpeed = ImGui.SliderFloat("增加速率", addFrameSpeed, -2, 10)
                 if addFrameSpeed ~= t_addFrameSpeed then --减少map访问
                     addFrameSpeed = t_addFrameSpeed
