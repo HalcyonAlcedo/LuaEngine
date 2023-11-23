@@ -1,4 +1,7 @@
 engine_item = {
+    info = {
+        name = 'Item'
+    },
     item = {
         id = 0,
         number = 0

@@ -15,6 +15,9 @@
     AimPosition             使得玩家朝向点
 ]]
 engine_player = {
+    info = {
+        name = 'Player'
+    },
     Position = {
         position = {x = 0, y = 0, z = 0},
         cntrposition = {x = 0, y = 0, z = 0, h = 0},

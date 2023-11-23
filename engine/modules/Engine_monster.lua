@@ -9,6 +9,9 @@
     方法
 ]]
 engine_monster = {
+    info = {
+        name = 'Monster'
+    },
     Position = {
         position = {x = 0, y = 0, z = 0},
         cntrposition = {x = 0, y = 0, z = 0, h = 0},
