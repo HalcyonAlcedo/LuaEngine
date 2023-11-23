@@ -24,11 +24,13 @@ local pointer = {
 
 --获取地图Id
 function engine_world:getMapId()
+    if not pointer:map() then return 0 end
     local Id = GetAddressData(pointer:map() + 0xB88, 'int')
     return Id
 end
 --获取当前时间
 function engine_world:getTime()
+    if not pointer:map() then return 0 end
     local time = GetAddressData(pointer:map() + 0xC24, 'float')
     return time
 end

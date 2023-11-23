@@ -46,7 +46,6 @@ function on_imgui()
         ImGui.SetNextWindowBgAlpha(0.35)
         ImGui.SetNextWindowSize(500, 800)
         openDataview, shouldDraw = ImGui.Begin('数据窗口', openDataview)
-        
         --玩家数据
         if ImGui.TreeNode("玩家数据") then
             if ImGui.TreeNode("玩家坐标") then

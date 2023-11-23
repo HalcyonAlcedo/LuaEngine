@@ -18,11 +18,12 @@ engine_quest = {
 
 local pointer = {
     time = function() return GetAddress(0x145011760,{ 0x50, 0x7D20 }) end,
-    quest = function() return GetAddressData(0x14506F240, 'int') end
+    quest = function() return GetAddressData(0x14500CAF0, 'int') end
 }
 
 --获取当前任务时间
 function engine_quest:getTime()
+    if not pointer:time() then return 0 end
     local time = GetAddressData(pointer:time() + 0xC24, 'float')
     return time
 end
@@ -36,8 +37,6 @@ function engine_quest:getState()
     local state = GetAddressData(pointer:quest() + 0x54, 'int')
     return state
 end
-
-
 
 --设置任务状态
 function engine_quest:setState(state)

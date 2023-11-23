@@ -2,12 +2,11 @@
 #include <iostream>
 #include <future>
 
-static bool GameInit = false;
-
-#if KIERO_INCLUDE_D3D11
 
 #include <d3d11.h>
 #include <assert.h>
+#include <d3d12.h>
+#include <dxgi1_4.h>
 
 #include "win32_impl.h"
 
@@ -17,6 +16,13 @@ static bool GameInit = false;
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
+#include <imgui/imgui_impl_dx12.h>
+#include <chrono>
+#include <atlbase.h>
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3d12.lib")
+
+#define USE_MINHOOK
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -48,6 +54,7 @@ struct Texture {
 map<string, Texture> TextureList;
 
 static bool ViewInit = false;
+static bool GameInit = false;
 
 void InitImGui()
 {
@@ -55,7 +62,7 @@ void InitImGui()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	auto fonts = ImGui::GetIO().Fonts;
-	imgui_logger->info("从{}加载字体数据","c:/windows/fonts/simhei.ttf");
+	imgui_logger->info("从{}加载字体数据", "c:/windows/fonts/simhei.ttf");
 	fonts->AddFontFromFileTTF(
 		"c:/windows/fonts/simhei.ttf",
 		13.0f,
@@ -208,24 +215,6 @@ bool LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_sr
 	return true;
 }
 
-#endif // KIERO_INCLUDE_D3D11
-
-#if KIERO_INCLUDE_D3D12
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_dx12.h>
-#include <imgui/imgui_impl_win32.h>
-#include <stdio.h>
-#include <string>
-#include <chrono>
-#include <thread>
-#include <atlbase.h>
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3d12.lib")
-
-#define USE_MINHOOK
-
 template<typename T>
 static void SafeRelease(T*& res) {
 	if (res)
@@ -249,10 +238,10 @@ static CComPtr<ID3D12DescriptorHeap> g_pD3DSrvDescHeap = NULL;
 static CComPtr<ID3D12CommandQueue> g_pD3DCommandQueue = NULL;
 static CComPtr<ID3D12GraphicsCommandList> g_pD3DCommandList = NULL;
 
-LRESULT APIENTRY WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+LRESULT APIENTRY WndProc12(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-typedef long(__fastcall* Present) (IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags);
-static Present OriginalPresent;
+typedef long(__fastcall* Present12) (IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags);
+static Present12 OriginalPresent;
 
 typedef void(*ExecuteCommandLists)(ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList* ppCommandLists);
 static ExecuteCommandLists OriginalExecuteCommandLists;
@@ -282,7 +271,7 @@ long __fastcall HookPresent(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT
 			pSwapChain->GetDesc(&desc);
 			Window = desc.OutputWindow;
 			if (!OriginalWndProc) {
-				OriginalWndProc = (WNDPROC)SetWindowLongPtr(Window, GWLP_WNDPROC, (__int3264)(LONG_PTR)WndProc);
+				OriginalWndProc = (WNDPROC)SetWindowLongPtr(Window, GWLP_WNDPROC, (__int3264)(LONG_PTR)WndProc12);
 			}
 			g_FrameBufferCount = desc.BufferCount;
 			g_FrameContext.clear();
@@ -604,7 +593,7 @@ int Unhook(uint16_t _index, void** _original, void* _function) {
 	return 1;
 }
 
-LRESULT APIENTRY WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT APIENTRY WndProc12(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (g_Initialized) {
 		ImGuiIO& io = ImGui::GetIO();
 		switch (msg) {
@@ -686,57 +675,62 @@ int RemoveHooks() {
 	Sleep(1000);
 	return 1;
 }
-
-#endif
 namespace hook_ui {
 	bool thread = false;
 	HMODULE hMod;
+	bool dx12API = false;
 	void init() {
-		if (Init() == 1) {
-			InstallHooks();
-			engine_logger->info("注入d3d12");
+		if (dx12API) {
+			if (Init() == 1) {
+				InstallHooks();
+				engine_logger->info("注入d3d12");
+			}
+			else {
+				engine_logger->error("注入d3d12错误");
+			}
 		}
 		else {
-			engine_logger->error("注入d3d12错误");
+			if (!thread) {
+				thread = true;
+				CreateThread(nullptr, 0, MainThread, hMod, 0, nullptr);
+			}
 		}
 		GameInit = true;
 	}
 	static void LuaRegister(lua_State* L) {
 		engine_logger->info("注册ImGui相关函数");
-#if KIERO_INCLUDE_D3D11
 		lua_register(L, "LoadTexture", [](lua_State* pL) -> int
-		{
-			string file = (string)lua_tostring(pL, 1);
-			string name = (string)lua_tostring(pL, 2);
-			void* ret = nullptr;
-			TextureList[name] = Texture(0,0, NULL);
-			bool texture = LoadTextureFromFile(file.c_str(), &TextureList[name].texture, &TextureList[name].width, &TextureList[name].height);
-			IM_ASSERT(texture);
-			ret = (void*)TextureList[name].texture;
-			lua_pushinteger(pL, (long long)ret);
-			lua_pushinteger(pL, TextureList[name].width);
-			lua_pushinteger(pL, TextureList[name].height);
-			return 3;
-		});
+			{
+				string file = (string)lua_tostring(pL, 1);
+				string name = (string)lua_tostring(pL, 2);
+				void* ret = nullptr;
+				TextureList[name] = Texture(0, 0, NULL);
+				bool texture = LoadTextureFromFile(file.c_str(), &TextureList[name].texture, &TextureList[name].width, &TextureList[name].height);
+				IM_ASSERT(texture);
+				ret = (void*)TextureList[name].texture;
+				lua_pushinteger(pL, (long long)ret);
+				lua_pushinteger(pL, TextureList[name].width);
+				lua_pushinteger(pL, TextureList[name].height);
+				return 3;
+			});
 		lua_register(L, "TextureList", [](lua_State* pL) -> int
-		{
-			lua_newtable(pL);//创建一个表格，放在栈顶
-			for (auto [name, texture] : TextureList) {
-				lua_pushstring(pL, name.c_str());
-				lua_newtable(pL);//压入编号信息表
-				lua_pushstring(pL, "texture");
-				lua_pushinteger(pL, (long long)texture.texture);
-				lua_settable(pL, -3);
-				lua_pushstring(pL, "width");
-				lua_pushinteger(pL, texture.width);
-				lua_settable(pL, -3);
-				lua_pushstring(pL, "height");
-				lua_pushinteger(pL, texture.height);
-				lua_settable(pL, -3);
-				lua_settable(pL, -3);//弹出到顶层
-			}
-			return 1;
-		});
-#endif
+			{
+				lua_newtable(pL);//创建一个表格，放在栈顶
+				for (auto [name, texture] : TextureList) {
+					lua_pushstring(pL, name.c_str());
+					lua_newtable(pL);//压入编号信息表
+					lua_pushstring(pL, "texture");
+					lua_pushinteger(pL, (long long)texture.texture);
+					lua_settable(pL, -3);
+					lua_pushstring(pL, "width");
+					lua_pushinteger(pL, texture.width);
+					lua_settable(pL, -3);
+					lua_pushstring(pL, "height");
+					lua_pushinteger(pL, texture.height);
+					lua_settable(pL, -3);
+					lua_settable(pL, -3);//弹出到顶层
+				}
+				return 1;
+			});
 	}
 }
