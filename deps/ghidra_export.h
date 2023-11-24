@@ -124,8 +124,6 @@ namespace MH {
         static undefined(*FilterQuestList)() = (undefined(*)())0x14114ce60;
     }
     namespace GamePad {
-        static undefined8(*XboxPadPtr)() = (undefined8(*)())0x145224A98;
+        static undefined8(*XboxPadPtr)() = (undefined8(*)())0x1451C2318;
     }
-
-
 }

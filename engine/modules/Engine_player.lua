@@ -21,7 +21,8 @@ engine_player = {
     Position = {
         position = {x = 0, y = 0, z = 0},
         cntrposition = {x = 0, y = 0, z = 0, h = 0},
-        reposition = {x = 0, y = 0, z = 0}
+        reposition = {x = 0, y = 0, z = 0},
+        incremental = {x = 0, y = 0, z = 0}
     },
     Model = {
         size = {x = 0, y = 0, z = 0},
@@ -116,6 +117,15 @@ function engine_player:getPlayerRepatriatePos()
         x = GetAddressData(pointer:Player() + 0xA50, 'float'),
         y = GetAddressData(pointer:Player() + 0xA54, 'float'),
         z = GetAddressData(pointer:Player() + 0xA58, 'float')
+    }
+end
+--获取运动增量坐标
+function engine_player:getPlayerIncrementalPos()
+    if not GetAddress(pointer:Player(), { 0x468 }) then return { x = 0, y = 0, z = 0 } end
+    return {
+        x = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0xe250, 'float'),
+        y = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0xe254, 'float'),
+        z = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0xe258, 'float'),
     }
 end
 --获取玩家模型大小
@@ -413,7 +423,8 @@ function engine_player:new()
     o.Position = {
         position = self:getPlayerPosition(),
         cntrposition = self:getPlayerCNTRPosition(),
-        reposition = self:getPlayerRepatriatePos()
+        reposition = self:getPlayerRepatriatePos(),
+        incremental = self:getPlayerIncrementalPos()
     }
     --玩家模型
     o.Model = {

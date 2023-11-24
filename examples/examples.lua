@@ -54,12 +54,16 @@ function on_imgui()
                     Data_Player.Position.position.y,
                     Data_Player.Position.position.z}
                     , "%.5f",ImGuiInputTextFlags.ReadOnly)
-                ImGui.Text("玩家遣返坐标")
                 ImGui.InputFloat3("玩家遣返坐标", {
                     Data_Player.Position.reposition.x,
                     Data_Player.Position.reposition.y,
                     Data_Player.Position.reposition.z}
                     , "%.5f",ImGuiInputTextFlags.ReadOnly)
+                    ImGui.InputFloat3("玩家增量坐标", {
+                        Data_Player.Position.incremental.x,
+                        Data_Player.Position.incremental.y,
+                        Data_Player.Position.incremental.z}
+                        , "%.5f",ImGuiInputTextFlags.ReadOnly)
                 ImGui.TreePop()
             end
             if ImGui.TreeNode("玩家模型") then
