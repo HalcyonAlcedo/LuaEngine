@@ -86,6 +86,7 @@ namespace MH {
         }
         static void* (*ChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x141F59090;
         static void* (*CompleteChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x142040320;
+        static void* (*RefreshEquip)(void*) = (void* (*)(void*))0x141257b30;
         static void(*Hit)() = (void(*)())0x141F70741;
         static undefined(*WeaponOrnaments)() = (undefined(*)())0x142112311;
         static undefined(*MainWeaponPtr)() = (undefined(*)())0x142117D49;

@@ -7,6 +7,10 @@ local FSM_Run = {
     target = 0,
     id = 0
 }
+local Effect = {
+    group = 0,
+    record = 0
+}
 local MFSM_Run = {}
 local addFrameSpeed = 0
 local Keyboard_Shortcut  = '~'
@@ -134,6 +138,14 @@ function on_imgui()
                 ImGui.Text("鞋子: "..Data_Player.Armor.leg)
                 ImGui.TreePop()
             end
+            if ImGui.TreeNode("玩家幻化") then
+                Data_Player.Layered.layeredHead = ImGui.InputInt("头盔",  Data_Player.Layered.layeredHead)
+                Data_Player.Layered.layeredChest = ImGui.InputInt("胸甲", Data_Player.Layered.layeredChest)
+                Data_Player.Layered.layeredArm = ImGui.InputInt("腕甲",   Data_Player.Layered.layeredArm)
+                Data_Player.Layered.layeredWaist = ImGui.InputInt("腰甲", Data_Player.Layered.layeredWaist)
+                Data_Player.Layered.layeredLeg = ImGui.InputInt("鞋子",   Data_Player.Layered.layeredLeg)
+                ImGui.TreePop()
+            end
             if ImGui.TreeNode("状态") then
                 if ImGui.TreeNode("健康") then
                     Data_Player.Characteristic.health.health_current = ImGui.SliderFloat("当前生命", Data_Player.Characteristic.health.health_current, 0, Data_Player.Characteristic.health.health_max)
@@ -187,6 +199,15 @@ function on_imgui()
                 end
                 ImGui.TreePop()
             end
+            if ImGui.TreeNode("特效") then
+                Effect.group = ImGui.InputInt("特效组", Effect.group)
+                Effect.record = ImGui.InputInt("特效", Effect.record)
+                if ImGui.Button("生成特效") then
+                    AddEffect(Effect.group, Effect.record)
+                end
+                ImGui.TreePop()
+            end
+            
             ImGui.TreePop()
         end
         --世界数据

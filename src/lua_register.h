@@ -236,9 +236,15 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 static int Game_Player_AddEffect(lua_State* pL) {
     int group = (int)lua_tointeger(pL, 1);
     int record = (int)lua_tointeger(pL, 2);
-    void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
-    PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
-    void* Effects = *offsetPtr<void*>(PlayerPlot, 0x8808);
+    long long effects = (long long)lua_tointeger(pL, 3);
+    void* Effects = nullptr;
+    if (effects) {
+        Effects = (void*)effects;
+    } else {
+        void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
+        PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+        Effects = *offsetPtr<void*>(PlayerPlot, 0x8808);
+    }
     MH::Player::Effects((undefined*)Effects, group, record);
     return 0;
 }
@@ -277,6 +283,14 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
         else
             MH::Weapon::ChangeWeapon(PlayerPlot, type, id);
     }
+    return 0;
+}
+//临时刷新装备
+static int Game_Player_RefreshEquip(lua_State* pL) {
+    void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
+    PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+    PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x12610);
+    MH::Weapon::RefreshEquip(PlayerPlot);
     return 0;
 }
 //发射投射物
@@ -445,6 +459,8 @@ static void registerFunc(lua_State* L) {
     lua_register(L, "RunLmtAction", Game_Player_RunLmtAction);
     //更换玩家武器
     lua_register(L, "ChangeWeapons", Game_Player_Weapon_ChangeWeapons);
+    //刷新装备数据
+    lua_register(L, "RefreshEquip", Game_Player_RefreshEquip);
     //发射投射物
     lua_register(L, "CreateProjectiles", Game_Player_CreateProjectiles);
 #pragma endregion

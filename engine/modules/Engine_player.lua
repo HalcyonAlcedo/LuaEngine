@@ -49,6 +49,61 @@ engine_player = {
         waist = 0,
         leg = 0
     },
+    Layered = {
+        layeredHead = 0,
+        layeredChest = 0,
+        layeredArm = 0,
+        layeredWaist = 0,
+        layeredLeg = 0
+    },
+    TempArmorData = {
+        layered = {
+            head = 0,
+            chest = 0,
+            arm = 0,
+            waist = 0,
+            leg = 0
+        },
+        Armor = {
+            head = 0,
+            chest = 0,
+            arm = 0,
+            waist = 0,
+            leg = 0
+        },
+        colour = {
+            head = {
+                r = 0,
+                g = 0,
+                b = 0,
+                a = 0
+            },
+            chest = {
+                r = 0,
+                g = 0,
+                b = 0,
+                a = 0
+            },
+            arm = {
+                r = 0,
+                g = 0,
+                b = 0,
+                a = 0
+            },
+            waist = {
+                r = 0,
+                g = 0,
+                b = 0,
+                a = 0
+            },
+            leg = {
+                r = 0,
+                g = 0,
+                b = 0,
+                a = 0
+            }
+        }
+    },
     Characteristic = {
         health = {
             health_base = 0,
@@ -85,6 +140,7 @@ engine_player = {
 local pointer = {
     Player = function() return GetAddress(0x145011760,{ 0x50 }) end,
     PlayerData = function() return GetAddress(0x1451CA0E0,{ 0x48, 0x58, 0x58, 0x40, 0xD0, 0x8 }) end,
+    PlayerSaveData = function() return GetAddress(0x145011710,{ 0xa8 }) end,
     Weapon = {
         Entity = function() return GetAddress(0x145011760,{ 0x50, 0x76B0 }) end,
         Data = function() return GetAddress(0x145011760,{ 0x50, 0xc0, 0x8, 0x78 }) end
@@ -225,20 +281,93 @@ function engine_player:getPlayerWeaponInfo()
 end
 --获取玩家装备信息
 function engine_player:getPlayerArmorInfo()
-    if not pointer:Player() then return { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 } end
+    if not pointer.Weapon:Entity() then return { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 } end
     return {
         --头id
-        head = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xCC, 'int'),
+        head = GetAddressData(pointer.Weapon:Data() + 0x1C4, 'int'),
         --胸id
-        chest =GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xD0, 'int'),
+        chest = GetAddressData(pointer.Weapon:Data() + 0x1C8, 'int'),
         --手id
-        arm = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xD4, 'int'),
+        arm = GetAddressData(pointer.Weapon:Data() + 0x1CC, 'int'),
         --腰id
-        waist = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xD8, 'int'),
+        waist = GetAddressData(pointer.Weapon:Data() + 0x1D0, 'int'),
         --鞋id
-        leg = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xDC, 'int'),
+        leg = GetAddressData(pointer.Weapon:Data() + 0x1D4, 'int'),
     }
 end
+--获取玩家幻化信息
+function engine_player:getPlayerLayeredInfo()
+    if not pointer:PlayerSaveData() then return { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 } end
+    return {
+        --头id
+        layeredHead = GetAddressData(pointer:PlayerSaveData() + 0xE7434, 'int'),
+        --胸id
+        layeredChest = GetAddressData(pointer:PlayerSaveData() + 0xE7438, 'int'),
+        --手id
+        layeredArm = GetAddressData(pointer:PlayerSaveData() + 0xE743C, 'int'),
+        --腰id
+        layeredWaist = GetAddressData(pointer:PlayerSaveData() + 0xE7440, 'int'),
+        --鞋id
+        layeredLeg = GetAddressData(pointer:PlayerSaveData() + 0xE7444, 'int'),
+    }
+end
+--获取玩家临时装备信息
+function engine_player:getPlayerTempArmorDataInfo()
+    if not pointer:Player() then return {
+        layered = { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 },
+        Armor = { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 },
+        colour = { head = { r = 0, g = 0, b = 0, a = 0 }, chest = { r = 0, g = 0, b = 0, a = 0 }, arm = { r = 0, g = 0, b = 0, a = 0 }, waist = { r = 0, g = 0, b = 0, a = 0 }, leg = { r = 0, g = 0, b = 0, a = 0 } }
+    } end
+    return {
+        armor = {
+            head = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xCC, 'int'),
+            chest = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xD0, 'int'),
+            arm = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xD4, 'int'),
+            waist = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xD8, 'int'),
+            leg = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xDC, 'int')
+        },
+        layered = {
+            head = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xE4, 'int'),
+            chest = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xE8, 'int'),
+            arm = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xEC, 'int'),
+            waist = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xF0, 'int'),
+            leg = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xF4, 'int')
+        },
+        colour = {
+            head = {
+                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x170, 'float'),
+                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x174, 'float'),
+                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x178, 'float'),
+                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x17C, 'float')
+            },
+            chest = {
+                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x180, 'float'),
+                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x184, 'float'),
+                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x188, 'float'),
+                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x18C, 'float')
+            },
+            arm = {
+                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x190, 'float'),
+                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x194, 'float'),
+                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x198, 'float'),
+                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x19C, 'float')
+            },
+            waist = {
+                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1A0, 'float'),
+                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1A4, 'float'),
+                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1A8, 'float'),
+                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1AC, 'float')
+            },
+            leg = {
+                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1B0, 'float'),
+                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1B4, 'float'),
+                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1B8, 'float'),
+                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1BC, 'float')
+            }
+        }
+    }
+end
+
 --获取玩家状态信息
 function engine_player:getPlayerCharacteristic()
     if not pointer:Player() then return {
@@ -380,6 +509,32 @@ local function traceHandle(k,v)
         ,'float',v)
         return
     end
+    --幻化
+    if k == 'layeredHead' then
+        SetAddressData(pointer:PlayerSaveData() + 0xE7434,'int',v)
+        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xE4,'int',v)
+        RefreshEquip()
+    end
+    if k == 'layeredChest' then
+        SetAddressData(pointer:PlayerSaveData() + 0xE7438,'int',v)
+        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xE8,'int',v)
+        RefreshEquip()
+    end
+    if k == 'layeredArm' then
+        SetAddressData(pointer:PlayerSaveData() + 0xE743C,'int',v)
+        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xEC,'int',v)
+        RefreshEquip()
+    end
+    if k == 'layeredWaist' then
+        SetAddressData(pointer:PlayerSaveData() + 0xE7440,'int',v)
+        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xF0,'int',v)
+        RefreshEquip()
+    end
+    if k == 'layeredLeg' then
+        SetAddressData(pointer:PlayerSaveData() + 0xE7444,'int',v)
+        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xF4,'int',v)
+        RefreshEquip()
+    end
 end
 
 local index = {}
@@ -448,6 +603,10 @@ function engine_player:new()
     o.Weapon = self:getPlayerWeaponInfo()
     --玩家装备
     o.Armor = self:getPlayerArmorInfo()
+    --玩家幻化
+    o.Layered = self:getPlayerLayeredInfo()
+    --玩家临时装备数据
+    o.TempArmorData = self:getPlayerTempArmorDataInfo()
     --玩家状态
     o.Characteristic = self:getPlayerCharacteristic()
     --玩家动作
@@ -465,6 +624,7 @@ function engine_player:new()
     o.Action = trace(o.Action)
     o.Gravity = trace(o.Gravity)
     o.Frame = trace(o.Frame)
+    o.Layered = trace(o.Layered)
     
     setmetatable(o, self)
     self.__index = self
