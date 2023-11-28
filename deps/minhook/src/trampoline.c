@@ -28,10 +28,6 @@
 
 #include <windows.h>
 
-#ifdef _MSC_VER
-    #include <intrin.h>
-#endif
-
 #ifndef ARRAYSIZE
     #define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
 #endif
@@ -208,7 +204,7 @@ BOOL CreateTrampolineFunction(PTRAMPOLINE ct)
                 pCopySrc = &jmp;
                 copySize = sizeof(jmp);
 
-                // Exit the function if it is not in the branch.
+                // Exit the function If it is not in the branch
                 finished = (pOldInst >= jmpDest);
             }
         }
@@ -280,7 +276,7 @@ BOOL CreateTrampolineFunction(PTRAMPOLINE ct)
 #ifndef _MSC_VER
         memcpy((LPBYTE)ct->pTrampoline + newPos, pCopySrc, copySize);
 #else
-        __movsb((LPBYTE)ct->pTrampoline + newPos, (LPBYTE)pCopySrc, copySize);
+        __movsb((LPBYTE)ct->pTrampoline + newPos, pCopySrc, copySize);
 #endif
         newPos += copySize;
         oldPos += hs.len;
