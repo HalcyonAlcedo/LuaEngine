@@ -154,7 +154,7 @@ local function XKeyToKeyId(Key)
         [0] = 'L↑', [1] = 'L→', [2] = 'L↓', [3] = 'L←', [4] = 'LDown', [5] = 'R↑',
         [6] = 'R→', [7] = 'R↓', [8] = 'R←', [9] = 'RDown', [10] = 'LT', [11] = 'RT',
         [12] = 'LB', [13] = 'RB', [14] = '↑', [15] = '→', [16] = '↓', [17] = '←',
-        [32] = 'Y', [33] = 'B', [34] = 'A', [35] = 'X', [36] = 'Window', [37] = 'Menu',
+        [18] = 'Y', [19] = 'B', [20] = 'A', [21] = 'X', [22] = 'Window', [23] = 'Menu',
     }
     if type(Key) == 'number' then return Key end
     for id, value in pairs(keyList) do
