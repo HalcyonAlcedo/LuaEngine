@@ -18,7 +18,6 @@ local shlpid = 0
 local MonsterShlpTempData = {}
 --游戏初始化执行的代码
 function on_init()
-    print('这是LueEngine的示例代码')
 end
 
 --每次切换场景执行的代码
@@ -33,7 +32,6 @@ function on_time()
     (CheckChronoscope('keypad_keyCD_'..Keyboard_Shortcut)
     or not CheckPresenceChronoscope('keypad_keyCD_'..Keyboard_Shortcut))
     then
-        
         AddChronoscope(1,'keypad_keyCD_'..Keyboard_Shortcut)
         openDataview = not openDataview
     end
@@ -220,6 +218,7 @@ function on_imgui()
                 Data_World.Position.wayPosition.z}
                 , "%.5f",ImGuiInputTextFlags.ReadOnly)
             ImGui.TreePop()
+            
         end
         --任务数据
         if ImGui.TreeNode("任务数据") then
@@ -360,7 +359,6 @@ function on_imgui()
             end
             ImGui.TreePop()
         end
-
         ImGui.End()
     end
 end

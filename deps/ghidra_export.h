@@ -90,7 +90,7 @@ namespace MH {
         static void(*Hit)() = (void(*)())0x141F70741;
         static undefined(*WeaponOrnaments)() = (undefined(*)())0x142112311;
         static undefined(*MainWeaponPtr)() = (undefined(*)())0x142117D49;
-        static undefined(*SecondaryWeaponPtr)() = (undefined(*)())0x142150F13;
+        static undefined(*SecondaryWeaponPtr)() = (undefined(*)())0x142150F1D;
     }
     namespace EmSetter {
         static undefined8(*CreateMonster)() = (undefined8(*)())0x141a6b4f0;

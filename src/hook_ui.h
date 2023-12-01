@@ -58,6 +58,7 @@ static bool GameInit = false;
 
 void InitImGui()
 {
+	LuaCore::luaframe = false;
 	imgui_logger->info("初始化ImGui设备");
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -131,7 +132,6 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	}
 	//impl::showExampleWindow("D3D11");
 	if (LuaCore::luaframe) {
-		// LuaCore::luaframe = false;
 		LuaCore::run("on_imgui");
 	}
 	//ImGui::EndFrame();
@@ -260,6 +260,8 @@ long __fastcall HookPresent(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT
 		return OriginalPresent(pSwapChain, SyncInterval, Flags);
 	}
 	if (!g_Initialized) {
+		framework_logger->info("初始化DX12交换链");
+		LuaCore::luaframe = false;
 		ID3D12Device* pD3DDevice;
 
 		if (FAILED(pSwapChain->GetDevice(__uuidof(ID3D12Device), (void**)&pD3DDevice))) {
@@ -696,6 +698,9 @@ namespace hook_ui {
 			}
 		}
 		GameInit = true;
+	}
+	void removeUI() {
+		RemoveHooks();
 	}
 	static void LuaRegister(lua_State* L) {
 		engine_logger->info("注册ImGui相关函数");

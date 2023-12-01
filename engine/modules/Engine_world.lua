@@ -19,7 +19,7 @@ engine_world = {
 
 local pointer = {
     map = function() return GetAddress(0x145011760,{ 0x50, 0x7D20 }) end,
-    WorldData = function() return GetAddress(0x1451ca0c0,{ 0x48, 0x58, 0x58, 0x40 }) end
+    worldData = function() return GetAddress(0x1451ca0c0,{ 0x48, 0x58, 0x58, 0x40 }) end
 }
 
 --获取地图Id
@@ -36,15 +36,12 @@ function engine_world:getTime()
 end
 --获取导航坐标
 function engine_world:getWayPosition()
-    if pointer:WorldData() then
-        return {
-            x = GetAddressData(pointer:WorldData() + 0x2D0, 'float'),
-            y = GetAddressData(pointer:WorldData() + 0x2D4, 'float'),
-            z = GetAddressData(pointer:WorldData() + 0x2D8, 'float')
-        }
-    else
-        return {x = 0, y = 0, z = 0}
-    end
+    if not pointer:map() or not pointer:worldData() then return {x = 0, y = 0, z = 0} end
+    return {
+        x = GetAddressData(pointer:worldData() + 0x2D0, 'float'),
+        y = GetAddressData(pointer:worldData() + 0x2D4, 'float'),
+        z = GetAddressData(pointer:worldData() + 0x2D8, 'float')
+    }
 end
 --监听
 local function traceHandle(k,v)
@@ -75,9 +72,7 @@ function engine_world:new ()
     --时间
     o.Time = self:getTime()
     --导航坐标
-    o.Position = {
-        wayPosition = self:getWayPosition()
-    }
+    o.Position = { wayPosition = self:getWayPosition() }
     setmetatable(o, self)
     self.__index = self
     return o

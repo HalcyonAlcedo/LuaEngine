@@ -29,11 +29,13 @@ function engine_quest:getTime()
 end
 --获取任务Id
 function engine_quest:getId()
+    if not pointer:quest() then return 0 end
     local id = GetAddressData(pointer:quest() + 0x4C, 'int')
     return id
 end
 --获取任务状态
 function engine_quest:getState()
+    if not pointer:quest() then return 0 end
     local state = GetAddressData(pointer:quest() + 0x54, 'int')
     return state
 end

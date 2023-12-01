@@ -167,7 +167,6 @@ static int System_Memory_GetAddress(lua_State* pL) {
     while (lua_next(pL, 2) != 0)
     {
         bytes.push_back((long long)lua_tointeger(pL, -1));
-        
         lua_pop(pL, 1);
     }
     void* address = utils::GetPlot((void*)ptr, bytes);
