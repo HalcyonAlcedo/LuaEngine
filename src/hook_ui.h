@@ -141,25 +141,6 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	return oPresent(pSwapChain, SyncInterval, Flags);
 }
 
-DWORD WINAPI MainThread(LPVOID lpReserved)
-{
-	bool init_hook = false;
-	do
-	{
-		if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
-		{
-			framework_logger->info("创建on_imgui钩子");
-			kiero::bind(8, (void**)&oPresent, hkPresent);
-			kiero::bind(13, (void**)&oResize, hkResize);
-			init_hook = true;
-		}
-		else {
-			Sleep(1000);
-		}
-	} while (!init_hook);
-	return TRUE;
-}
-
 LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	if (true && ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
@@ -678,10 +659,10 @@ int RemoveHooks() {
 	return 1;
 }
 namespace hook_ui {
-	bool thread = false;
 	HMODULE hMod;
 	bool dx12API = false;
 	void init() {
+		if (GameInit) return;
 		if (dx12API) {
 			if (Init() == 1) {
 				InstallHooks();
@@ -692,10 +673,20 @@ namespace hook_ui {
 			}
 		}
 		else {
-			if (!thread) {
-				thread = true;
-				CreateThread(nullptr, 0, MainThread, hMod, 0, nullptr);
-			}
+			bool init_hook = false;
+			do
+			{
+				if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
+				{
+					framework_logger->info("创建on_imgui钩子");
+					kiero::bind(8, (void**)&oPresent, hkPresent);
+					kiero::bind(13, (void**)&oResize, hkResize);
+					init_hook = true;
+				}
+				else {
+					Sleep(1000);
+				}
+			} while (!init_hook);
 		}
 		GameInit = true;
 	}

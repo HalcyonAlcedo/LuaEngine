@@ -30,12 +30,6 @@
     <ClCompile Include="src\kiero.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\d3d11_impl.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\shared.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\win32_impl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -98,12 +92,6 @@
     </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\kiero.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\d3d11_impl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\shared.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\win32_impl.h">
