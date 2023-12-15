@@ -661,8 +661,9 @@ int RemoveHooks() {
 namespace hook_ui {
 	HMODULE hMod;
 	bool dx12API = false;
+	bool imgui = true;
 	void init() {
-		if (GameInit) return;
+		if (GameInit || !hook_ui::imgui) return;
 		if (dx12API) {
 			if (Init() == 1) {
 				InstallHooks();
