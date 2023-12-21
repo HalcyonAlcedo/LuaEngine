@@ -162,25 +162,43 @@ static int System_XboxPad_CheckKeyIsPressed(lua_State* pL) {
 #pragma region MemoryFun
 static int System_Memory_GetAddress(lua_State* pL) {
     vector<int> bytes;
-    long long ptr = (long long)lua_tointeger(pL, 1);
+    uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
+    string mLog = "";
+    std::stringstream stamemoryAddr;
+    stamemoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>((void*)ptr);
+    mLog.append(stamemoryAddr.str()).append(" | ");
     lua_pushnil(pL);
     while (lua_next(pL, 2) != 0)
     {
-        bytes.push_back((long long)lua_tointeger(pL, -1));
+        uintptr_t offset = (uintptr_t)lua_tointeger(pL, -1);
+        bytes.push_back(offset);
+        std::stringstream memoryAddr;
+        memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>((void*)offset);
+        mLog.append(memoryAddr.str()).append(" | ");
         lua_pop(pL, 1);
     }
     void* address = utils::GetPlot((void*)ptr, bytes);
+    if (LuaHandle::MemoryLog) {
+        std::stringstream memoryAddr;
+        memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
+        memory_logger->info("读取内存偏移地址 【{}】 返回地址：{}",mLog, memoryAddr.str());
+    }
     if (address != nullptr) {
-        long long addr = (long long)address;
+        uintptr_t addr = (uintptr_t)address;
         lua_pushinteger(pL, addr);
     } else
         lua_pushboolean(pL, false);
     return 1;
 }
 static int System_Memory_GetAddressData(lua_State* pL) {
-    long long ptr = (long long)lua_tointeger(pL, 1);
+    uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
     string type = (string)lua_tostring(pL, 2);
     void* address = (void*)ptr;
+    if (LuaHandle::MemoryLog) {
+        std::stringstream memoryAddr;
+        memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
+        memory_logger->info("读取内存数据：{}", memoryAddr.str());
+    }
     if (address != nullptr) {
         if (type == "int")
             lua_pushinteger(pL, *(int*)(ptr));
@@ -202,9 +220,14 @@ static int System_Memory_GetAddressData(lua_State* pL) {
     return 1;
 }
 static int System_Memory_SetAddressData(lua_State* pL) {
-    long long ptr = (long long)lua_tointeger(pL, 1);
+    uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
     string type = (string)lua_tostring(pL, 2);
     void* address = (void*)ptr;
+    if (LuaHandle::MemoryLog) {
+        std::stringstream memoryAddr;
+        memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
+        memory_logger->info("写入内存数据：{}", memoryAddr.str());
+    }
     if (address != nullptr) {
         if (type == "int") {
             *(int*)(ptr) = (int)lua_tointeger(pL, 3);
@@ -235,7 +258,7 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 static int Game_Player_AddEffect(lua_State* pL) {
     int group = (int)lua_tointeger(pL, 1);
     int record = (int)lua_tointeger(pL, 2);
-    long long effects = (long long)lua_tointeger(pL, 3);
+    uintptr_t effects = (uintptr_t)lua_tointeger(pL, 3);
     void* Effects = nullptr;
     if (effects) {
         Effects = (void*)effects;
@@ -370,8 +393,8 @@ static int Game_Player_CreateProjectiles(lua_State* pL) {
     float endx = (float)lua_tonumber(pL, 5);
     float endy = (float)lua_tonumber(pL, 6);
     float endz = (float)lua_tonumber(pL, 7);
-    long long entity = (long long)lua_tointeger(pL, 8);
-    long long shlpList = (long long)lua_tointeger(pL, 9);
+    uintptr_t entity = (uintptr_t)lua_tointeger(pL, 8);
+    uintptr_t shlpList = (uintptr_t)lua_tointeger(pL, 9);
     void* EntityAddress = (void*)entity;
     void* ShlpListAddress = (void*)shlpList;
     if (EntityAddress != nullptr) {
