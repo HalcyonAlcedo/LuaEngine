@@ -209,7 +209,7 @@ function engine_player:getPlayerQuaternion()
         x = GetAddressData(pointer:Player() + 0x174, 'float'),
         y = GetAddressData(pointer:Player() + 0x178, 'float'),
         z = GetAddressData(pointer:Player() + 0x17C, 'float'),
-        w = GetAddressData(pointer:Player() + 0x180, 'float')
+        w = GetAddressData(pointer:Player() + 0x170, 'float')
     }
 end
 --获取玩家欧拉角
@@ -477,7 +477,7 @@ local function traceHandle(k,v)
         SetAddressData(pointer:Player() + 0x174,'float',v.x)
         SetAddressData(pointer:Player() + 0x178,'float',v.y)
         SetAddressData(pointer:Player() + 0x17C,'float',v.z)
-        SetAddressData(pointer:Player() + 0x180,'float',v.w)
+        SetAddressData(pointer:Player() + 0x170,'float',v.w)
     end
     --动作修改
     if k == 'lmtID' then
@@ -554,21 +554,40 @@ local function trace(t)
 	return proxy
 end
 
-function engine_player:AimPosition(pos)
-    local direction_x = pos.x - self.Position.position.x
-    local direction_z = pos.z - self.Position.position.z
+function engine_player:AimPosition(target)
+    local direction_x = target.x - self.Position.position.x
+    local direction_z = target.z - self.Position.position.z
     local aim_angle = math.atan(direction_x/direction_z)
-
-    local sign = function(x) if x < o then return -1 elseif x == 0 then return 0 else return 1 end end
-    local a2q = function(angle) if angle / math.pi > 0.5 then return {x = math.pi, y = angle - math.pi, z = 0} elseif angle / math.pi < -0.5 then return {x = math.pi, y = angle + math.pi, z = 0} else return {x = 0, y = -angle, z = math.pi} end end
-    aim_angle = aim_angle + sign(direction_x) * (1 - sing(direction_z)) * math.pi / 2
-    
-    quaternion = a2q(quaternion)
+    local sign = function(x) if x < 0 then return -1 elseif x == 0 then return 0 else return 1 end end
+    local a2q = function(angle) 
+        local eulerangles = angle
+        if angle / math.pi > 0.5 then
+            eulerangles = {x = math.pi, y = angle - math.pi, z = 0} 
+        elseif angle / math.pi < -0.5 then
+            eulerangles = {x = math.pi, y = angle + math.pi, z = 0} 
+        else 
+            eulerangles = {x = 0, y = -angle, z = math.pi} 
+        end 
+        local cr = math.cos(eulerangles.x * 0.5)
+        local sr = math.sin(eulerangles.x * 0.5)
+        local cp = math.cos(eulerangles.y * 0.5)
+        local sp = math.sin(eulerangles.y * 0.5)
+        local cy = math.cos(eulerangles.z * 0.5)
+        local sy = math.sin(eulerangles.z * 0.5)
+        return {
+            w = cy * cp * cr + sy * sp * sr,
+            x = cy * cp * sr - sy * sp * cr,
+            y = sy * cp * sr + cy * sp * cr,
+            z = sy * cp * cr - cy * sp * sr
+        }
+    end
+    aim_angle = aim_angle + sign(direction_x) * ( 1 - sign(direction_z) ) * math.pi / 2
+    local quaternion = a2q(aim_angle)
     self.Angle.Quaternion = {
-        self.Angle.Quaternion.w,
-        quaternion.x,
-        self.Angle.Quaternion.y,
-        quaternion.z
+        w = self.Angle.Quaternion.w,
+        x = quaternion.x,
+        y = self.Angle.Quaternion.y,
+        z = quaternion.z
     }
 end
 
