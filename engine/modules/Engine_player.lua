@@ -139,7 +139,7 @@ engine_player = {
 
 local pointer = {
     Player = function() return GetAddress(0x145011760,{ 0x50 }) end,
-    PlayerData = function() return GetAddress(0x1451CA0E0,{ 0x48, 0x58, 0x58, 0x40, 0xD0, 0x8 }) end,
+    PlayerData = function() return GetAddress(0x1451CA0C0,{ 0x48, 0x58, 0x58, 0x40, 0xD0, 0x8 }) end,
     PlayerSaveData = function() return GetAddress(0x145011710,{ 0xa8 }) end,
     Weapon = {
         Entity = function() return GetAddress(0x145011760,{ 0x50, 0x76B0 }) end,
