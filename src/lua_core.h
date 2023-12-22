@@ -24,6 +24,7 @@ namespace LuaCore {
 		std::string errorShort = debug.short_src;
 		int errorLine = debug.currentline;
 		std::string errorMsg = "LuaEngine Error:\n" + error;
+		imgui_logger->error(errorMsg);
 		LOG(ERR) << errorMsg;
 		//将错误信息压人栈
 		lua_pushstring(L, errorMsg.c_str());
@@ -31,6 +32,7 @@ namespace LuaCore {
 	}
 	static int LuaErrorRecord(string error) {
 		if(error != "error in error handling")
+		imgui_logger->error(error);
 		LOG(ERR) << error;
 		return 1;
 	}

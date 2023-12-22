@@ -684,9 +684,11 @@ namespace hook_ui {
 					kiero::bind(13, (void**)&oResize, hkResize);
 					init_hook = true;
 				}
+				/*
 				else {
 					Sleep(1000);
 				}
+				*/
 			} while (!init_hook);
 		}
 		GameInit = true;

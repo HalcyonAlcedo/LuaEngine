@@ -14,7 +14,6 @@ local Effect = {
 local MFSM_Run = {}
 local addFrameSpeed = 0
 local Keyboard_Shortcut  = '~'
-local shlpid = 0
 local MonsterShlpTempData = {}
 --游戏初始化执行的代码
 function on_init()
@@ -117,7 +116,7 @@ function on_imgui()
                 ImGui.Separator()
                 ImGui.Text("最后命中的怪物")
                 ImGui.Text("地址 "..string.format("%X", Data_Player.Weapon.hit))
-                if Data_Player.Weapon.hit ~= 0 then
+                if Data_Player.Weapon.hit > 0 and Data_Player.Weapon.hit < 0x170000000 then
                     --初始化目标怪物引擎
                     local hit_monster = engine.Monster:new(Data_Player.Weapon.hit)
                     ImGui.InputFloat3("怪物坐标", {
