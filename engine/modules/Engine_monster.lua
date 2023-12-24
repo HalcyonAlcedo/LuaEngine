@@ -210,6 +210,8 @@ function engine_monster:new(monster)
     o.Characteristic = trace(o.Characteristic)
     o.Position = trace(o.Position)
     o.Model = trace(o.Model)
+    o.Frame = trace(o.Frame)
+    o.Action = trace(o.Action)
     
     setmetatable(o, self)
     self.__index = self
