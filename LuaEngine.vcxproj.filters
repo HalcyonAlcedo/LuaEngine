@@ -63,6 +63,15 @@
     <ClCompile Include="deps\imgui\imgui_impl_dx12.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\HttpClient.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\md5.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\easywsclient.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="deps\loader.lib">
@@ -149,6 +158,21 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="deps\imgui\imgui_impl_dx12.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HttpClient.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HttpRequest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\md5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\easywsclient.hpp">
+      <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game_network.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

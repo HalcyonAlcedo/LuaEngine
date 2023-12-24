@@ -139,10 +139,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;LuaEngine_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;LuaEngine_EXPORTS;_WINDOWS;_USRDLL;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)deps;$(SolutionDir)deps\lua\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)deps;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\curl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -154,7 +154,8 @@
       <EnableUAC>false</EnableUAC>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>crypt32.lib;ws2_32.lib;wldap32.lib;winmm.lib;Normaliz.lib;libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\curl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>echo f| xcopy  /i /y "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)build\nativePC\plugins\$(ProjectName).dll"
@@ -173,7 +174,10 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ClCompile Include="deps\imgui\imgui_tables.cpp" />
     <ClCompile Include="deps\imgui\imgui_widgets.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="src\easywsclient.cpp" />
+    <ClCompile Include="src\HttpClient.cpp" />
     <ClCompile Include="src\kiero.cpp" />
+    <ClCompile Include="src\md5.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Sound.cpp" />
     <ClCompile Include="src\win32_impl.cpp" />
@@ -208,16 +212,21 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ClInclude Include="deps\imgui\imstb_textedit.h" />
     <ClInclude Include="deps\imgui\imstb_truetype.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="src\easywsclient.hpp" />
+    <ClInclude Include="src\game_network.h" />
     <ClInclude Include="src\hook_camera.h" />
     <ClInclude Include="src\hook_animals.h" />
     <ClInclude Include="src\hook_frame.h" />
     <ClInclude Include="src\hook_hit.h" />
     <ClInclude Include="src\hook_monster.h" />
     <ClInclude Include="src\hook_shlp.h" />
+    <ClInclude Include="src\HttpClient.h" />
+    <ClInclude Include="src\HttpRequest.h" />
     <ClInclude Include="src\kiero.h" />
     <ClInclude Include="src\lua_core.h" />
     <ClInclude Include="src\lua_register.h" />
     <ClInclude Include="src\game_utils.h" />
+    <ClInclude Include="src\md5.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\sol_ImGui.h" />
     <ClInclude Include="src\Sound.h" />

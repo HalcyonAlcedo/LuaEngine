@@ -116,7 +116,7 @@ namespace LuaCore {
 					int err = 0;
 					int callBack = lua_gettop(L);
 					lua_getglobal(L, func.c_str());
-					if (lua_type(L, -1) == LUA_TFUNCTION)
+					if (lua_isfunction(L, -1))
 					{
 						err = lua_pcall(L, 0, 0, callBack);
 						if (err != 0)
@@ -124,6 +124,9 @@ namespace LuaCore {
 							string error = lua_tostring(L, -1);
 							LuaCore::LuaErrorRecord(error);
 						}
+					}
+					else {
+						lua_pop(L, 1);
 					}
 				}
 			}
