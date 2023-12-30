@@ -148,7 +148,7 @@ if GlobalVariable_int('Engine_CheckEnvironment') == 0 then
         { path = "./Lua/modules/Engine_monster.lua",  md5 = "42a3431cd47920c64ac2f6b79c29f52b" },
         { path = "./Lua/modules/Engine_player.lua",   md5 = "6e2e1261958946e8f1c01e887c6de1d9" },
         { path = "./Lua/modules/Engine_quest.lua",    md5 = "853f7ba311338c7d838abc868ace4bc4" },
-        { path = "./Lua/modules/Engine_world.lua",    md5 = "d3660467690687ae3267c3acd7a2d846" }
+        { path = "./Lua/modules/Engine_world.lua",    md5 = "6bf0ae40327822b2ec3f66524f617345" }
     })
     for _, errFile in pairs(checkEnvironment) do
         Console_Error('文件'..errFile.path .. '存在问题：' .. errFile.error)
