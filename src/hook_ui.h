@@ -236,6 +236,17 @@ static HWND Window = nullptr;
 static uint64_t* g_MethodsTable = NULL;
 static bool g_Initialized = false;
 
+enum class Status {
+	UnknownError = -1,
+	NotSupportedError = -2,
+	ModuleNotFoundError = -3,
+
+	AlreadyInitializedError = -4,
+	NotInitializedError = -5,
+
+	Success = 0,
+};
+
 long __fastcall HookPresent(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags) {
 	if (g_pD3DCommandQueue == nullptr) {
 		return OriginalPresent(pSwapChain, SyncInterval, Flags);
@@ -404,7 +415,7 @@ long HookResizeBuffers(IDXGISwapChain3* pSwapChain, UINT BufferCount, UINT Width
 	return OriginalResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
 
-int Init() {
+Status D3D12Init() {
 	WNDCLASSEX windowClass;
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -429,48 +440,48 @@ int Init() {
 	if ((libDXGI = ::GetModuleHandle(L"dxgi.dll")) == NULL) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -3;
+		return Status::ModuleNotFoundError;
 	}
 
 	if ((libD3D12 = ::GetModuleHandle(L"d3d12.dll")) == NULL) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -3;
+		return Status::ModuleNotFoundError;
 	}
 
 	void* CreateDXGIFactory;
 	if ((CreateDXGIFactory = ::GetProcAddress(libDXGI, "CreateDXGIFactory")) == NULL) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -1;
+		return Status::UnknownError;
 	}
 
 	CComPtr<IDXGIFactory> factory;
 	if (((long(__stdcall*)(const IID&, void**))(CreateDXGIFactory))(__uuidof(IDXGIFactory), (void**)&factory) < 0) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -1;
+		return Status::UnknownError;
 	}
 
 	CComPtr<IDXGIAdapter> adapter;
 	if (factory->EnumAdapters(0, &adapter) == DXGI_ERROR_NOT_FOUND) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -1;
+		return Status::UnknownError;
 	}
 
 	void* D3D12CreateDevice;
 	if ((D3D12CreateDevice = ::GetProcAddress(libD3D12, "D3D12CreateDevice")) == NULL) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -1;
+		return Status::UnknownError;
 	}
 
 	CComPtr<ID3D12Device> device;
 	if (((long(__stdcall*)(IUnknown*, D3D_FEATURE_LEVEL, const IID&, void**))(D3D12CreateDevice))(adapter, D3D_FEATURE_LEVEL_11_0, __uuidof(ID3D12Device), (void**)&device) < 0) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -1;
+		return Status::UnknownError;
 	}
 
 	D3D12_COMMAND_QUEUE_DESC queueDesc;
@@ -483,21 +494,21 @@ int Init() {
 	if (device->CreateCommandQueue(&queueDesc, __uuidof(ID3D12CommandQueue), (void**)&commandQueue) < 0) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -1;
+		return Status::UnknownError;
 	}
 
 	CComPtr<ID3D12CommandAllocator> commandAllocator;
 	if (device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void**)&commandAllocator) < 0) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -1;
+		return Status::UnknownError;
 	}
 
 	CComPtr<ID3D12GraphicsCommandList> commandList;
 	if (device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void**)&commandList) < 0) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -1;
+		return Status::UnknownError;
 	}
 
 	DXGI_RATIONAL refreshRate;
@@ -530,7 +541,7 @@ int Init() {
 	if (factory->CreateSwapChain(commandQueue, &swapChainDesc, &swapChain) < 0) {
 		::DestroyWindow(window);
 		::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-		return -1;
+		return Status::UnknownError;
 	}
 
 	g_MethodsTable = (uint64_t*)::calloc(150, sizeof(uint64_t));
@@ -542,38 +553,21 @@ int Init() {
 
 	::DestroyWindow(window);
 	::UnregisterClass(windowClass.lpszClassName, windowClass.hInstance);
-	return 1;
+	return Status::Success;
 }
 
-int Hook(uint16_t _index, void** _original, void* _function) {
+Status Hook(uint16_t _index, void** _original, void* _function) {
 	void* target = (void*)g_MethodsTable[_index];
-#ifdef USE_DETOURS
-	* _original = target;
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	DetourAttach(&(PVOID&)*_original, _function);
-	DetourTransactionCommit();
-#endif
-#ifdef USE_MINHOOK
 	if (MH_CreateHook(target, _function, _original) != MH_OK || MH_EnableHook(target) != MH_OK) {
-		return -1;
+		return Status::UnknownError;
 	}
-#endif
-	return 1;
+	return Status::Success;
 }
 
-int Unhook(uint16_t _index, void** _original, void* _function) {
+Status Unhook(uint16_t _index, void** _original, void* _function) {
 	void* target = (void*)g_MethodsTable[_index];
-#ifdef USE_DETOURS
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	DetourDetach(&(PVOID&)*_original, _function);
-	DetourTransactionCommit();
-#endif
-#ifdef USE_MINHOOK
 	MH_DisableHook(target);
-#endif
-	return 1;
+	return Status::Success;
 }
 
 LRESULT APIENTRY WndProc12(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -623,10 +617,7 @@ LRESULT APIENTRY WndProc12(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	return CallWindowProc(OriginalWndProc, hWnd, msg, wParam, lParam);
 }
 
-int InstallHooks() {
-#ifdef USE_DETOURS
-	DetourRestoreAfterWith();
-#endif
+Status InstallHooks() {
 #ifdef USE_MINHOOK
 	MH_Initialize();
 #endif
@@ -635,11 +626,10 @@ int InstallHooks() {
 	Hook(140, (void**)&OriginalPresent, HookPresent);
 	Hook(145, (void**)&OriginalResizeBuffers, HookResizeBuffers);
 
-
-	return 1;
+	return Status::Success;
 }
 
-int RemoveHooks() {
+Status RemoveHooks() {
 	Unhook(54, (void**)&OriginalExecuteCommandLists, HookExecuteCommandLists);
 	Unhook(140, (void**)&OriginalPresent, HookPresent);
 	Unhook(145, (void**)&OriginalResizeBuffers, HookResizeBuffers);
@@ -650,22 +640,18 @@ int RemoveHooks() {
 
 	ResetState();
 	ImGui::DestroyContext();
-
-#ifdef USE_MINHOOK
 	MH_Uninitialize();
-#endif
-	//wait for hooks to finish if in one. maybe not needed, but seemed more stable after adding it.
-	Sleep(1000);
-	return 1;
+	return Status::Success;
 }
 namespace hook_ui {
+
 	HMODULE hMod;
 	bool dx12API = false;
 	bool imgui = true;
 	void init() {
 		if (GameInit || !hook_ui::imgui) return;
 		if (dx12API) {
-			if (Init() == 1) {
+			if (D3D12Init() == Status::Success) {
 				InstallHooks();
 				engine_logger->info("×¢Èëd3d12");
 			}
@@ -684,11 +670,6 @@ namespace hook_ui {
 					kiero::bind(13, (void**)&oResize, hkResize);
 					init_hook = true;
 				}
-				/*
-				else {
-					Sleep(1000);
-				}
-				*/
 			} while (!init_hook);
 		}
 		GameInit = true;

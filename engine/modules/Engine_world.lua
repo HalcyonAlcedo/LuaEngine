@@ -19,7 +19,7 @@ engine_world = {
 
 local pointer = {
     map = function() return GetAddress(0x145011760,{ 0x50, 0x7D20 }) end,
-    worldData = function() return GetAddress(0x1451ca0c0,{ 0x48, 0x58, 0x58, 0x40 }) end
+    worldData = function() return GetAddress(0x1451ca0c0,{ 0x90, 0x40, 0x90, 0x18, 0x228, 0x10 }) end
 }
 
 --获取地图Id

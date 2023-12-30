@@ -23,8 +23,6 @@
 Lua中绑定的相关操作功能可参考src/lua_register.h和src下所有hook_*.h文件中的相关绑定
 
 
-
-
 ## 有关图形绘制系统
 
 图形绘制系统使用ImGui进行操作，仅支持DX11显示。
@@ -65,12 +63,12 @@ lua可以加载dll实现更高级的功能，dll可参考plugins中的camera项�
 |--|--|--|
 | 检查按键双击 | 否 | 是 |
 | 设置子脚本变量名 | 否 | 是 |
-| 获取网络数据 | 否 | 是 |
-| 下载文件 | 否 | 是 |
-| 连接websocket服务 | 否 | 是 |
-| 发送websocket信息 | 否 | 是 |
-| 获取websocket数据 | 否 | 是 |
-| 获取websocket状态 | 否 | 是 |
+| 获取网络数据 | 是 | 是 |
+| 下载文件 | 是 | 是 |
+| 连接websocket服务 | 是 | 是 |
+| 发送websocket信息 | 是 | 是 |
+| 获取websocket数据 | 是 | 是 |
+| 获取websocket状态 | 是 | 是 |
 | 录入脚本信息 | 否 | 是 |
 | ImGui操作 | 是 | 否 |
 

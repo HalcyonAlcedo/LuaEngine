@@ -139,8 +139,8 @@ engine_player = {
 
 local pointer = {
     Player = function() return GetAddress(0x145011760,{ 0x50 }) end,
-    PlayerData = function() return GetAddress(0x145011760,{ 0x50, 0xC0, 0x98, 0x18, 0x70, 0xC8, 0xD0, 0x5D0, 0x20 }) end,
-    PlayerSaveData = function() return GetAddress(0x145011710,{ 0xa8 }) end,
+    PlayerData = function() return GetAddress(0x145011760,{ 0x50, 0xC0, 0x98, 0x18, 0x70, 0xC8, 0xD0, 0x5D0, 0x20 }) end, 
+    PlayerSaveData = function() return GetAddress(0x145011710,{ 0xa8 }) end, 
     Weapon = {
         Entity = function() return GetAddress(0x145011760,{ 0x50, 0x76B0 }) end,
         Data = function() return GetAddress(0x145011760,{ 0x50, 0xc0, 0x8, 0x78 }) end
@@ -206,10 +206,10 @@ end
 function engine_player:getPlayerQuaternion()
     if not pointer:Player() then return { x = 0, y = 0, z = 0, w = 0 } end
     return {
+        w = GetAddressData(pointer:Player() + 0x170, 'float'),
         x = GetAddressData(pointer:Player() + 0x174, 'float'),
         y = GetAddressData(pointer:Player() + 0x178, 'float'),
-        z = GetAddressData(pointer:Player() + 0x17C, 'float'),
-        w = GetAddressData(pointer:Player() + 0x170, 'float')
+        z = GetAddressData(pointer:Player() + 0x17c, 'float')
     }
 end
 --获取玩家欧拉角
@@ -260,9 +260,9 @@ function engine_player:getPlayerWeaponInfo()
             --武器Id
             id = GetAddressData(pointer.Weapon:Data() + 0x2EC, 'int'),
             --武器命中的怪物地址
-            hit = GetAddress(pointer:PlayerData(), { 0x2C8 })
+            --hit = GetAddress(pointer:PlayerData(), { 0x2C8 })
         }
-        if not player_weapon_info.hit then player_weapon_info.hit = 0 end
+        --if not player_weapon_info.hit then player_weapon_info.hit = 0 end
         if player_weapon_info.position.x
             and player_weapon_info.position.y
             and player_weapon_info.position.z
@@ -474,10 +474,10 @@ local function traceHandle(k,v)
     end
     --四元数角修改
     if k == 'Quaternion' then
+        SetAddressData(pointer:Player() + 0x170,'float',v.w)
         SetAddressData(pointer:Player() + 0x174,'float',v.x)
         SetAddressData(pointer:Player() + 0x178,'float',v.y)
-        SetAddressData(pointer:Player() + 0x17C,'float',v.z)
-        SetAddressData(pointer:Player() + 0x170,'float',v.w)
+        SetAddressData(pointer:Player() + 0x17c,'float',v.z)
     end
     --动作修改
     if k == 'lmtID' then
@@ -644,6 +644,7 @@ function engine_player:new()
     o.Gravity = trace(o.Gravity)
     o.Frame = trace(o.Frame)
     o.Layered = trace(o.Layered)
+    o.Angle = trace(o.Angle)
     
     setmetatable(o, self)
     self.__index = self

@@ -31,9 +31,10 @@ namespace LuaCore {
 		return 1;
 	}
 	static int LuaErrorRecord(string error) {
-		if(error != "error in error handling")
-		imgui_logger->error(error);
-		LOG(ERR) << error;
+		if (error != "error in error handling") {
+			imgui_logger->error(error);
+			LOG(ERR) << error;
+		}
 		return 1;
 	}
 	//¼ÓÔØLuaÓÎÏ·ÒýÇæ

@@ -404,6 +404,11 @@ static int Game_Player_CreateProjectiles(lua_State* pL) {
     }
     return 1;
 }
+//获取游戏版本
+static int Game_Version(lua_State* pL) {
+    lua_pushstring(pL, loader::GameVersion);
+    return 1;
+}
 #pragma endregion
 #pragma region UI
 //ImGui::Begin
@@ -485,6 +490,8 @@ static void registerFunc(lua_State* L) {
     lua_register(L, "RefreshEquip", Game_Player_RefreshEquip);
     //发射投射物
     lua_register(L, "CreateProjectiles", Game_Player_CreateProjectiles);
+    //获取游戏版本
+    lua_register(L, "GameVersion", Game_Version);
 #pragma endregion
 #pragma region UI
     lua_register(L, "Imgui_Bindings", Imgui_Bindings);
