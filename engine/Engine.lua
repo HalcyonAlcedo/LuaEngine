@@ -108,18 +108,18 @@ end
 local function checkEnvironmentFile(files)
     -- 定义一个函数，检查文件是否存在和md5值是否正确
     local function checkFile(file)
-        local result = {}                         -- 用一个表存储结果
-        result.path = file.path                   -- 记录文件路径
-        result.error = nil                        -- 记录错误原因，初始为nil
-        if lfs.attributes(file.path) then         -- 如果文件存在
+        local result = {} -- 用一个表存储结果
+        result.path = file.path -- 记录文件路径
+        result.error = nil -- 记录错误原因，初始为nil
+        if lfs.attributes(file.path) then -- 如果文件存在
             local fileMD5 = GetFileMD5(file.path) -- 获取文件的md5值
-            if fileMD5 ~= file.md5 then           -- 如果md5值不匹配
-                result.error = "MD5校验错误(md5 mismatch)"     -- 设置错误原因为md5不匹配
+            if fileMD5 ~= file.md5 and file.md5 ~= nil then -- 如果md5值不匹配
+                result.error = "MD5校验错误(md5 mismatch)" -- 设置错误原因为md5不匹配
             end
-        else                                      -- 如果文件不存在
-            result.error = "文件不存在(file not found)"       -- 设置错误原因为文件不存在
+        else -- 如果文件不存在
+            result.error = "文件不存在(file not found)" -- 设置错误原因为文件不存在
         end
-        return result                             -- 返回结果
+        return result -- 返回结果
     end
     -- 定义一个表，存储所有检查结果
     local results = {}
@@ -141,20 +141,18 @@ if GlobalVariable_int('Engine_CheckEnvironment') == 0 then
         { path = "loader.dll",                        md5 = "b51fbf0905b1f1b2940d88be43a53382" },
         { path = "dinput8.dll",                       md5 = "1812b61433e1ed8af0129a8c8b9c3434" },
         { path = "./nativePC/plugins/!CRCBypass.dll", md5 = "4b51a95b47a745f12424698d31dc4f62" },
-        { path = "./nativePC/plugins/LuaEngine.dll",  md5 = "5b18417a8259921ff08a0c960408a7c0" },
-        { path = "./Lua/modules/Engine_buff.lua",     md5 = "857720df25a897048cd6f89507534e05" },
-        { path = "./Lua/modules/Engine_entity.lua",   md5 = "03bbf260dfbfdf91061fa5a10ae9d77e" },
-        { path = "./Lua/modules/Engine_item.lua",     md5 = "80c529bb08d8abd6c03b3233c3a7bd53" },
-        { path = "./Lua/modules/Engine_monster.lua",  md5 = "42a3431cd47920c64ac2f6b79c29f52b" },
-        { path = "./Lua/modules/Engine_player.lua",   md5 = "6e2e1261958946e8f1c01e887c6de1d9" },
-        { path = "./Lua/modules/Engine_quest.lua",    md5 = "853f7ba311338c7d838abc868ace4bc4" },
-        { path = "./Lua/modules/Engine_world.lua",    md5 = "6bf0ae40327822b2ec3f66524f617345" }
+        { path = "./Lua/modules/Engine_buff.lua" },
+        { path = "./Lua/modules/Engine_entity.lua" },
+        { path = "./Lua/modules/Engine_item.lua" },
+        { path = "./Lua/modules/Engine_monster.lua" },
+        { path = "./Lua/modules/Engine_player.lua" },
+        { path = "./Lua/modules/Engine_quest.lua" },
+        { path = "./Lua/modules/Engine_world.lua" }
     })
     for _, errFile in pairs(checkEnvironment) do
-        Console_Error('文件'..errFile.path .. '存在问题：' .. errFile.error)
+        Console_Error('文件' .. errFile.path .. '存在问题：' .. errFile.error)
     end
 end
-
 
 engine = {}
 

@@ -97,7 +97,7 @@ namespace sol_ImGui
 	inline std::tuple<float, float> GetContentRegionAvail()												{ const auto vec2{ ImGui::GetContentRegionAvail() };  return std::make_tuple(vec2.x, vec2.y); }
 	inline std::tuple<float, float> GetWindowContentRegionMin()											{ const auto vec2{ ImGui::GetWindowContentRegionMin() };  return std::make_tuple(vec2.x, vec2.y); }
 	inline std::tuple<float, float> GetWindowContentRegionMax()											{ const auto vec2{ ImGui::GetWindowContentRegionMax() };  return std::make_tuple(vec2.x, vec2.y); }
-	inline float GetWindowContentRegionWidth()															{ return ImGui::GetWindowContentRegionWidth(); }
+	inline float GetWindowContentRegionWidth()															{ return ImGui::GetContentRegionAvail().x; }
 
 	// Windows Scrolling
 	inline float GetScrollX()																			{ return ImGui::GetScrollX(); }
@@ -1422,11 +1422,9 @@ namespace sol_ImGui
 		bool clicked = ImGui::ListBox(label.c_str(), &current_item, cstrings.data(), items_count, height_in_items);
 		return std::make_tuple(current_item, clicked);
 	}
-	inline bool ListBoxHeader(const std::string& label, float sizeX, float sizeY)						{ return ImGui::ListBoxHeader(label.c_str(), { sizeX, sizeY }); }
-	inline bool ListBoxHeader(const std::string& label, int items_count)								{ return ImGui::ListBoxHeader(label.c_str(), items_count); }
-	inline bool ListBoxHeader(const std::string& label, int items_count, int height_in_items)			{ return ImGui::ListBoxHeader(label.c_str(), items_count, height_in_items); }
-	inline void ListBoxFooter()																			{ ImGui::ListBoxFooter(); }
-
+	inline bool BeginListBox(const std::string& label, float sizeX, float sizeY)						{ return ImGui::BeginListBox(label.c_str(), { sizeX, sizeY }); }
+	inline void EndListBox()																			{ ImGui::EndListBox(); }
+	
 	// Widgets: Data Plotting
 	/* TODO: Widgets Data Plotting ==> UNSUPPORTED (barely used and quite long functions) */
 
@@ -2518,12 +2516,10 @@ namespace sol_ImGui
 																sol::resolve<std::tuple<int, bool>(const std::string&, int, const sol::table&, int)>(ListBox),
 																sol::resolve<std::tuple<int, bool>(const std::string&, int, const sol::table&, int, int)>(ListBox)
 															));
-		ImGui.set_function("ListBoxHeader"					, sol::overload(
-																sol::resolve<bool(const std::string&, float, float)>(ListBoxHeader),
-																sol::resolve<bool(const std::string&, int)>(ListBoxHeader),
-																sol::resolve<bool(const std::string&, int, int)>(ListBoxHeader)
-															));
-		ImGui.set_function("ListBoxFooter"					, ListBoxFooter);
+		ImGui.set_function("ListBoxHeader"					, BeginListBox);
+		ImGui.set_function("BeginListBox"					, BeginListBox);
+		ImGui.set_function("ListBoxFooter"					, EndListBox);
+		ImGui.set_function("EndListBox"						, EndListBox);
 #pragma endregion Widgets: List Boxes
 
 #pragma region Widgets: Value() Helpers

@@ -1,7 +1,7 @@
 #include "kiero.h"
 #include <iostream>
 #include <future>
-
+#include <io.h>
 
 #include <d3d11.h>
 #include <assert.h>
@@ -236,6 +236,10 @@ static HWND Window = nullptr;
 static uint64_t* g_MethodsTable = NULL;
 static bool g_Initialized = false;
 
+static bool file_exists(const char* filename) {
+	return _access(filename, 0) == 0;
+}
+
 enum class Status {
 	UnknownError = -1,
 	NotSupportedError = -2,
@@ -336,14 +340,26 @@ long __fastcall HookPresent(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT
 		//ImGui::StyleColorsClassic();
 
 			// Setup Platform/Renderer backends
-		auto fonts = ImGui::GetIO().Fonts;
-		imgui_logger->info("从{}加载字体数据", "c:/windows/fonts/simhei.ttf");
-		fonts->AddFontFromFileTTF(
-			"c:/windows/fonts/simhei.ttf",
-			13.0f,
-			NULL,
-			fonts->GetGlyphRangesChineseFull()
-		);
+		if (file_exists("c:/windows/fonts/simhei.ttf")) {
+			auto fonts = ImGui::GetIO().Fonts;
+			imgui_logger->info("从{}加载字体数据", "c:/windows/fonts/simhei.ttf");
+			fonts->AddFontFromFileTTF(
+				"c:/windows/fonts/simhei.ttf",
+				13.0f,
+				NULL,
+				fonts->GetGlyphRangesChineseFull()
+			);
+		}
+		else if (file_exists("./simhei.ttf")) {
+			auto fonts = ImGui::GetIO().Fonts;
+			imgui_logger->info("从{}加载字体数据", "./simhei.ttf");
+			fonts->AddFontFromFileTTF(
+				"./simhei.ttf",
+				13.0f,
+				NULL,
+				fonts->GetGlyphRangesChineseFull()
+			);
+		}
 		imgui_logger->info("初始化ImGui渲染");
 		ImGui_ImplWin32_Init(Window);
 		ImGui_ImplDX12_Init(pD3DDevice, g_FrameBufferCount,
