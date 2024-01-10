@@ -19,48 +19,15 @@
       <UniqueIdentifier>{017d33c1-721c-4071-bc64-d0384895e66a}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="资源文件\imgu">
-      <UniqueIdentifier>{a0d7a2c9-dac0-437d-a4ae-c23cc50f816e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\kiero.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\win32_impl.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="deps\imgui\imgui.cpp">
-      <Filter>资源文件\imgu</Filter>
-    </ClCompile>
-    <ClCompile Include="deps\imgui\imgui_demo.cpp">
-      <Filter>资源文件\imgu</Filter>
-    </ClCompile>
-    <ClCompile Include="deps\imgui\imgui_draw.cpp">
-      <Filter>资源文件\imgu</Filter>
-    </ClCompile>
-    <ClCompile Include="deps\imgui\imgui_impl_dx11.cpp">
-      <Filter>资源文件\imgu</Filter>
-    </ClCompile>
-    <ClCompile Include="deps\imgui\imgui_impl_win32.cpp">
-      <Filter>资源文件\imgu</Filter>
-    </ClCompile>
-    <ClCompile Include="deps\imgui\imgui_tables.cpp">
-      <Filter>资源文件\imgu</Filter>
-    </ClCompile>
-    <ClCompile Include="deps\imgui\imgui_widgets.cpp">
-      <Filter>资源文件\imgu</Filter>
-    </ClCompile>
     <ClCompile Include="src\Player.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Sound.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="deps\imgui\imgui_impl_dx12.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\HttpClient.cpp">
@@ -100,45 +67,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\kiero.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\win32_impl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hook_ui.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\imgui\imconfig.h">
-      <Filter>资源文件\imgu</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\imgui\imgui.h">
-      <Filter>资源文件\imgu</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\imgui\imgui_impl_dx11.h">
-      <Filter>资源文件\imgu</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\imgui\imgui_impl_win32.h">
-      <Filter>资源文件\imgu</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\imgui\imgui_internal.h">
-      <Filter>资源文件\imgu</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\imgui\imstb_rectpack.h">
-      <Filter>资源文件\imgu</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\imgui\imstb_textedit.h">
-      <Filter>资源文件\imgu</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\imgui\imstb_truetype.h">
-      <Filter>资源文件\imgu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sol_ImGui.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\stb_image.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\Player.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -155,9 +83,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\hook_shlp.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\imgui\imgui_impl_dx12.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\HttpClient.h">

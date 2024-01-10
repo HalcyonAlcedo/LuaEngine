@@ -21,7 +21,6 @@ namespace loader {
 	auto engine_logger = spdlog::basic_logger_mt("ÒýÇæ", "logs/LuaEngine.log");
 	auto framework_logger = spdlog::basic_logger_mt("¿ò¼Ü", "logs/LuaEngine.log");
 	auto lua_logger = spdlog::basic_logger_mt("Lua", "logs/LuaEngine.log");
-	auto imgui_logger = spdlog::basic_logger_mt("äÖÈ¾", "logs/LuaEngine.log");
 	auto error_logger = spdlog::basic_logger_mt("´íÎó", "logs/Error.log");
 	auto memory_logger = spdlog::rotating_logger_mt("ÄÚ´æ", "logs/Memory.log", 1048576, 2);
 
