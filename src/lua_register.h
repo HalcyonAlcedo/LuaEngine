@@ -178,7 +178,7 @@ static int System_Memory_GetAddress(lua_State* pL) {
         lua_pop(pL, 1);
     }
     void* address = utils::GetPlot((void*)ptr, bytes);
-    if (LuaHandle::MemoryLog) {
+    if (LuaCore::MemoryLog) {
         std::stringstream memoryAddr;
         memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
         memory_logger->info("读取内存偏移地址 【{}】 返回地址：{}",mLog, memoryAddr.str());
@@ -194,7 +194,7 @@ static int System_Memory_GetAddressData(lua_State* pL) {
     uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
     string type = (string)lua_tostring(pL, 2);
     void* address = (void*)ptr;
-    if (LuaHandle::MemoryLog) {
+    if (LuaCore::MemoryLog) {
         std::stringstream memoryAddr;
         memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
         memory_logger->info("读取内存数据：{}", memoryAddr.str());
@@ -223,7 +223,7 @@ static int System_Memory_SetAddressData(lua_State* pL) {
     uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
     string type = (string)lua_tostring(pL, 2);
     void* address = (void*)ptr;
-    if (LuaHandle::MemoryLog) {
+    if (LuaCore::MemoryLog) {
         std::stringstream memoryAddr;
         memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
         memory_logger->info("写入内存数据：{}", memoryAddr.str());
@@ -495,9 +495,11 @@ static void registerFunc(lua_State* L) {
 #pragma endregion
 #pragma region UI
     lua_register(L, "Imgui_Bindings", Imgui_Bindings);
+    /*
     if (luaL_dostring(L, "Imgui_Bindings()")) {
         lua_error(L);
     }
+    */
 #pragma endregion
 #pragma region Audio
     //加载音频文件

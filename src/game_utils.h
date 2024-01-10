@@ -5,27 +5,6 @@
 using namespace loader;
 using namespace std;
 
-#pragma region Lua Handle
-namespace LuaHandle {
-	struct LuaScriptData {
-		lua_State* L;
-		string name;
-		string file;
-		bool start;
-		LuaScriptData(
-			lua_State* L = nullptr,
-			string name = "",
-			string file = "",
-			bool start = true
-		) :L(L), name(name), file(file), start(start) { };
-	};
-	vector<string> LuaFiles;
-	map<string, LuaScriptData> LuaScript;
-	lua_State* Lc;
-	bool MemoryLog = false;
-}
-#pragma endregion
-
 #pragma region General tools
 namespace utils {
 	//»ñÈ¡Æ«ÒÆµØÖ·

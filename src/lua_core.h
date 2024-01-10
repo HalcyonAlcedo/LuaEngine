@@ -1,11 +1,30 @@
 #pragma once
-#include "lua_register.h"
 
 using namespace loader;
 
+#define DllExport   __declspec( dllexport )
+
 namespace LuaCore {
+#pragma region Lua Handle
+	struct LuaScriptData {
+		lua_State* L;
+		string name;
+		string file;
+		bool start;
+		LuaScriptData(
+			lua_State* L = nullptr,
+			string name = "",
+			string file = "",
+			bool start = true
+		) :L(L), name(name), file(file), start(start) { };
+	};
+	vector<string> LuaFiles;
+	map<string, LuaScriptData> LuaScript;
+	lua_State* Lc;
+	bool MemoryLog = false;
+#pragma endregion
 	//绘制开关
-	bool luaframe = false;
+	DllExport extern bool luaframe = false;
 	//错误回调
 	static int LuaErrorCallBack(lua_State* L)
 	{
@@ -63,7 +82,7 @@ namespace LuaCore {
 				auto fp = fe.path();
 				auto temp = fp.filename();
 				if (fp.extension().string() == ".lua" && temp.stem().string() != "Engine") {
-					LuaHandle::LuaScript[temp.stem().string()] = LuaHandle::LuaScriptData(
+					LuaCore::LuaScript[temp.stem().string()] = LuaCore::LuaScriptData(
 						luaL_newstate(),
 						temp.stem().string(),
 						fp.string());
@@ -73,12 +92,12 @@ namespace LuaCore {
 		}
 	}
 	//运行lua脚本
-	static int Lua_Run(lua_State* L, string LuaFile)
+	DllExport extern int Lua_Run(lua_State* L, string LuaFile)
 	{
 		int err = 0;
 		//加载引擎
 		loadEngine(L);
-		err = luaL_dofile(L, LuaHandle::LuaScript[LuaFile].file.c_str());
+		err = luaL_dofile(L, LuaCore::LuaScript[LuaFile].file.c_str());
 		if (err != 0)
 		{
 			int type = lua_type(L, -1);
@@ -95,7 +114,7 @@ namespace LuaCore {
 		return 1;
 	}
 	//运行lua代码
-	static void run(string func, lua_State* runL = nullptr) {
+	DllExport extern void run(string func, lua_State* runL = nullptr) {
 		if (runL != nullptr) {
 			int err = 0;
 			int callBack = lua_gettop(runL);
@@ -111,9 +130,9 @@ namespace LuaCore {
 			}
 		}
 		else {
-			for (string file_name : LuaHandle::LuaFiles) {
-				if (LuaHandle::LuaScript[file_name].start) {
-					lua_State* L = LuaHandle::LuaScript[file_name].L;
+			for (string file_name : LuaCore::LuaFiles) {
+				if (LuaCore::LuaScript[file_name].start) {
+					lua_State* L = LuaCore::LuaScript[file_name].L;
 					int err = 0;
 					int callBack = lua_gettop(L);
 					lua_getglobal(L, func.c_str());
@@ -135,12 +154,18 @@ namespace LuaCore {
 	}
 	//为lua注册新函数
 	static void Lua_register(string funcName, int(*func)(lua_State* pL)) {
-		for (string file_name : LuaHandle::LuaFiles) {
-			if (LuaHandle::LuaScript[file_name].start) {
-				lua_State* L = LuaHandle::LuaScript[file_name].L;
+		for (string file_name : LuaCore::LuaFiles) {
+			if (LuaCore::LuaScript[file_name].start) {
+				lua_State* L = LuaCore::LuaScript[file_name].L;
 				lua_register(L, funcName.c_str(), func);
 			}
 		}
+	}
+	DllExport extern vector<string> getLuaFils() {
+		return LuaFiles;
+	}
+	DllExport extern map<string, LuaScriptData> getLuas() {
+		return LuaScript;
 	}
 }
 
