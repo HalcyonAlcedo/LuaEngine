@@ -25,6 +25,7 @@ namespace LuaCore {
 #pragma endregion
 	//绘制开关
 	DllExport extern bool luaframe = false;
+	DllExport extern bool initUI = false;
 	//错误回调
 	static int LuaErrorCallBack(lua_State* L)
 	{
