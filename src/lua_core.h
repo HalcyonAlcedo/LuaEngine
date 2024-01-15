@@ -23,9 +23,8 @@ namespace LuaCore {
 	lua_State* Lc;
 	bool MemoryLog = false;
 #pragma endregion
-	//绘制开关
-	DllExport extern bool luaframe = false;
-	DllExport extern bool initUI = false;
+	//重载时间
+	DllExport extern time_t reloadTime = 0;
 	//错误回调
 	static int LuaErrorCallBack(lua_State* L)
 	{
