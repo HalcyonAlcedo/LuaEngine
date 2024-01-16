@@ -95,7 +95,7 @@
       <EnableUAC>false</EnableUAC>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
-      <AdditionalDependencies>crypt32.lib;wldap32.lib;winmm.lib;Normaliz.lib;libcurl_a.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>crypt32.lib;wldap32.lib;winmm.lib;Normaliz.lib;libcurl_a.lib;ws2_32.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)deps\curl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -133,6 +133,7 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lua_core_ffi.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\easywsclient.hpp" />
     <ClInclude Include="src\game_network.h" />

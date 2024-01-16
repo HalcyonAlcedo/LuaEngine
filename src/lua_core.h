@@ -153,7 +153,7 @@ namespace LuaCore {
 		}
 	}
 	//Îªlua×¢²áÐÂº¯Êý
-	static void Lua_register(string funcName, int(*func)(lua_State* pL)) {
+	DllExport extern void Lua_register(string funcName, int(*func)(lua_State* pL)) {
 		for (string file_name : LuaCore::LuaFiles) {
 			if (LuaCore::LuaScript[file_name].start) {
 				lua_State* L = LuaCore::LuaScript[file_name].L;
@@ -161,11 +161,10 @@ namespace LuaCore {
 			}
 		}
 	}
-	DllExport extern vector<string> getLuaFils() {
+	DllExport extern vector<string> getLuaFiles() {
 		return LuaFiles;
 	}
 	DllExport extern map<string, LuaScriptData> getLuas() {
 		return LuaScript;
 	}
 }
-
