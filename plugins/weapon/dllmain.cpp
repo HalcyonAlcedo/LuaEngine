@@ -156,7 +156,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 		if (!LuaCore::initWeapon)
 		{
 			LuaCore::initWeapon = true;
-			for (std::string file_name : LuaCore::getLuaFils()) {
+			for (std::string file_name : LuaCore::getLuaFiles()) {
 				LuaCore::LuaScriptData luae = LuaCore::getLuas()[file_name];
 				if (luae.start) {
 					//获取玩家武器装饰物坐标

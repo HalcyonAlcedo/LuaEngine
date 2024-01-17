@@ -26,6 +26,6 @@ namespace LuaCore {
     DllExport extern time_t reloadTime;
     time_t reload;
     DllExport extern void run(std::string func, lua_State* runL = nullptr);
-    DllExport extern std::vector<std::string> getLuaFils();
+    DllExport extern std::vector<std::string> getLuaFiles();
     DllExport extern std::map<std::string, LuaScriptData> getLuas();
 }
