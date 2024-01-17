@@ -30,13 +30,7 @@
     <ClCompile Include="src\Sound.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\HttpClient.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\md5.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\easywsclient.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -85,22 +79,10 @@
     <ClInclude Include="src\hook_shlp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\HttpClient.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\HttpRequest.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\md5.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\easywsclient.hpp">
-      <Filter>源文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game_network.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="lua_core_ffi.h">
+    <ClInclude Include="src\lua_core_ffi.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

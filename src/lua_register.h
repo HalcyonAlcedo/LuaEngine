@@ -1,5 +1,6 @@
 #pragma once
 #include "Player.h"
+#include "md5.h"
 
 using namespace loader;
 
@@ -155,6 +156,29 @@ static int System_XboxPad_CheckKeyIsPressed(lua_State* pL) {
     lua_pushboolean(pL, ret);
     return 1;
 }
+static int System_GetFileMD5(lua_State* pL)
+{
+    string file = (string)lua_tostring(pL, 1);
+    ifstream in(file.c_str(), ios::binary);
+    if (!in) {
+        lua_pushstring(pL, "");
+    }
+    else {
+        MD5 md5;
+        std::streamsize length;
+        char buffer[1024];
+        while (!in.eof()) {
+            in.read(buffer, 1024);
+            length = in.gcount();
+            if (length > 0)
+                md5.update(buffer, length);
+        }
+        in.close();
+        lua_pushstring(pL, md5.toString().c_str());
+    }
+    return 1;
+}
+
 #pragma endregion
 #pragma region MemoryFun
 static int System_Memory_GetAddress(lua_State* pL) {
@@ -459,6 +483,8 @@ static void registerFunc(lua_State* L) {
     lua_register(L, "Console_Info", System_Console_Info);
     //向控制台发送错误消息
     lua_register(L, "Console_Error", System_Console_Error);
+    //获取文件Md5
+    lua_register(L, "GetFileMD5", System_GetFileMD5);
 #pragma endregion
 #pragma region Memory
     //获取内存地址
