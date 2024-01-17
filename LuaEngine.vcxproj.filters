@@ -100,6 +100,9 @@
     <ClInclude Include="src\game_network.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="lua_core_ffi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc">
