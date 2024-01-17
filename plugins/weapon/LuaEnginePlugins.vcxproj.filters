@@ -19,8 +19,16 @@
     <Library Include="..\..\deps\loader.lib">
       <Filter>静态库</Filter>
     </Library>
+    <Library Include="LuaEngine.lib">
+      <Filter>静态库</Filter>
+    </Library>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="asm.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="lua_core.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

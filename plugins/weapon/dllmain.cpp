@@ -12,7 +12,7 @@
 #include "loader.h"
 #include "ghidra_export.h"
 #include "util.h"
-#include <thread>
+#include "lua_core.h"
 using namespace loader;
 
 extern "C" void* _stdcall GetRBXPtr(void*);
@@ -145,300 +145,328 @@ namespace Weapons {
 	}
 }
 
-extern "C" int __declspec(dllexport) luaopen_Weapon(lua_State * L)
-{
-    MH_Initialize();
-	HookLambda(MH::Weapon::WeaponOrnaments,
-		[]() {
-			GetRBXPtr(&WeaponOrnaments::TempData::t_ornaments);
-			if (WeaponOrnaments::TempData::t_ornaments != nullptr) {
-				WeaponOrnaments::OrnamentsCoordinate.x = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x160);
-				WeaponOrnaments::OrnamentsCoordinate.y = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x164);
-				WeaponOrnaments::OrnamentsCoordinate.z = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x168);
-				WeaponOrnaments::OrnamentsSize.x = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x180);
-				WeaponOrnaments::OrnamentsSize.y = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x184);
-				WeaponOrnaments::OrnamentsSize.z = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x188);
-				if (WeaponOrnaments::TempData::t_setOrnamentsCoordinate) {
-					*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x160) = WeaponOrnaments::TempData::t_SetOrnamentsCoordinate.x;
-					*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x164) = WeaponOrnaments::TempData::t_SetOrnamentsCoordinate.y;
-					*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x168) = WeaponOrnaments::TempData::t_SetOrnamentsCoordinate.z;
-				}
-				if (WeaponOrnaments::TempData::t_setOrnamentsSize) {
-					*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x180) = WeaponOrnaments::TempData::t_SetOrnamentsSize.x;
-					*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x184) = WeaponOrnaments::TempData::t_SetOrnamentsSize.y;
-					*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x188) = WeaponOrnaments::TempData::t_SetOrnamentsSize.z;
-				}
-			}
-			return original();
-		});
-	HookLambda(MH::Weapon::MainWeaponPtr,
-		[]() {
-			GetRBXPtr(&Weapons::TempData::t_mainWeapon);
-			if (Weapons::TempData::t_mainWeapon != nullptr) {
-				Weapons::MainWeaponCoordinate = Vector3(
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x160),
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x164),
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x168)
-				);
-				Weapons::MainWeaponSize = Vector3(
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x180),
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x184),
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x188)
-				);
-				if (Weapons::TempData::t_setMainWeaponCoordinate) {
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x160) = Weapons::TempData::t_SetMainWeaponCoordinate.x;
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x164) = Weapons::TempData::t_SetMainWeaponCoordinate.y;
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x168) = Weapons::TempData::t_SetMainWeaponCoordinate.z;
-				}
-				if (Weapons::TempData::t_setMainWeaponSize) {
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x180) = Weapons::TempData::t_SetMainWeaponSize.x;
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x184) = Weapons::TempData::t_SetMainWeaponSize.y;
-					*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x188) = Weapons::TempData::t_SetMainWeaponSize.z;
-				}
-			}
-			return original();
-		});
-	HookLambda(MH::Weapon::SecondaryWeaponPtr,
-		[]() {
-			GetRBXPtr(&Weapons::TempData::t_secondaryWeapon);
-			if (Weapons::TempData::t_secondaryWeapon != nullptr) {
-				Weapons::SecondaryWeaponCoordinate = Vector3(
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x160),
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x164),
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x168)
-				);
-				Weapons::SecondaryWeaponSize = Vector3(
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x180),
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x184),
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x188)
-				);
-				if (Weapons::TempData::t_setSecondaryWeaponCoordinate) {
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x160) = Weapons::TempData::t_SetSecondaryWeaponCoordinate.x;
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x164) = Weapons::TempData::t_SetSecondaryWeaponCoordinate.y;
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x168) = Weapons::TempData::t_SetSecondaryWeaponCoordinate.z;
-				}
-				if (Weapons::TempData::t_setSecondaryWeaponSize) {
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x180) = Weapons::TempData::t_SetSecondaryWeaponSize.x;
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x184) = Weapons::TempData::t_SetSecondaryWeaponSize.y;
-					*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x188) = Weapons::TempData::t_SetSecondaryWeaponSize.z;
-				}
-			}
-			return original();
-		});
-	HookLambda(MH::Weapon::PartWeaponPtr,
-		[]() {
-			GetRBXPtr(&Weapons::TempData::t_partWeapon);
-			if (Weapons::TempData::t_partWeapon != nullptr) {
-				Weapons::PartWeaponCoordinate = Vector3(
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x160),
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x164),
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x168)
-				);
-				Weapons::PartWeaponSize = Vector3(
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x180),
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x184),
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x188)
-				);
-				if (Weapons::TempData::t_setPartWeaponCoordinate) {
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x160) = Weapons::TempData::t_SetPartWeaponCoordinate.x;
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x164) = Weapons::TempData::t_SetPartWeaponCoordinate.y;
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x168) = Weapons::TempData::t_SetPartWeaponCoordinate.z;
-				}
-				if (Weapons::TempData::t_setPartWeaponSize) {
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x180) = Weapons::TempData::t_SetPartWeaponSize.x;
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x184) = Weapons::TempData::t_SetPartWeaponSize.y;
-					*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x188) = Weapons::TempData::t_SetPartWeaponSize.z;
-				}
-			}
-			return original();
-		});
-    MH_ApplyQueued();
 
-	//获取玩家武器装饰物坐标
-    lua_register(L, "GetOrnamentsCoordinate", [](lua_State* pL) -> int
-        {
-			lua_pushnumber(pL, WeaponOrnaments::OrnamentsCoordinate.x);
-			lua_pushnumber(pL, WeaponOrnaments::OrnamentsCoordinate.y);
-			lua_pushnumber(pL, WeaponOrnaments::OrnamentsCoordinate.z);
-			return 3;
-        });
-	//获取玩家武器装饰物模型大小
-    lua_register(L, "GetOrnamentsSize", [](lua_State* pL) -> int
-        {
-			lua_pushnumber(pL, WeaponOrnaments::OrnamentsSize.x);
-			lua_pushnumber(pL, WeaponOrnaments::OrnamentsSize.y);
-			lua_pushnumber(pL, WeaponOrnaments::OrnamentsSize.z);
-			return 3;
-        });
-	//设置玩家武器装饰物坐标
-	lua_register(L, "SetOrnamentsCoordinate", [](lua_State* pL) -> int
-		{
-			float x = (float)lua_tonumber(pL, 1);
-			float y = (float)lua_tonumber(pL, 2);
-			float z = (float)lua_tonumber(pL, 3);
-			WeaponOrnaments::SetOrnamentsCoordinate(x, y, z);
-			return 0;
-		});
-	//设置玩家武器装饰物模型大小
-	lua_register(L, "SetOrnamentsSize", [](lua_State* pL) -> int
-		{
-			float x = (float)lua_tonumber(pL, 1);
-			float y = (float)lua_tonumber(pL, 2);
-			float z = (float)lua_tonumber(pL, 3);
-			WeaponOrnaments::SetOrnamentsSize(x, y, z);
-			return 0;
-		});
-	//解除玩家武器装饰物坐标设置
-	lua_register(L, "DecontrolOrnamentsCoordinate", [](lua_State* pL) -> int
-		{
-			WeaponOrnaments::DecontrolOrnamentsCoordinate();
-			return 0;
-		});
-	//解除玩家武器装饰物模型大小设置
-	lua_register(L, "DecontrolOrnamentsSize", [](lua_State* pL) -> int
-		{
-			WeaponOrnaments::DecontrolOrnamentsSize();
-			return 0;
-		});
-	//获取玩家主武器坐标
-	lua_register(L, "GetMainWeaponCoordinate", [](lua_State* pL) -> int
-		{
-			lua_pushnumber(pL, Weapons::MainWeaponCoordinate.x);
-			lua_pushnumber(pL, Weapons::MainWeaponCoordinate.y);
-			lua_pushnumber(pL, Weapons::MainWeaponCoordinate.z);
-			return 3;
-		});
-	//获取玩家主武器模型大小
-	lua_register(L, "GetMainWeaponSize", [](lua_State* pL) -> int
-		{
-			lua_pushnumber(pL, Weapons::MainWeaponSize.x);
-			lua_pushnumber(pL, Weapons::MainWeaponSize.y);
-			lua_pushnumber(pL, Weapons::MainWeaponSize.z);
-			return 3;
-		});
-	//设置玩家主武器坐标
-	lua_register(L, "SetMainWeaponCoordinate", [](lua_State* pL) -> int
-		{
-			float x = (float)lua_tonumber(pL, 1);
-			float y = (float)lua_tonumber(pL, 2);
-			float z = (float)lua_tonumber(pL, 3);
-			Weapons::SetMainWeaponCoordinate(x, y, z);
-			return 0;
-		});
-	//设置玩家主武器模型大小
-	lua_register(L, "SetMainWeaponSize", [](lua_State* pL) -> int
-		{
-			float x = (float)lua_tonumber(pL, 1);
-			float y = (float)lua_tonumber(pL, 2);
-			float z = (float)lua_tonumber(pL, 3);
-			Weapons::SetMainWeaponSize(x, y, z);
-			return 0;
-		});
-	//解除玩家主武器坐标设置
-	lua_register(L, "DecontrolMainWeaponCoordinate", [](lua_State* pL) -> int
-		{
-			Weapons::DecontrolMainWeaponCoordinate();
-			return 0;
-		});
-	//解除玩家主武器模型大小设置
-	lua_register(L, "DecontrolMainWeaponSize", [](lua_State* pL) -> int
-		{
-			Weapons::DecontrolMainWeaponSize();
-			return 0;
-		});
-	//获取玩家副武器坐标
-	lua_register(L, "GetSecondaryWeaponCoordinate", [](lua_State* pL) -> int
-		{
-			lua_pushnumber(pL, Weapons::SecondaryWeaponCoordinate.x);
-			lua_pushnumber(pL, Weapons::SecondaryWeaponCoordinate.y);
-			lua_pushnumber(pL, Weapons::SecondaryWeaponCoordinate.z);
-			return 3;
-		});
-	//获取玩家副武器模型大小
-	lua_register(L, "GetSecondaryWeaponSize", [](lua_State* pL) -> int
-		{
-			lua_pushnumber(pL, Weapons::SecondaryWeaponSize.x);
-			lua_pushnumber(pL, Weapons::SecondaryWeaponSize.y);
-			lua_pushnumber(pL, Weapons::SecondaryWeaponSize.z);
-			return 3;
-		});
-	//设置玩家副武器坐标
-	lua_register(L, "SetSecondaryWeaponCoordinate", [](lua_State* pL) -> int
-		{
-			float x = (float)lua_tonumber(pL, 1);
-			float y = (float)lua_tonumber(pL, 2);
-			float z = (float)lua_tonumber(pL, 3);
-			Weapons::SetSecondaryWeaponCoordinate(x, y, z);
-			return 0;
-		});
-	//设置玩家副武器模型大小
-	lua_register(L, "SetSecondaryWeaponSize", [](lua_State* pL) -> int
-		{
-			float x = (float)lua_tonumber(pL, 1);
-			float y = (float)lua_tonumber(pL, 2);
-			float z = (float)lua_tonumber(pL, 3);
-			Weapons::SetSecondaryWeaponSize(x, y, z);
-			return 0;
-		});
-	//解除玩家副武器坐标设置
-	lua_register(L, "DecontrolSecondaryWeaponCoordinate", [](lua_State* pL) -> int
-		{
-			Weapons::DecontrolSecondaryWeaponCoordinate();
-			return 0;
-		});
-	//解除玩家副武器模型大小设置
-	lua_register(L, "DecontrolSecondaryWeaponSize", [](lua_State* pL) -> int
-		{
-			Weapons::DecontrolSecondaryWeaponSize();
-			return 0;
-		});
-	//获取玩家武器零件坐标
-	lua_register(L, "GetPartWeaponCoordinate", [](lua_State* pL) -> int
-		{
-			lua_pushnumber(pL, Weapons::PartWeaponCoordinate.x);
-			lua_pushnumber(pL, Weapons::PartWeaponCoordinate.y);
-			lua_pushnumber(pL, Weapons::PartWeaponCoordinate.z);
-			return 3;
-		});
-	//获取玩家武器零件模型大小
-	lua_register(L, "GetPartWeaponSize", [](lua_State* pL) -> int
-		{
-			lua_pushnumber(pL, Weapons::PartWeaponSize.x);
-			lua_pushnumber(pL, Weapons::PartWeaponSize.y);
-			lua_pushnumber(pL, Weapons::PartWeaponSize.z);
-			return 3;
-		});
-	//设置玩家武器零件坐标
-	lua_register(L, "SetPartWeaponCoordinate", [](lua_State* pL) -> int
-		{
-			float x = (float)lua_tonumber(pL, 1);
-			float y = (float)lua_tonumber(pL, 2);
-			float z = (float)lua_tonumber(pL, 3);
-			Weapons::SetPartWeaponCoordinate(x, y, z);
-			return 0;
-		});
-	//设置玩家武器零件模型大小
-	lua_register(L, "SetPartWeaponSize", [](lua_State* pL) -> int
-		{
-			float x = (float)lua_tonumber(pL, 1);
-			float y = (float)lua_tonumber(pL, 2);
-			float z = (float)lua_tonumber(pL, 3);
-			Weapons::SetPartWeaponSize(x, y, z);
-			return 0;
-		});
-	//解除玩家武器零件坐标设置
-	lua_register(L, "DecontrolPartWeaponCoordinate", [](lua_State* pL) -> int
-		{
-			Weapons::DecontrolPartWeaponCoordinate();
-			return 0;
-		});
-	//解除玩家武器零件模型大小设置
-	lua_register(L, "DecontrolPartWeaponSize", [](lua_State* pL) -> int
-		{
-			Weapons::DecontrolPartWeaponSize();
-			return 0;
-		});
+DWORD WINAPI AttachThread(LPVOID lParam) {
+	while (true) {
 
-    return 1;
+		if (LuaCore::reloadTime != 0 && LuaCore::reload != LuaCore::reloadTime) {
+			LuaCore::reload = LuaCore::reloadTime;
+			LuaCore::initWeapon = false;
+		}
+		if (!LuaCore::initWeapon)
+		{
+			LuaCore::initWeapon = true;
+			for (std::string file_name : LuaCore::getLuaFils()) {
+				LuaCore::LuaScriptData luae = LuaCore::getLuas()[file_name];
+				if (luae.start) {
+					//获取玩家武器装饰物坐标
+					lua_register(luae.L, "GetOrnamentsCoordinate", [](lua_State* pL) -> int
+						{
+							lua_pushnumber(pL, WeaponOrnaments::OrnamentsCoordinate.x);
+							lua_pushnumber(pL, WeaponOrnaments::OrnamentsCoordinate.y);
+							lua_pushnumber(pL, WeaponOrnaments::OrnamentsCoordinate.z);
+							return 3;
+						});
+					//获取玩家武器装饰物模型大小
+					lua_register(luae.L, "GetOrnamentsSize", [](lua_State* pL) -> int
+						{
+							lua_pushnumber(pL, WeaponOrnaments::OrnamentsSize.x);
+							lua_pushnumber(pL, WeaponOrnaments::OrnamentsSize.y);
+							lua_pushnumber(pL, WeaponOrnaments::OrnamentsSize.z);
+							return 3;
+						});
+					//设置玩家武器装饰物坐标
+					lua_register(luae.L, "SetOrnamentsCoordinate", [](lua_State* pL) -> int
+						{
+							float x = (float)lua_tonumber(pL, 1);
+							float y = (float)lua_tonumber(pL, 2);
+							float z = (float)lua_tonumber(pL, 3);
+							WeaponOrnaments::SetOrnamentsCoordinate(x, y, z);
+							return 0;
+						});
+					//设置玩家武器装饰物模型大小
+					lua_register(luae.L, "SetOrnamentsSize", [](lua_State* pL) -> int
+						{
+							float x = (float)lua_tonumber(pL, 1);
+							float y = (float)lua_tonumber(pL, 2);
+							float z = (float)lua_tonumber(pL, 3);
+							WeaponOrnaments::SetOrnamentsSize(x, y, z);
+							return 0;
+						});
+					//解除玩家武器装饰物坐标设置
+					lua_register(luae.L, "DecontrolOrnamentsCoordinate", [](lua_State* pL) -> int
+						{
+							WeaponOrnaments::DecontrolOrnamentsCoordinate();
+							return 0;
+						});
+					//解除玩家武器装饰物模型大小设置
+					lua_register(luae.L, "DecontrolOrnamentsSize", [](lua_State* pL) -> int
+						{
+							WeaponOrnaments::DecontrolOrnamentsSize();
+							return 0;
+						});
+					//获取玩家主武器坐标
+					lua_register(luae.L, "GetMainWeaponCoordinate", [](lua_State* pL) -> int
+						{
+							lua_pushnumber(pL, Weapons::MainWeaponCoordinate.x);
+							lua_pushnumber(pL, Weapons::MainWeaponCoordinate.y);
+							lua_pushnumber(pL, Weapons::MainWeaponCoordinate.z);
+							return 3;
+						});
+					//获取玩家主武器模型大小
+					lua_register(luae.L, "GetMainWeaponSize", [](lua_State* pL) -> int
+						{
+							lua_pushnumber(pL, Weapons::MainWeaponSize.x);
+							lua_pushnumber(pL, Weapons::MainWeaponSize.y);
+							lua_pushnumber(pL, Weapons::MainWeaponSize.z);
+							return 3;
+						});
+					//设置玩家主武器坐标
+					lua_register(luae.L, "SetMainWeaponCoordinate", [](lua_State* pL) -> int
+						{
+							float x = (float)lua_tonumber(pL, 1);
+							float y = (float)lua_tonumber(pL, 2);
+							float z = (float)lua_tonumber(pL, 3);
+							Weapons::SetMainWeaponCoordinate(x, y, z);
+							return 0;
+						});
+					//设置玩家主武器模型大小
+					lua_register(luae.L, "SetMainWeaponSize", [](lua_State* pL) -> int
+						{
+							float x = (float)lua_tonumber(pL, 1);
+							float y = (float)lua_tonumber(pL, 2);
+							float z = (float)lua_tonumber(pL, 3);
+							Weapons::SetMainWeaponSize(x, y, z);
+							return 0;
+						});
+					//解除玩家主武器坐标设置
+					lua_register(luae.L, "DecontrolMainWeaponCoordinate", [](lua_State* pL) -> int
+						{
+							Weapons::DecontrolMainWeaponCoordinate();
+							return 0;
+						});
+					//解除玩家主武器模型大小设置
+					lua_register(luae.L, "DecontrolMainWeaponSize", [](lua_State* pL) -> int
+						{
+							Weapons::DecontrolMainWeaponSize();
+							return 0;
+						});
+					//获取玩家副武器坐标
+					lua_register(luae.L, "GetSecondaryWeaponCoordinate", [](lua_State* pL) -> int
+						{
+							lua_pushnumber(pL, Weapons::SecondaryWeaponCoordinate.x);
+							lua_pushnumber(pL, Weapons::SecondaryWeaponCoordinate.y);
+							lua_pushnumber(pL, Weapons::SecondaryWeaponCoordinate.z);
+							return 3;
+						});
+					//获取玩家副武器模型大小
+					lua_register(luae.L, "GetSecondaryWeaponSize", [](lua_State* pL) -> int
+						{
+							lua_pushnumber(pL, Weapons::SecondaryWeaponSize.x);
+							lua_pushnumber(pL, Weapons::SecondaryWeaponSize.y);
+							lua_pushnumber(pL, Weapons::SecondaryWeaponSize.z);
+							return 3;
+						});
+					//设置玩家副武器坐标
+					lua_register(luae.L, "SetSecondaryWeaponCoordinate", [](lua_State* pL) -> int
+						{
+							float x = (float)lua_tonumber(pL, 1);
+							float y = (float)lua_tonumber(pL, 2);
+							float z = (float)lua_tonumber(pL, 3);
+							Weapons::SetSecondaryWeaponCoordinate(x, y, z);
+							return 0;
+						});
+					//设置玩家副武器模型大小
+					lua_register(luae.L, "SetSecondaryWeaponSize", [](lua_State* pL) -> int
+						{
+							float x = (float)lua_tonumber(pL, 1);
+							float y = (float)lua_tonumber(pL, 2);
+							float z = (float)lua_tonumber(pL, 3);
+							Weapons::SetSecondaryWeaponSize(x, y, z);
+							return 0;
+						});
+					//解除玩家副武器坐标设置
+					lua_register(luae.L, "DecontrolSecondaryWeaponCoordinate", [](lua_State* pL) -> int
+						{
+							Weapons::DecontrolSecondaryWeaponCoordinate();
+							return 0;
+						});
+					//解除玩家副武器模型大小设置
+					lua_register(luae.L, "DecontrolSecondaryWeaponSize", [](lua_State* pL) -> int
+						{
+							Weapons::DecontrolSecondaryWeaponSize();
+							return 0;
+						});
+					//获取玩家武器零件坐标
+					lua_register(luae.L, "GetPartWeaponCoordinate", [](lua_State* pL) -> int
+						{
+							lua_pushnumber(pL, Weapons::PartWeaponCoordinate.x);
+							lua_pushnumber(pL, Weapons::PartWeaponCoordinate.y);
+							lua_pushnumber(pL, Weapons::PartWeaponCoordinate.z);
+							return 3;
+						});
+					//获取玩家武器零件模型大小
+					lua_register(luae.L, "GetPartWeaponSize", [](lua_State* pL) -> int
+						{
+							lua_pushnumber(pL, Weapons::PartWeaponSize.x);
+							lua_pushnumber(pL, Weapons::PartWeaponSize.y);
+							lua_pushnumber(pL, Weapons::PartWeaponSize.z);
+							return 3;
+						});
+					//设置玩家武器零件坐标
+					lua_register(luae.L, "SetPartWeaponCoordinate", [](lua_State* pL) -> int
+						{
+							float x = (float)lua_tonumber(pL, 1);
+							float y = (float)lua_tonumber(pL, 2);
+							float z = (float)lua_tonumber(pL, 3);
+							Weapons::SetPartWeaponCoordinate(x, y, z);
+							return 0;
+						});
+					//设置玩家武器零件模型大小
+					lua_register(luae.L, "SetPartWeaponSize", [](lua_State* pL) -> int
+						{
+							float x = (float)lua_tonumber(pL, 1);
+							float y = (float)lua_tonumber(pL, 2);
+							float z = (float)lua_tonumber(pL, 3);
+							Weapons::SetPartWeaponSize(x, y, z);
+							return 0;
+						});
+					//解除玩家武器零件坐标设置
+					lua_register(luae.L, "DecontrolPartWeaponCoordinate", [](lua_State* pL) -> int
+						{
+							Weapons::DecontrolPartWeaponCoordinate();
+							return 0;
+						});
+					//解除玩家武器零件模型大小设置
+					lua_register(luae.L, "DecontrolPartWeaponSize", [](lua_State* pL) -> int
+						{
+							Weapons::DecontrolPartWeaponSize();
+							return 0;
+						});
+				}
+			}
+		}
+		Sleep(100);
+	}
 }
 
+BOOL APIENTRY DllMain(HMODULE hModule,
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved
+)
+{
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH: {
+		MH_Initialize();
+		HookLambda(MH::Weapon::WeaponOrnaments,
+			[]() {
+				GetRBXPtr(&WeaponOrnaments::TempData::t_ornaments);
+				if (WeaponOrnaments::TempData::t_ornaments != nullptr) {
+					WeaponOrnaments::OrnamentsCoordinate.x = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x160);
+					WeaponOrnaments::OrnamentsCoordinate.y = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x164);
+					WeaponOrnaments::OrnamentsCoordinate.z = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x168);
+					WeaponOrnaments::OrnamentsSize.x = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x180);
+					WeaponOrnaments::OrnamentsSize.y = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x184);
+					WeaponOrnaments::OrnamentsSize.z = *offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x188);
+					if (WeaponOrnaments::TempData::t_setOrnamentsCoordinate) {
+						*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x160) = WeaponOrnaments::TempData::t_SetOrnamentsCoordinate.x;
+						*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x164) = WeaponOrnaments::TempData::t_SetOrnamentsCoordinate.y;
+						*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x168) = WeaponOrnaments::TempData::t_SetOrnamentsCoordinate.z;
+					}
+					if (WeaponOrnaments::TempData::t_setOrnamentsSize) {
+						*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x180) = WeaponOrnaments::TempData::t_SetOrnamentsSize.x;
+						*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x184) = WeaponOrnaments::TempData::t_SetOrnamentsSize.y;
+						*offsetPtr<float>(WeaponOrnaments::TempData::t_ornaments, 0x188) = WeaponOrnaments::TempData::t_SetOrnamentsSize.z;
+					}
+				}
+				return original();
+			});
+		HookLambda(MH::Weapon::MainWeaponPtr,
+			[]() {
+				GetRBXPtr(&Weapons::TempData::t_mainWeapon);
+				if (Weapons::TempData::t_mainWeapon != nullptr) {
+					Weapons::MainWeaponCoordinate = Vector3(
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x160),
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x164),
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x168)
+					);
+					Weapons::MainWeaponSize = Vector3(
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x180),
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x184),
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x188)
+					);
+					if (Weapons::TempData::t_setMainWeaponCoordinate) {
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x160) = Weapons::TempData::t_SetMainWeaponCoordinate.x;
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x164) = Weapons::TempData::t_SetMainWeaponCoordinate.y;
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x168) = Weapons::TempData::t_SetMainWeaponCoordinate.z;
+					}
+					if (Weapons::TempData::t_setMainWeaponSize) {
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x180) = Weapons::TempData::t_SetMainWeaponSize.x;
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x184) = Weapons::TempData::t_SetMainWeaponSize.y;
+						*offsetPtr<float>(Weapons::TempData::t_mainWeapon, 0x188) = Weapons::TempData::t_SetMainWeaponSize.z;
+					}
+				}
+				return original();
+			});
+		HookLambda(MH::Weapon::SecondaryWeaponPtr,
+			[]() {
+				GetRBXPtr(&Weapons::TempData::t_secondaryWeapon);
+				if (Weapons::TempData::t_secondaryWeapon != nullptr) {
+					Weapons::SecondaryWeaponCoordinate = Vector3(
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x160),
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x164),
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x168)
+					);
+					Weapons::SecondaryWeaponSize = Vector3(
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x180),
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x184),
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x188)
+					);
+					if (Weapons::TempData::t_setSecondaryWeaponCoordinate) {
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x160) = Weapons::TempData::t_SetSecondaryWeaponCoordinate.x;
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x164) = Weapons::TempData::t_SetSecondaryWeaponCoordinate.y;
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x168) = Weapons::TempData::t_SetSecondaryWeaponCoordinate.z;
+					}
+					if (Weapons::TempData::t_setSecondaryWeaponSize) {
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x180) = Weapons::TempData::t_SetSecondaryWeaponSize.x;
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x184) = Weapons::TempData::t_SetSecondaryWeaponSize.y;
+						*offsetPtr<float>(Weapons::TempData::t_secondaryWeapon, 0x188) = Weapons::TempData::t_SetSecondaryWeaponSize.z;
+					}
+				}
+				return original();
+			});
+		HookLambda(MH::Weapon::PartWeaponPtr,
+			[]() {
+				GetRBXPtr(&Weapons::TempData::t_partWeapon);
+				if (Weapons::TempData::t_partWeapon != nullptr) {
+					Weapons::PartWeaponCoordinate = Vector3(
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x160),
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x164),
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x168)
+					);
+					Weapons::PartWeaponSize = Vector3(
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x180),
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x184),
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x188)
+					);
+					if (Weapons::TempData::t_setPartWeaponCoordinate) {
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x160) = Weapons::TempData::t_SetPartWeaponCoordinate.x;
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x164) = Weapons::TempData::t_SetPartWeaponCoordinate.y;
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x168) = Weapons::TempData::t_SetPartWeaponCoordinate.z;
+					}
+					if (Weapons::TempData::t_setPartWeaponSize) {
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x180) = Weapons::TempData::t_SetPartWeaponSize.x;
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x184) = Weapons::TempData::t_SetPartWeaponSize.y;
+						*offsetPtr<float>(Weapons::TempData::t_partWeapon, 0x188) = Weapons::TempData::t_SetPartWeaponSize.z;
+					}
+				}
+				return original();
+			});
+		MH_ApplyQueued();
+		CreateThread(nullptr, 0, &AttachThread, static_cast<LPVOID>(hModule), 0, nullptr);
+		break;
+	}
+	}
+	return TRUE;
+}
