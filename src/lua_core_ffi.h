@@ -4,7 +4,7 @@
 /// 为 FFI 调用提供的兼容层
 /// </summary>
 extern "C" {
-	typedef int (*LuaCore_mapStatesCallback) (lua_State* L);
+	typedef void (*LuaCore_mapStatesCallback) (lua_State* L);
 
 	/// <summary>
 	/// 为所有 lua_State 注册一个全局函数
