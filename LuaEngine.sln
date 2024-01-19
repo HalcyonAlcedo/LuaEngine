@@ -15,8 +15,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "deps\lua\lua.vcxproj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libMinHook", "deps\minhook\build\VC17\libMinHook.vcxproj", "{F142A341-5EE0-442D-A15F-98AE9B48DBAE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "diagno", "diagno\diagno.csproj", "{FB10436F-7477-48B1-8EF3-651650D4239F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|Any CPU = Release|Any CPU
@@ -42,12 +40,6 @@ Global
 		{F142A341-5EE0-442D-A15F-98AE9B48DBAE}.Release|x64.Build.0 = Release|x64
 		{F142A341-5EE0-442D-A15F-98AE9B48DBAE}.Release|x86.ActiveCfg = Release|Win32
 		{F142A341-5EE0-442D-A15F-98AE9B48DBAE}.Release|x86.Build.0 = Release|Win32
-		{FB10436F-7477-48B1-8EF3-651650D4239F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB10436F-7477-48B1-8EF3-651650D4239F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB10436F-7477-48B1-8EF3-651650D4239F}.Release|x64.ActiveCfg = Release|Any CPU
-		{FB10436F-7477-48B1-8EF3-651650D4239F}.Release|x64.Build.0 = Release|Any CPU
-		{FB10436F-7477-48B1-8EF3-651650D4239F}.Release|x86.ActiveCfg = Release|Any CPU
-		{FB10436F-7477-48B1-8EF3-651650D4239F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
