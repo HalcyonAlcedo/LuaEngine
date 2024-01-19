@@ -42,7 +42,8 @@ end
 
 --设置任务状态
 function engine_quest:setState(state)
-    SetAddressData(self.pointer.Quest + 0x38,'int',state)
+    if not pointer:quest() then return 0 end
+    SetAddressData(pointer:quest() + 0x38,'int',state)
 end
 
 --监听
