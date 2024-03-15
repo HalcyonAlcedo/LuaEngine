@@ -85,6 +85,9 @@
     <ClInclude Include="src\lua_core_ffi.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\lua_thread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc">

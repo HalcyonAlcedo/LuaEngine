@@ -21,31 +21,17 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#ifndef SOL_COMPATIBILITY_HPP
-#define SOL_COMPATIBILITY_HPP
-
-// The various pieces of the compatibility layer
-// comes from https://github.com/keplerproject/lua-compat-5.3
-// but has been modified in many places for use with sol and luajit,
-// though the core abstractions remain the same
+#ifndef SOL_UNREACHABLE_HPP
+#define SOL_UNREACHABLE_HPP
 
 #include <sol/version.hpp>
-#include <sol/compatibility/lua_version.hpp>
 
-#if SOL_IS_ON(SOL_USE_COMPATIBILITY_LAYER)
-
-// clang-format off
-#if SOL_IS_ON(SOL_USING_CXX_LUA) || SOL_IS_ON(SOL_USING_CXX_LUAJIT)
-	#ifndef COMPAT53_LUA_CPP
-		#define COMPAT53_LUA_CPP 1
-	#endif // Build Lua Compat layer as C++
+#if SOL_HAS_BUILTIN_I_(__builtin_unreachable)
+#define SOL_UNREACHABLE() __builtin_unreachable();
+#elif SOL_IS_ON(SOL_COMPILER_VCXX)
+#define SOL_UNREACHABLE() __assume(false);
+#else
+#define SOL_UNREACHABLE() __builtin_unreachable();
 #endif
-	#ifndef COMPAT53_INCLUDE_SOURCE
-		#define COMPAT53_INCLUDE_SOURCE 1
-	#endif // Build Compat Layer Inline
-	#include <sol/compatibility/compat-5.3.h>
-	#include <sol/compatibility/compat-5.4.h>
-#endif
-// clang-format on
 
-#endif // SOL_COMPATIBILITY_HPP
+#endif
