@@ -1766,6 +1766,32 @@ MonsterHunterWorld.exe+19A206E: 48 8B 0D EB A9 66 03  - mov rcx,[MonsterHunterWo
 MonsterHunterWorld.exe+19A2075: E8 56 FF 19 00        - call MonsterHunterWorld.exe+1B41FD0
 MonsterHunterWorld.exe+19A207A: 84 C0                 - test al,al
 
+static void* uGuiChatBase = (void*)0x1451C2400;
+// ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+51C2400
+MonsterHunterWorld.exe+51C23EA: 12 45 01                    - adc al,byte ptr [rbp+01]
+MonsterHunterWorld.exe+51C23ED: 00 00                       - add [rax],al
+MonsterHunterWorld.exe+51C23EF: 00 60 27                    - add [rax+27],ah
+MonsterHunterWorld.exe+51C23F2: 1C 45                       - sbb al,45
+MonsterHunterWorld.exe+51C23F4: 01 00                       - add [rax],eax
+MonsterHunterWorld.exe+51C23F6: 00 00                       - add [rax],al
+MonsterHunterWorld.exe+51C23F8: 36 00 00                    - add ss:[rax],al
+MonsterHunterWorld.exe+51C23FB: 05 94 83 94 22              - add eax,22948394
+MonsterHunterWorld.exe+51C2400: A0 B1 03 64 00 00 00 00 78  - mov al,[78000000006403B1]
+MonsterHunterWorld.exe+51C2409: CA 50 43                    - ret 4350
+// ---------- INJECTING HERE ----------
+MonsterHunterWorld.exe+51C240C: 01 00                       - add [rax],eax
+// ---------- DONE INJECTING  ----------
+MonsterHunterWorld.exe+51C240E: 00 00                       - add [rax],al
+MonsterHunterWorld.exe+51C2410: B0 CA                       - mov al,-36
+MonsterHunterWorld.exe+51C2412: 50                          - push rax
+MonsterHunterWorld.exe+51C2413: 43 01 00                    - add [r8],eax
+MonsterHunterWorld.exe+51C2416: 00 00                       - add [rax],al
+MonsterHunterWorld.exe+51C2418: 00 4A 1D                    - add [rdx+1D],cl
+MonsterHunterWorld.exe+51C241B: 45 01 00                    - add [r8],r8d
+MonsterHunterWorld.exe+51C241E: 00 00                       - add [rax],al
+MonsterHunterWorld.exe+51C2420: 18 C3                       - sbb bl,al
+MonsterHunterWorld.exe+51C2422: 00 45 01                    - add [rbp+01],al
+
 static bool(*ApplySoftenBuildup)(longlong, longlong, float) = (bool(*)(longlong, longlong, float))0x1402c7850;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+2C7850
 MonsterHunterWorld.exe+2C7846: 5F                    - pop rdi

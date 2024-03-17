@@ -329,3 +329,38 @@ namespace XboxPad {
 	}
 }
 #pragma endregion
+
+#pragma region GameChat
+namespace Chat
+{
+	typedef struct uGUIChat
+	{
+		long long* vtable_ref;
+		long long unkptrs[42]; // Most of them are pointers, but there's also some unk data there
+		int chatIndex;
+		int unk; // Probably either padding, or chatIndex is an uint64_t
+		int isTextBarVisible;
+		char space;
+		char chatBuffer[256];
+	};
+
+	template <class T>
+	T* resolvePtrs(long long* base, std::vector<int> offsets)
+	{
+		for (int offset : offsets)
+			base = ((long long*)(*base + offset));
+
+		return reinterpret_cast<T*>(base);
+	}
+
+	bool SendChatMessage(char message[256]) {
+		uGUIChat* chat = resolvePtrs<uGUIChat>(MH::Chat::uGuiChatBase, { 0x13FD0, 0x28F8 });
+		bool* sendMessage = resolvePtrs<bool>(MH::Chat::uGuiChatBase, { 0x13FD0, 0x325E });
+
+		memcpy(chat->chatBuffer, message, 256);
+		*sendMessage = true;
+
+		return true;
+	}
+}
+#pragma endregion

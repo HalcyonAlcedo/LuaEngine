@@ -134,69 +134,128 @@ static int System_Chronoscope_CheckChronoscope(lua_State* pL) {
 	return 1;
 }
 static int System_Message_ShowMessage(lua_State* pL) {
-	string message = (string)lua_tostring(pL, -1);
+	int argType = lua_type(pL, 1);
+	std::string message;
+	if (argType == LUA_TSTRING) {
+		message = lua_tostring(pL, 1);
+	}
+	else if (argType == LUA_TNUMBER) {
+		lua_Number num = lua_tonumber(pL, 1);
+		message = std::to_string(num);
+	}
+	else if (argType == LUA_TTABLE) {
+		lua_pushnil(pL);
+		while (lua_next(pL, 1) != 0) {
+			if (lua_isstring(pL, -1) || lua_isnumber(pL, -1)) {
+				message += lua_tostring(pL, -1);
+			}
+			else {
+				lua_pop(pL, 2);
+				LOG(WARN) << "Table contains non-string or non-number values";
+				return luaL_error(pL, "Table contains non-string or non-number values");
+			}
+			lua_pop(pL, 1);
+		}
+	}
+	else {
+		LOG(WARN) << "Argument must be a string, number, or table of strings/numbers";
+		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
+	}
 	MH::Chat::ShowGameMessage(*(undefined**)MH::Chat::MainPtr, (undefined*)&message[0], -1, -1, 0);
 	return 0;
 }
-
-namespace Game
-{
-	namespace Chat
-	{
-		typedef struct uGUIChat
-		{
-			long long* vtable_ref;
-			long long unkptrs[42]; // Most of them are pointers, but there's also some unk data there
-			int chatIndex;
-			int unk; // Probably either padding, or chatIndex is an uint64_t
-			int isTextBarVisible;
-			char space;
-			char chatBuffer[256];
-		};
-
-		bool SendChatMessage(char message[256]);
-	}
-}
-
-long long* uGuiChatBase = (long long*)0x1451C2400;
-
-template <class T>
-T* resolvePtrs(long long* base, std::vector<int> offsets)
-{
-	for (int offset : offsets)
-		base = ((long long*)(*base + offset));
-
-	return reinterpret_cast<T*>(base);
-}
-
-
-bool Game::Chat::SendChatMessage(char message[256])
-{
-	uGUIChat* chat = resolvePtrs<uGUIChat>(uGuiChatBase, { 0x13FD0, 0x28F8 });
-	bool* sendMessage = resolvePtrs<bool>(uGuiChatBase, { 0x13FD0, 0x325E });
-
-	memcpy(chat->chatBuffer, message, 256);
-	*sendMessage = true;
-
-	return true;
-}
-
 static int System_SendChatMessage(lua_State* pL) {
-	string msg = (string)lua_tostring(pL, 1);
+	int argType = lua_type(pL, 1);
+	std::string msg;
+	if (argType == LUA_TSTRING) {
+		msg = lua_tostring(pL, 1);
+	}
+	else if (argType == LUA_TNUMBER) {
+		lua_Number num = lua_tonumber(pL, 1);
+		msg = std::to_string(num);
+	}
+	else if (argType == LUA_TTABLE) {
+		lua_pushnil(pL);
+		while (lua_next(pL, 1) != 0) {
+			if (lua_isstring(pL, -1) || lua_isnumber(pL, -1)) {
+				msg += lua_tostring(pL, -1);
+			}
+			else {
+				lua_pop(pL, 2);
+				LOG(WARN) << "Table contains non-string or non-number values";
+				return luaL_error(pL, "Table contains non-string or non-number values");
+			}
+			lua_pop(pL, 1);
+		}
+	}
+	else {
+		LOG(WARN) << "Argument must be a string, number, or table of strings/numbers";
+		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
+	}
 	char buffer[256] = {};
-	// 过长截断
-	string truncatedMsg = msg.substr(0, sizeof(buffer) - 1);
-	strncpy_s(buffer, sizeof(buffer), truncatedMsg.c_str(), _TRUNCATE);
-	Game::Chat::SendChatMessage(buffer);
+	strncpy_s(buffer, sizeof(buffer), msg.c_str(), _TRUNCATE);
+	Chat::SendChatMessage(buffer);
 	return 0;
 }
 static int System_Console_Info(lua_State* pL) {
-	string message = (string)lua_tostring(pL, -1);
+	int argType = lua_type(pL, 1);
+	std::string message;
+	if (argType == LUA_TSTRING) {
+		message = lua_tostring(pL, 1);
+	}
+	else if (argType == LUA_TNUMBER) {
+		lua_Number num = lua_tonumber(pL, 1);
+		message = std::to_string(num);
+	}
+	else if (argType == LUA_TTABLE) {
+		lua_pushnil(pL);
+		while (lua_next(pL, 1) != 0) {
+			if (lua_isstring(pL, -1) || lua_isnumber(pL, -1)) {
+				message += lua_tostring(pL, -1);
+			}
+			else {
+				lua_pop(pL, 2);
+				LOG(WARN) << "Table contains non-string or non-number values";
+				return luaL_error(pL, "Table contains non-string or non-number values");
+			}
+			lua_pop(pL, 1);
+		}
+	}
+	else {
+		LOG(WARN) << "Argument must be a string, number, or table of strings/numbers";
+		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
+	}
 	LOG(INFO) << utils::UTF8_To_string(message);
 	return 0;
 }
 static int System_Console_Error(lua_State* pL) {
-	string message = (string)lua_tostring(pL, -1);
+	int argType = lua_type(pL, 1);
+	std::string message;
+	if (argType == LUA_TSTRING) {
+		message = lua_tostring(pL, 1);
+	}
+	else if (argType == LUA_TNUMBER) {
+		lua_Number num = lua_tonumber(pL, 1);
+		message = std::to_string(num);
+	}
+	else if (argType == LUA_TTABLE) {
+		lua_pushnil(pL);
+		while (lua_next(pL, 1) != 0) {
+			if (lua_isstring(pL, -1) || lua_isnumber(pL, -1)) {
+				message += lua_tostring(pL, -1);
+			}
+			else {
+				lua_pop(pL, 2);
+				LOG(WARN) << "Table contains non-string or non-number values";
+				return luaL_error(pL, "Table contains non-string or non-number values");
+			}
+			lua_pop(pL, 1);
+		}
+	}
+	else {
+		LOG(WARN) << "Argument must be a string, number, or table of strings/numbers";
+		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
+	}
 	LOG(ERR) << utils::UTF8_To_string(message);
 	return 0;
 }
@@ -595,6 +654,7 @@ static void registerFunc(lua_State* L) {
 	//加载音频文件
 	lua_register(L, "Load_AudioFile", [](lua_State* pL) -> int
 		{
+			LOG(WARN) << "This feature is deprecated and will be removed in a future version.";
 			string name = (string)lua_tostring(pL, 1);
 			string file = (string)lua_tostring(pL, 2);
 			audioList[name] = new Sound();
@@ -604,6 +664,7 @@ static void registerFunc(lua_State* L) {
 	//播放音频
 	lua_register(L, "Play_Audio", [](lua_State* pL) -> int
 		{
+			LOG(WARN) << "This feature is deprecated and will be removed in a future version.";
 			string name = (string)lua_tostring(pL, 1);
 			Player* player = new Player();
 			player->Create();
@@ -614,6 +675,7 @@ static void registerFunc(lua_State* L) {
 	//获取音频列表
 	lua_register(L, "AudioList", [](lua_State* pL) -> int
 		{
+			LOG(WARN) << "This feature is deprecated and will be removed in a future version.";
 			lua_newtable(pL);
 			for (auto [name, audio] : audioList) {
 				lua_pushstring(pL, name.c_str());

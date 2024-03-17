@@ -115,6 +115,7 @@ namespace MH {
             static undefined(*CallBuild)() = (undefined(*)())0x1411b5e50;
         }
         static undefined(*BuildShowGameMessage)() = (undefined(*)())0x1419a2050;
+        static long long* uGuiChatBase = (long long*)0x1451C2400;
     }
     namespace Damage {
         static bool(*ApplySoftenBuildup)(longlong, longlong, float) = (bool(*)(longlong, longlong, float))0x1402c7850;
