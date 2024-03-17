@@ -151,14 +151,12 @@ static int System_Message_ShowMessage(lua_State* pL) {
 			}
 			else {
 				lua_pop(pL, 2);
-				LOG(WARN) << "Table contains non-string or non-number values";
 				return luaL_error(pL, "Table contains non-string or non-number values");
 			}
 			lua_pop(pL, 1);
 		}
 	}
 	else {
-		LOG(WARN) << "Argument must be a string, number, or table of strings/numbers";
 		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
 	}
 	MH::Chat::ShowGameMessage(*(undefined**)MH::Chat::MainPtr, (undefined*)&message[0], -1, -1, 0);
@@ -182,14 +180,12 @@ static int System_SendChatMessage(lua_State* pL) {
 			}
 			else {
 				lua_pop(pL, 2);
-				LOG(WARN) << "Table contains non-string or non-number values";
 				return luaL_error(pL, "Table contains non-string or non-number values");
 			}
 			lua_pop(pL, 1);
 		}
 	}
 	else {
-		LOG(WARN) << "Argument must be a string, number, or table of strings/numbers";
 		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
 	}
 	char buffer[256] = {};
@@ -215,14 +211,12 @@ static int System_Console_Info(lua_State* pL) {
 			}
 			else {
 				lua_pop(pL, 2);
-				LOG(WARN) << "Table contains non-string or non-number values";
 				return luaL_error(pL, "Table contains non-string or non-number values");
 			}
 			lua_pop(pL, 1);
 		}
 	}
 	else {
-		LOG(WARN) << "Argument must be a string, number, or table of strings/numbers";
 		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
 	}
 	LOG(INFO) << utils::UTF8_To_string(message);
@@ -246,14 +240,12 @@ static int System_Console_Error(lua_State* pL) {
 			}
 			else {
 				lua_pop(pL, 2);
-				LOG(WARN) << "Table contains non-string or non-number values";
 				return luaL_error(pL, "Table contains non-string or non-number values");
 			}
 			lua_pop(pL, 1);
 		}
 	}
 	else {
-		LOG(WARN) << "Argument must be a string, number, or table of strings/numbers";
 		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
 	}
 	LOG(ERR) << utils::UTF8_To_string(message);
