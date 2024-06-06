@@ -778,7 +778,7 @@ MonsterHunterWorld.exe+4F85DC8: 48 18 01           - sbb [rcx],al
 MonsterHunterWorld.exe+4F85DCB: 45 01 00           - add [r8],r8d
 MonsterHunterWorld.exe+4F85DCE: 00 00              - add [rax],al
 
-static undefined8(*ActionFrameSpeed)(undefined8*) = (undefined8(*)(undefined8*))0x142227B70;
+static undefined8(*ActionFrameSpeed)(undefined8*) = (undefined8(*)(undefined8*))0x142227BD0;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+2227B70
 MonsterHunterWorld.exe+2227B5D: 48 85 51 40           - test [rcx+40],rdx
 MonsterHunterWorld.exe+2227B61: 75 07                 - jne MonsterHunterWorld.exe+2227B6A
@@ -804,7 +804,7 @@ MonsterHunterWorld.exe+2227B93: 48 63 47 10           - movsxd  rax,dword ptr [r
 MonsterHunterWorld.exe+2227B97: 48 8B CF              - mov rcx,rdi
 MonsterHunterWorld.exe+2227B9A: 4C 69 C0 F8 00 00 00  - imul r8,rax,000000F8
 
-static undefined(*Screen)(undefined*) = (undefined(*)(undefined*))0x14236BC90;
+static undefined(*Screen)(undefined*) = (undefined(*)(undefined*))0x14236BCF0;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+236BC90
 MonsterHunterWorld.exe+236BC72: 8B 42 20                 - mov eax,[rdx+20]
 MonsterHunterWorld.exe+236BC75: 89 43 40                 - mov [rbx+40],eax
@@ -934,7 +934,7 @@ MonsterHunterWorld.exe+1AA67ED: 48 8D 4C 24 50        - lea rcx,[rsp+50]
 MonsterHunterWorld.exe+1AA67F2: 41 BE FF FF FF FF     - mov r14d,FFFFFFFF
 MonsterHunterWorld.exe+1AA67F8: 4C 89 78 E8           - mov [rax-18],r15
 
-static void(*dtor)(void*) = (void(*)(void*))0x142226EC0;
+static void(*dtor)(void*) = (void(*)(void*))0x142226F20;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+2226EC0
 MonsterHunterWorld.exe+2226EB6: CC                                - int 3 
 MonsterHunterWorld.exe+2226EB7: CC                                - int 3 
@@ -1324,7 +1324,7 @@ MonsterHunterWorld.exe+1F590AF: 4C 89 68 D8           - mov [rax-28],r13
 MonsterHunterWorld.exe+1F590B3: 45 33 C0              - xor r8d,r8d
 MonsterHunterWorld.exe+1F590B6: 4C 89 70 D0           - mov [rax-30],r14
 
-static void* (*CompleteChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x142040320;
+static void* (*CompleteChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x142040380;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+2040320
 MonsterHunterWorld.exe+2040313: 48 83 C4 20        - add rsp,20
 MonsterHunterWorld.exe+2040317: 5B                 - pop rbx
@@ -1376,7 +1376,7 @@ MonsterHunterWorld.exe+1257B56: 48 8B 43 08           - mov rax,[rbx+08]
 MonsterHunterWorld.exe+1257B5A: 48 8B 0D FF 4E DB 03  - mov rcx,[MonsterHunterWorld.exe+500CA60]
 MonsterHunterWorld.exe+1257B61: 48 8B 90 00 26 01 00  - mov rdx,[rax+00012600]
 
-static void(*Hit)() = (void(*)())0x141F70741;
+static void(*Hit)() = (void(*)())0x141F707A1;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+1F70741
 MonsterHunterWorld.exe+1F7071C: 48 8B 57 18           - mov rdx,[rdi+18]
 MonsterHunterWorld.exe+1F70720: 48 8B 8B 20 7D 00 00  - mov rcx,[rbx+00007D20]
@@ -1402,7 +1402,7 @@ MonsterHunterWorld.exe+1F7075D: F6 46 0C 0E           - test byte ptr [rsi+0C],0
 MonsterHunterWorld.exe+1F70761: 75 02                 - jne MonsterHunterWorld.exe+1F70765
 MonsterHunterWorld.exe+1F70763: 33 F6                 - xor esi,esi
 
-static undefined(*WeaponOrnaments)() = (undefined(*)())0x142112311;
+static undefined(*WeaponOrnaments)() = (undefined(*)())0x142112371;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+2112311
 MonsterHunterWorld.exe+21122D9: E8 62 97 1F FF           - call MonsterHunterWorld.exe+130BA40
 MonsterHunterWorld.exe+21122DE: 48 8D 15 53 D8 3B 01     - lea rdx,[MonsterHunterWorld.exe+34CFB38]
@@ -1428,7 +1428,7 @@ MonsterHunterWorld.exe+211231F: CC                       - int 3
 MonsterHunterWorld.exe+2112320: 48 8B C4                 - mov rax,rsp
 MonsterHunterWorld.exe+2112323: 48 89 70 18              - mov [rax+18],rsi
 
-static undefined(*MainWeaponPtr)() = (undefined(*)())0x142117D49;
+static undefined(*MainWeaponPtr)() = (undefined(*)())0x142117DA9;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+2117D49
 MonsterHunterWorld.exe+2117D03: F3 0F 10 44 24 28        - movss xmm0,[rsp+28]
 MonsterHunterWorld.exe+2117D09: F3 0F 11 83 68 01 00 00  - movss [rbx+00000168],xmm0
@@ -1454,7 +1454,7 @@ MonsterHunterWorld.exe+2117D62: 48 8B D9                 - mov rbx,rcx
 MonsterHunterWorld.exe+2117D65: E8 E6 87 FF FF           - call MonsterHunterWorld.exe+2110550
 MonsterHunterWorld.exe+2117D6A: 48 8B 83 00 21 00 00     - mov rax,[rbx+00002100]
 
-static undefined(*SecondaryWeaponPtr)() = (undefined(*)())0x142150F1D;
+static undefined(*SecondaryWeaponPtr)() = (undefined(*)())0x142150F7D;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+2150F1D
 MonsterHunterWorld.exe+2150EE5: 89 83 88 01 00 00     - mov [rbx+00000188],eax
 MonsterHunterWorld.exe+2150EEB: 44 89 AB 8C 01 00 00  - mov [rbx+0000018C],r13d
@@ -1818,7 +1818,7 @@ MonsterHunterWorld.exe+2C786D: 0F 84 43 01 00 00     - je MonsterHunterWorld.exe
 MonsterHunterWorld.exe+2C7873: 48 8B 49 08           - mov rcx,[rcx+08]
 MonsterHunterWorld.exe+2C7877: 48 81 C1 D0 D3 01 00  - add rcx,0001D3D0
 
-static undefined(*LoadResource)() = (undefined(*)())0x1422214f0;
+static undefined(*LoadResource)() = (undefined(*)())0x142221550;
 // ORIGINAL CODE - INJECTION POINT: MonsterHunterWorld.exe+22214F0
 MonsterHunterWorld.exe+22214DC: 48 8B 6C 24 60        - mov rbp,[rsp+60]
 MonsterHunterWorld.exe+22214E1: 48 83 C4 20           - add rsp,20

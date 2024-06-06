@@ -20,7 +20,7 @@ namespace MH {
         static undefined8(*OptionalCount)() = (undefined8(*)())0x141354f80;
         static uint(*OptionalAt)(undefined*, int) = (uint(*)(undefined*, int))0x141354f70;
         static undefined(*IsMasterRank)() = (undefined(*)())0x141975440;
-        static void* GlobalOptionalQuestList = (void*)0x145010ae8;
+        static void* GlobalOptionalQuestList = (void*)0x145010ae8; // 变动 未调用
         static undefined(*StarCategoryCheck)() = (undefined(*)())0x140f2b640;
         namespace QuestData {
             static void* ResourceVtable = (void*)0x1433e8750;
@@ -37,10 +37,10 @@ namespace MH {
         static void* BasePtr = (void*)0x145011710;
         static undefined(*PlayerBasePlot)() = (undefined(*)())0x145011760;
         static void(*Effects)(undefined*, int, int) = (void(*)(undefined*, int, int))0x140AE0090;
-        static undefined(*Visual)() = (undefined(*)())0x141F9DAE6;
+        static undefined(*Visual)() = (undefined(*)())0x141F9DB46; // 0x141F9DAE6 -> 0x141F9DB46
         static void* PlayerDataHandlePlot = (void*)0x1451CA0E0;
         static void(*CallLmt)(undefined*, int, int) = (void(*)(undefined*, int, int))0x141C006E0;
-        static void(*ActionFrameSpeed)(undefined8*) = (void(*)(undefined8*))0x142227BB0;
+        static void(*ActionFrameSpeed)(undefined8*) = (void(*)(undefined8*))0x142227C10; // 0x142227BB0 -> 0x142227C10
         static undefined* (*GetPlayer)(undefined*) = (undefined * (*)(undefined*))0x141b8cde0;
         static undefined(*HitPtr)(undefined*, undefined*) = (undefined(*)(undefined*, undefined*))0x141F5048B;
     }
@@ -51,14 +51,14 @@ namespace MH {
     namespace World {
         static undefined8(*MapClockLocal)(float*, float) = (undefined8(*)(float*, float))0x140AE6490;
         static undefined(*Message)() = (undefined(*)())0x144F85DB0;
-        static undefined8(*ActionFrameSpeed)(undefined8*) = (undefined8(*)(undefined8*))0x142227B70;
-        static undefined(*Screen)(undefined*) = (undefined(*)(undefined*))0x14236BC90;
+        static undefined8(*ActionFrameSpeed)(undefined8*) = (undefined8(*)(undefined8*))0x142227BD0; // 0x142227B70 -> 0x142227BD0
+        static undefined(*Screen)(undefined*) = (undefined(*)(undefined*))0x14236BCF0; // 0x14236BC90 -> 0x14236BCF0
     }
     namespace Shlp {
         static void* (*GetShlp)(void*, int) = (void* (*)(void*, int))0x140F7CF20;
         static void(*CallShlp)(void*, void*, void*, void*) = (void(*)(void*, void*, void*, void*))0x141AA67D0;
         static void*(*ctor)() = (void* (*)())0x141AA67D0;
-        static void(*dtor)(void*) = (void(*)(void*))0x142226EC0;
+        static void(*dtor)(void*) = (void(*)(void*))0x142226F20; // 0x142226EC0 -> 0x142226F20
     }
     namespace Monster {
         static void(*dtor)(undefined8*) = (void(*)(undefined8*))0x141CA3A10;
@@ -85,12 +85,12 @@ namespace MH {
             static undefined(*CalcElementalBloat)() = (undefined(*)())0x14197cc20;
         }
         static void* (*ChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x141F59090;
-        static void* (*CompleteChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x142040320;
+        static void* (*CompleteChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x142040380; // 0x142040320 -> 0x142040380
         static void* (*RefreshEquip)(void*) = (void* (*)(void*))0x141257b30;
-        static void(*Hit)() = (void(*)())0x141F70741;
-        static undefined(*WeaponOrnaments)() = (undefined(*)())0x142112311;
-        static undefined(*MainWeaponPtr)() = (undefined(*)())0x142117D49;
-        static undefined(*SecondaryWeaponPtr)() = (undefined(*)())0x142150F16;
+        static void(*Hit)() = (void(*)())0x141F707A1; // 0x141F70741 -> 0x141F707A1
+        static undefined(*WeaponOrnaments)() = (undefined(*)())0x142112371; // 0x142112311 -> 0x142112371
+        static undefined(*MainWeaponPtr)() = (undefined(*)())0x142117DA9; // 0x142117D49 -> 0x142117DA9
+        static undefined(*SecondaryWeaponPtr)() = (undefined(*)())0x142150F7D; // 0x142150F16 -> 0x142150F7D
         static undefined(*PartWeaponPtr)() = (undefined(*)())0x142119cb6;
     }
     namespace EmSetter {
@@ -121,7 +121,7 @@ namespace MH {
         static bool(*ApplySoftenBuildup)(longlong, longlong, float) = (bool(*)(longlong, longlong, float))0x1402c7850;
     }
     namespace File {
-        static undefined(*LoadResource)() = (undefined(*)())0x1422214f0;
+        static undefined(*LoadResource)() = (undefined(*)())0x142221550; // 0x1422214f0 -> 0x142221550
     }
     namespace QuestBoard {
         static undefined(*FilterQuestList)() = (undefined(*)())0x14114ce60;
