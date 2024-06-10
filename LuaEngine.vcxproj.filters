@@ -19,6 +19,12 @@
       <UniqueIdentifier>{017d33c1-721c-4071-bc64-d0384895e66a}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\hook">
+      <UniqueIdentifier>{affa096e-701d-4bbb-bd21-5b12f048721a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\lua">
+      <UniqueIdentifier>{3a12cf5d-628d-484b-abff-ef183cc53b61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -48,18 +54,6 @@
     <ClInclude Include="src\game_utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\lua_register.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\lua_core.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hook_monster.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hook_animals.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\Player.h">
       <Filter>头文件</Filter>
@@ -67,26 +61,38 @@
     <ClInclude Include="src\Sound.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\hook_camera.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hook_hit.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hook_frame.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\hook_shlp.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\md5.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\lua_core_ffi.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="src\hook\hook_animals.h">
+      <Filter>头文件\hook</Filter>
     </ClInclude>
-    <ClInclude Include="src\lua_thread.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="src\hook\hook_camera.h">
+      <Filter>头文件\hook</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hook\hook_frame.h">
+      <Filter>头文件\hook</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hook\hook_hit.h">
+      <Filter>头文件\hook</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hook\hook_monster.h">
+      <Filter>头文件\hook</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hook\hook_shlp.h">
+      <Filter>头文件\hook</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\lua_core.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\lua_core_ffi.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\lua_register.h">
+      <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua\lua_thread.h">
+      <Filter>头文件\lua</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

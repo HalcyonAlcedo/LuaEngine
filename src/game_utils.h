@@ -1,16 +1,17 @@
 #pragma once
 #include <io.h>
 #include <filesystem>
+#include <tlhelp32.h>
 
 using namespace loader;
 using namespace std;
 
 #pragma region General tools
 namespace utils {
-	//»ñÈ¡Æ«ÒÆµØÖ·
+	//è·å–åç§»åœ°å€
 	static void* GetPlot(void* plot, const std::vector<int>& bytes) {
 		void* Plot = plot;
-		//´¦Àí»ùÖ·
+		//å¤„ç†åŸºå€
 		if ((long long)plot > 0x140000000 && (long long)plot < 0x14579b000) {
 			Plot = *(undefined**)plot;
 		}
@@ -24,7 +25,7 @@ namespace utils {
 		}
 		return Plot;
 	}
-	//»ñÈ¡Ëæ»úÊı
+	//è·å–éšæœºæ•°
 	static float GetRandom(float min, float max)
 	{
 		std::random_device rd;
@@ -32,7 +33,7 @@ namespace utils {
 		std::uniform_real_distribution<float> dist(min, max);
 		return dist(eng);
 	}
-	//×ªutf8
+	//è½¬utf8
 	static string string_To_UTF8(const std::string& str)
 	{
 		int nwLen = ::MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
@@ -50,7 +51,7 @@ namespace utils {
 		pBuf = NULL;
 		return retStr;
 	}
-	//×ªunicode
+	//è½¬unicode
 	std::string UTF8_To_string(const std::string& str)
 	{
 		int nwLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
@@ -78,11 +79,11 @@ namespace Chronoscope {
 		float EndTime = 0;
 	};
 
-	//ÏÖÔÚµÄÊ±¼ä
+	//ç°åœ¨çš„æ—¶é—´
 	float NowTime = 0;
-	//¼ÆÊ±Æ÷ÁĞ±í
+	//è®¡æ—¶å™¨åˆ—è¡¨
 	map<string, ChronoscopeData> ChronoscopeList;
-	//Ìí¼Ó¼ÆÊ±Æ÷(Ê±³¤£¬¼ÆÊ±Æ÷Ãû³Æ£¬ÊÇ·ñ¸²¸Ç)
+	//æ·»åŠ è®¡æ—¶å™¨(æ—¶é•¿ï¼Œè®¡æ—¶å™¨åç§°ï¼Œæ˜¯å¦è¦†ç›–)
 	static bool AddChronoscope(float duration, string name, bool Overlay = false) {
 		if (ChronoscopeList.find(name) == ChronoscopeList.end() || Overlay) {
 			ChronoscopeList[name].EndTime = NowTime + duration;
@@ -92,20 +93,20 @@ namespace Chronoscope {
 		else
 			return false;
 	}
-	//É¾³ı¼ÆÊ±Æ÷
+	//åˆ é™¤è®¡æ—¶å™¨
 	static void DelChronoscope(string name) {
 		if (ChronoscopeList.find(name) != ChronoscopeList.end()) {
 			ChronoscopeList.erase(name);
 		}
 	}
-	//¼ì²é¼ÆÊ±Æ÷ÊÇ·ñ´æÔÚ
+	//æ£€æŸ¥è®¡æ—¶å™¨æ˜¯å¦å­˜åœ¨
 	static bool CheckPresenceChronoscope(string name) {
 		if (ChronoscopeList.find(name) != ChronoscopeList.end()) {
 			return true;
 		}
 		return false;
 	}
-	//¼ì²é¼ÆÊ±Æ÷ÊÇ·ñ½áÊø
+	//æ£€æŸ¥è®¡æ—¶å™¨æ˜¯å¦ç»“æŸ
 	static bool CheckChronoscope(string name) {
 		if (ChronoscopeList.find(name) != ChronoscopeList.end()) {
 			if (ChronoscopeList[name].EndTime < NowTime) {
@@ -117,7 +118,7 @@ namespace Chronoscope {
 		}
 		return false;
 	}
-	//¼ÆÊ±Æ÷¸üĞÂ³ÌĞò
+	//è®¡æ—¶å™¨æ›´æ–°ç¨‹åº
 	static void chronoscope() {
 		void* TimePlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x7D20 });
 		if(TimePlot != nullptr)
@@ -132,29 +133,36 @@ namespace Keyboard {
 		map<int, bool> t_KeyDown;
 		map<int, int> t_KeyCount;
 	}
-	//¼ì²é´°¿Ú
+	//æ£€æŸ¥çª—å£
 	static bool CheckWindows() {
-		HWND wnd = GetForegroundWindow();
-		HWND mhd = FindWindow(L"MT FRAMEWORK", L"MONSTER HUNTER: WORLD(421740)");
-		if (wnd == mhd)
-			return true;
-		else
+		// è·å–å‰å°çª—å£å¥æŸ„
+		HWND foreground_hwnd = GetForegroundWindow();
+		// çª—å£æ‰€åœ¨çš„è¿›ç¨‹id
+		DWORD window_pid = NULL;
+		GetWindowThreadProcessId(foreground_hwnd, &window_pid);
+		if (window_pid == NULL) {
+			// error ignored
 			return false;
+		}
+
+		DWORD process_pid = GetCurrentProcessId();
+
+		return process_pid == window_pid;
 	}
-	//°´¼ü¼ì²é
+	//æŒ‰é”®æ£€æŸ¥
 	static bool CheckKey(int vk, int ComboClick = 1, float Duration = 0.3) {
 		if (!CheckWindows())
 			return false;
-		//½¨Á¢°´¼üµµ°¸
+		//å»ºç«‹æŒ‰é”®æ¡£æ¡ˆ
 		if (TempData::t_KeyDown.find(vk) == TempData::t_KeyDown.end()) {
 			TempData::t_KeyDown[vk] = false;
 		}
-		//°´¼ü¼ì²é
+		//æŒ‰é”®æ£€æŸ¥
 		if (GetKeyState(vk) < 0 and !TempData::t_KeyDown[vk]) {
 			TempData::t_KeyDown[vk] = true;
-			//Á¬»÷¼ì²é
+			//è¿å‡»æ£€æŸ¥
 			if (TempData::t_KeyCount.find(vk) != TempData::t_KeyCount.end()) {
-				//¼ÆÊ±Æ÷¼ì²é
+				//è®¡æ—¶å™¨æ£€æŸ¥
 				if (TempData::t_KeyCount[vk] == 1)
 					Chronoscope::AddChronoscope(Duration, "KEY_" + to_string(vk), true);
 				if (Chronoscope::CheckChronoscope("KEY_" + to_string(vk))) {
@@ -167,7 +175,7 @@ namespace Keyboard {
 				TempData::t_KeyCount[vk] = 1;
 			}
 
-			//¼ì²é½á¹û
+			//æ£€æŸ¥ç»“æœ
 			if (TempData::t_KeyCount[vk] == ComboClick)
 				return true;
 			else
@@ -267,18 +275,18 @@ namespace XboxPad {
 			return false;
 		}
 	}
-	//°´¼ü¼ì²é
+	//æŒ‰é”®æ£€æŸ¥
 	static bool CheckKey(int Key, int ComboClick = 1, float Duration = 0.3) {
-		//½¨Á¢°´¼üµµ°¸
+		//å»ºç«‹æŒ‰é”®æ¡£æ¡ˆ
 		if (TempData::t_KeyDown.find(Key) == TempData::t_KeyDown.end()) {
 			TempData::t_KeyDown[Key] = false;
 		}
-		//°´¼ü¼ì²é
+		//æŒ‰é”®æ£€æŸ¥
 		if (KeyIdHandle(Key) and !TempData::t_KeyDown[Key]) {
 			TempData::t_KeyDown[Key] = true;
-			//Á¬»÷¼ì²é
+			//è¿å‡»æ£€æŸ¥
 			if (TempData::t_KeyCount.find(Key) != TempData::t_KeyCount.end()) {
-				//¼ÆÊ±Æ÷¼ì²é
+				//è®¡æ—¶å™¨æ£€æŸ¥
 				if (TempData::t_KeyCount[Key] == 1)
 					Chronoscope::AddChronoscope(Duration, "XKEY_" + to_string(Key), true);
 				if (Chronoscope::CheckChronoscope("XKEY_" + to_string(Key))) {
@@ -291,7 +299,7 @@ namespace XboxPad {
 				TempData::t_KeyCount[Key] = 1;
 			}
 
-			//¼ì²é½á¹û
+			//æ£€æŸ¥ç»“æœ
 			if (TempData::t_KeyCount[Key] == ComboClick)
 				return true;
 			else
