@@ -138,9 +138,9 @@ end
 if GlobalVariable_int('Engine_CheckEnvironment') == 0 then
     setGlobalVariable_int('Engine_CheckEnvironment', 1)
     local checkEnvironment = checkEnvironmentFile({
-        { path = "loader.dll",                         },
-        { path = "dinput8.dll",                        },
-        { path = "./nativePC/plugins/!CRCBypass.dll",  },
+        { path = "loader.dll", "7401293c65cfe4ea612137a396395af1" },
+        { path = "dinput8.dll", "b2a083300ca98bc25b77bf36df126591" },
+        { path = "./nativePC/plugins/!CRCBypass.dll", },
         { path = "./Lua/modules/Engine_buff.lua" },
         { path = "./Lua/modules/Engine_entity.lua" },
         { path = "./Lua/modules/Engine_item.lua" },
