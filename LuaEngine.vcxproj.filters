@@ -94,6 +94,15 @@
     <ClInclude Include="src\lua\lua_thread.h">
       <Filter>头文件\lua</Filter>
     </ClInclude>
+    <ClInclude Include="deps\loader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\logger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Extension.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc">

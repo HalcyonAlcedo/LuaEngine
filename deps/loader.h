@@ -1,13 +1,11 @@
 #pragma once
+
 #include <windows.h>
 #include <sdkddkver.h>
-
 #include <sstream>
 #include <vector>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/sinks/rotating_file_sink.h"
+#include "logger.h"
 
 #ifdef DINPUT8MHW_EXPORTS
 #define DllExport   __declspec( dllexport )
@@ -18,12 +16,6 @@
 #pragma warning( disable: 4251 )
 
 namespace loader {
-	auto engine_logger = spdlog::basic_logger_mt("ÒýÇæ", "logs/LuaEngine.log");
-	auto framework_logger = spdlog::basic_logger_mt("¿ò¼Ü", "logs/LuaEngine.log");
-	auto lua_logger = spdlog::basic_logger_mt("Lua", "logs/LuaEngine.log");
-	auto error_logger = spdlog::basic_logger_mt("´íÎó", "logs/Error.log");
-	auto memory_logger = spdlog::rotating_logger_mt("ÄÚ´æ", "logs/Memory.log", 1048576, 2);
-
 	enum LogLevel {
 		DEBUG = 0,
 		INFO = 1,
