@@ -426,6 +426,14 @@ static int Game_Player_RunLmtAction(lua_State* pL) {
 }
 //切换武器
 static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
+	void* PlayerCountPlot = *(undefined**)MH::World::PlayerCount;
+	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x258);
+	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x10);
+	int PlayerCount = *offsetPtr<int>(PlayerCountPlot, 0x6574);
+	if (PlayerCount > 1)
+	{
+		return 0;
+	}
 	int type = (int)lua_tointeger(pL, 1);
 	int id = (int)lua_tointeger(pL, 2);
 	if (type <= 13 and type >= 0 and id >= 0) {
@@ -443,6 +451,14 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
 }
 //临时刷新装备
 static int Game_Player_RefreshEquip(lua_State* pL) {
+	void* PlayerCountPlot = *(undefined**)MH::World::PlayerCount;
+	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x258);
+	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x10);
+	int PlayerCount = *offsetPtr<int>(PlayerCountPlot, 0x6574);
+	if (PlayerCount > 1)
+	{
+		return 0;
+	}
 	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x12610);

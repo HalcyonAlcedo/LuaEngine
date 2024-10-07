@@ -53,6 +53,7 @@ namespace MH {
         static undefined(*Message)() = (undefined(*)())0x144F87FF0;
         static undefined8(*ActionFrameSpeed)(undefined8*) = (undefined8(*)(undefined8*))0x142228F50;
         static undefined(*Screen)(undefined*) = (undefined(*)(undefined*))0x14236D070;
+        static undefined(*PlayerCount)() = (undefined(*)())0x1451C46B8;
     }
     namespace Shlp {
         static void* (*GetShlp)(void*, int) = (void* (*)(void*, int))0x140F7DC00;
