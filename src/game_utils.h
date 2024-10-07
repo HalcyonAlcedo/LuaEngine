@@ -12,7 +12,7 @@ namespace utils {
 	static void* GetPlot(void* plot, const std::vector<int>& bytes) {
 		void* Plot = plot;
 		//处理基址
-		if ((long long)plot > 0x140000000 && (long long)plot < 0x14579b000) {
+		if ((long long)plot > 0x140000000 && (long long)plot < 0x1455d3000) {
 			Plot = *(undefined**)plot;
 		}
 		for (int i : bytes) {

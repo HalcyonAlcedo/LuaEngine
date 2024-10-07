@@ -91,7 +91,7 @@ engine_buff = {
 }
 
 local pointer = {
-    buff = function() return GetAddress(0x145011760,{ 0x50, 0x7D20 }) end,
+    buff = function() return GetAddress(0x1450139A0,{ 0x50, 0x7D20 }) end,
 }
 
 --获取玩家buff

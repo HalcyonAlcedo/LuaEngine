@@ -13,120 +13,120 @@ typedef unsigned short ushort;
 namespace MH {
     namespace Quest {
         static undefined(*ErrorCheck)(undefined, undefined, undefined, undefined, undefined4, undefined8, undefined8, undefined2, undefined4) = (undefined(*)(undefined, undefined, undefined, undefined, undefined4, undefined8, undefined8, undefined2, undefined4))0x141144830;
-        static undefined(*CheckProgress)() = (undefined(*)())0x14134e310;
-        static undefined(*GetCategory)() = (undefined(*)())0x1419744e0;
-        static void* OptionalIdList = (void*)0x14324d980;
-        static bool(*CheckComplete)(longlong, uint) = (bool(*)(longlong, uint))0x14134e280;
-        static undefined8(*OptionalCount)() = (undefined8(*)())0x141354f80;
-        static uint(*OptionalAt)(undefined*, int) = (uint(*)(undefined*, int))0x141354f70;
-        static undefined(*IsMasterRank)() = (undefined(*)())0x141975440;
+        static undefined(*CheckProgress)() = (undefined(*)())0x14134EFE0;
+        static undefined(*GetCategory)() = (undefined(*)())0x1419751B0;
+        static void* OptionalIdList = (void*)0x14324FAC0;
+        static bool(*CheckComplete)(longlong, uint) = (bool(*)(longlong, uint))0x14134EF50;
+        static undefined8(*OptionalCount)() = (undefined8(*)())0x141355C50;
+        static uint(*OptionalAt)(undefined*, int) = (uint(*)(undefined*, int))0x141355C40;
+        static undefined(*IsMasterRank)() = (undefined(*)())0x141976110;
         static void* GlobalOptionalQuestList = (void*)0x145010ae8; // 变动 未调用
-        static undefined(*StarCategoryCheck)() = (undefined(*)())0x140f2b640;
+        static undefined(*StarCategoryCheck)() = (undefined(*)())0x140F2C320;
         namespace QuestData {
-            static void* ResourceVtable = (void*)0x1433e8750;
-            static undefined(*ResourceFunc)() = (undefined(*)())0x141a0f280;
-            static void* ResourcePtr = (void*)0x145009308;
+            static void* ResourceVtable = (void*)0x1433EA8A0;
+            static undefined(*ResourceFunc)() = (undefined(*)())0x141A0FF50;
+            static void* ResourcePtr = (void*)0x145009308; // 变动，疑似143BD9AC0
         }
         namespace QuestNoList {
-            static void* ResourceVtable = (void*)0x142f83b20;
-            static undefined(*ResourceFunc)() = (undefined(*)())0x140478520;
-            static void* ResourcePtr = (void*)0x144cb5e40;
+            static void* ResourceVtable = (void*)0x142F85B50;
+            static undefined(*ResourceFunc)() = (undefined(*)())0x140478520; // 变动，未调用
+            static void* ResourcePtr = (void*)0x144cb5e40; // 变动，疑似1433333C8
         }
     }
     namespace Player {
-        static void* BasePtr = (void*)0x145011710;
-        static undefined(*PlayerBasePlot)() = (undefined(*)())0x145011760;
-        static void(*Effects)(undefined*, int, int) = (void(*)(undefined*, int, int))0x140AE0090;
-        static undefined(*Visual)() = (undefined(*)())0x141F9DB46; // 0x141F9DAE6 -> 0x141F9DB46
-        static void* PlayerDataHandlePlot = (void*)0x1451CA0E0;
-        static void(*CallLmt)(undefined*, int, int) = (void(*)(undefined*, int, int))0x141C006E0;
-        static void(*ActionFrameSpeed)(undefined8*) = (void(*)(undefined8*))0x142227C10; // 0x142227BB0 -> 0x142227C10
-        static undefined* (*GetPlayer)(undefined*) = (undefined * (*)(undefined*))0x141b8cde0;
-        static undefined(*HitPtr)(undefined*, undefined*) = (undefined(*)(undefined*, undefined*))0x141F5048B;
+        static void* BasePtr = (void*)0x145013950;
+        static undefined(*PlayerBasePlot)() = (undefined(*)())0x1450139A0;
+        static void(*Effects)(undefined*, int, int) = (void(*)(undefined*, int, int))0x140AE0D70;
+        static undefined(*Visual)() = (undefined(*)())0x141F9EEC6;
+        static void* PlayerDataHandlePlot = (void*)0x143C21EA0;
+        static void(*CallLmt)(undefined*, int, int) = (void(*)(undefined*, int, int))0x141C014B0;
+        static void(*ActionFrameSpeed)(undefined8*) = (void(*)(undefined8*))0x142228F90;
+        static undefined* (*GetPlayer)(undefined*) = (undefined * (*)(undefined*))0x141B8DBB0;
+        static undefined(*HitPtr)(undefined*, undefined*) = (undefined(*)(undefined*, undefined*))0x141F5180B;
     }
     namespace EnvironmentalBiological {
-        static undefined* (*ctor)(undefined*, undefined4, undefined4) = (undefined * (*)(undefined*, undefined4, undefined4))0x141d277f0;
-        static void(*dtor)(undefined8*) = (void(*)(undefined8*))0x141D27C00;
+        static undefined* (*ctor)(undefined*, undefined4, undefined4) = (undefined * (*)(undefined*, undefined4, undefined4))0x141D285C0;
+        static void(*dtor)(undefined8*) = (void(*)(undefined8*))0x141D289D0;
     }
     namespace World {
-        static undefined8(*MapClockLocal)(float*, float) = (undefined8(*)(float*, float))0x140AE6490;
-        static undefined(*Message)() = (undefined(*)())0x144F85DB0;
-        static undefined8(*ActionFrameSpeed)(undefined8*) = (undefined8(*)(undefined8*))0x142227BD0; // 0x142227B70 -> 0x142227BD0
-        static undefined(*Screen)(undefined*) = (undefined(*)(undefined*))0x14236BCF0; // 0x14236BC90 -> 0x14236BCF0
+        static undefined8(*MapClockLocal)(float*, float) = (undefined8(*)(float*, float))0x140AE7170;
+        static undefined(*Message)() = (undefined(*)())0x144F87FF0;
+        static undefined8(*ActionFrameSpeed)(undefined8*) = (undefined8(*)(undefined8*))0x142228F50;
+        static undefined(*Screen)(undefined*) = (undefined(*)(undefined*))0x14236D070;
     }
     namespace Shlp {
-        static void* (*GetShlp)(void*, int) = (void* (*)(void*, int))0x140F7CF20;
-        static void(*CallShlp)(void*, void*, void*, void*) = (void(*)(void*, void*, void*, void*))0x141AA67D0;
-        static void*(*ctor)() = (void* (*)())0x141AA67D0;
-        static void(*dtor)(void*) = (void(*)(void*))0x142226F20; // 0x142226EC0 -> 0x142226F20
+        static void* (*GetShlp)(void*, int) = (void* (*)(void*, int))0x140F7DC00;
+        static void(*CallShlp)(void*, void*, void*, void*) = (void(*)(void*, void*, void*, void*))0x141AA74A0;
+        static void*(*ctor)() = (void* (*)())0x141AA74A0;
+        static void(*dtor)(void*) = (void(*)(void*))0x1422282A0;
     }
     namespace Monster {
-        static void(*dtor)(undefined8*) = (void(*)(undefined8*))0x141CA3A10;
-        static void* vptr = (void*)0x14344d718;
+        static void(*dtor)(undefined8*) = (void(*)(undefined8*))0x141CA47E0;
+        static void* vptr = (void*)0x14346A4BB;
         namespace DamageBehavior {
-            static undefined(*NextAction)() = (undefined(*)())0x1413966e0;
+            static undefined(*NextAction)() = (undefined(*)())0x1413973B0;
         }
-        static bool(*LaunchAction)(undefined*, uint) = (bool(*)(undefined*, uint))0x141cc4590;
-        static undefined(*MotionFromId)() = (undefined(*)())0x141bfeab0;
-        static undefined* (*ctor)(undefined*, undefined4, undefined4) = (undefined * (*)(undefined*, undefined4, undefined4))0x141CA1130;
+        static bool(*LaunchAction)(undefined*, uint) = (bool(*)(undefined*, uint))0x141CC5360;
+        static undefined(*MotionFromId)() = (undefined(*)())0x141BFF880;
+        static undefined* (*ctor)(undefined*, undefined4, undefined4) = (undefined * (*)(undefined*, undefined4, undefined4))0x141CA1F00;
         namespace SoftenTimers {
-            static undefined(*WoundPartLocal)() = (undefined(*)())0x140afba90;
+            static undefined(*WoundPartLocal)() = (undefined(*)())0x140AFC770;
         }
-        static undefined(*GenerateFilePaths)() = (undefined(*)())0x141cce8f0;
+        static undefined(*GenerateFilePaths)() = (undefined(*)())0x141CCF6C0;
     }
     namespace Weapon {
         namespace UI {
-            static undefined(*CalcAwakenedElement)() = (undefined(*)())0x14197cc30;
-            static uint(*CalcRawBloat)(uint, uint) = (uint(*)(uint, uint))0x14197cc00;
-            static void* RawBloatMultipliers = (void*)0x1433b6740;
+            static undefined(*CalcAwakenedElement)() = (undefined(*)())0x14197D900;
+            static uint(*CalcRawBloat)(uint, uint) = (uint(*)(uint, uint))0x14197D8D0;
+            static void* RawBloatMultipliers = (void*)0x1433B8890;
             namespace Unkn {
-                static undefined(*ConditionalElementalBloat)() = (undefined(*)())0x14191a7b0;
+                static undefined(*ConditionalElementalBloat)() = (undefined(*)())0x14191B480;
             }
-            static undefined(*CalcElementalBloat)() = (undefined(*)())0x14197cc20;
+            static undefined(*CalcElementalBloat)() = (undefined(*)())0x14197D8F0;
         }
-        static void* (*ChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x141F59090;
-        static void* (*CompleteChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x142040380; // 0x142040320 -> 0x142040380
-        static void* (*RefreshEquip)(void*) = (void* (*)(void*))0x141257b30;
-        static void(*Hit)() = (void(*)())0x141F707A1; // 0x141F70741 -> 0x141F707A1
-        static undefined(*WeaponOrnaments)() = (undefined(*)())0x142112371; // 0x142112311 -> 0x142112371
-        static undefined(*MainWeaponPtr)() = (undefined(*)())0x142117DA9; // 0x142117D49 -> 0x142117DA9
-        static undefined(*SecondaryWeaponPtr)() = (undefined(*)())0x142150F7D; // 0x142150F16 -> 0x142150F7D
-        static undefined(*PartWeaponPtr)() = (undefined(*)())0x142119cb6;
+        static void* (*ChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x141F5A410;
+        static void* (*CompleteChangeWeapon)(void*, int, int) = (void* (*)(void*, int, int))0x142041700;
+        static void* (*RefreshEquip)(void*) = (void* (*)(void*))0x141258800;
+        static void(*Hit)() = (void(*)())0x141F71B21;
+        static undefined(*WeaponOrnaments)() = (undefined(*)())0x1421136F1;
+        static undefined(*MainWeaponPtr)() = (undefined(*)())0x142119129;
+        static undefined(*SecondaryWeaponPtr)() = (undefined(*)())0x1421522FD;
+        static undefined(*PartWeaponPtr)() = (undefined(*)())0x14211B036;
     }
     namespace EmSetter {
-        static undefined8(*CreateMonster)() = (undefined8(*)())0x141a6b4f0;
+        static undefined8(*CreateMonster)() = (undefined8(*)())0x141A6C1C0;
     }
     namespace List {
-        static void(*IncreaseCapacity)(void*, ulonglong) = (void(*)(void*, ulonglong))0x140249b20;
+        static void(*IncreaseCapacity)(void*, ulonglong) = (void(*)(void*, ulonglong))0x140249B70;
     }
     namespace GameVersion {
-        static undefined(*CalcNum)() = (undefined(*)())0x1418d4030;
-        static void* StringPtr = (void*)0x143eeb1f0;
+        static undefined(*CalcNum)() = (undefined(*)())0x1418D4D00;
+        static void* StringPtr = (void*)0x143F992E8;
     }
     namespace String {
-        static undefined8(*Format__)(undefined8, undefined8, undefined8, undefined8, undefined) = (undefined8(*)(undefined8, undefined8, undefined8, undefined8, undefined))0x1404639a0;
-        static undefined(*Format)() = (undefined(*)())0x1403050f0;
+        static undefined8(*Format__)(undefined8, undefined8, undefined8, undefined8, undefined) = (undefined8(*)(undefined8, undefined8, undefined8, undefined8, undefined))0x140463B60;
+        static undefined(*Format)() = (undefined(*)())0x1403052C0;
     }
     namespace Chat {
-        static undefined(*BuildShowGameMessage_)() = (undefined(*)())0x1419a1fb0;
-        static void* MainPtr = (void*)0x14500AC30;
-        static void(*ShowGameMessage)(undefined*, undefined*, float, uint, undefined1) = (void(*)(undefined*, undefined*, float, uint, undefined1))0x141A53400;
+        static undefined(*BuildShowGameMessage_)() = (undefined(*)())0x1419A2C80;
+        static void* MainPtr = (void*)0x14500CE70;
+        static void(*ShowGameMessage)(undefined*, undefined*, float, uint, undefined1) = (void(*)(undefined*, undefined*, float, uint, undefined1))0x141A540D0;
         namespace Unkn {
-            static undefined(*CallBuild)() = (undefined(*)())0x1411b5e50;
+            static undefined(*CallBuild)() = (undefined(*)())0x1411B6B20;
         }
-        static undefined(*BuildShowGameMessage)() = (undefined(*)())0x1419a2050;
-        static long long* uGuiChatBase = (long long*)0x1451C2400;
+        static undefined(*BuildShowGameMessage)() = (undefined(*)())0x1419A2D20;
+        static long long* uGuiChatBase = (long long*)0x1451C464C;
     }
     namespace Damage {
-        static bool(*ApplySoftenBuildup)(longlong, longlong, float) = (bool(*)(longlong, longlong, float))0x1402c7850;
+        static bool(*ApplySoftenBuildup)(longlong, longlong, float) = (bool(*)(longlong, longlong, float))0x1402C78A0;
     }
     namespace File {
-        static undefined(*LoadResource)() = (undefined(*)())0x142221550; // 0x1422214f0 -> 0x142221550
+        static undefined(*LoadResource)() = (undefined(*)())0x1422228D0;
     }
     namespace QuestBoard {
-        static undefined(*FilterQuestList)() = (undefined(*)())0x14114ce60;
+        static undefined(*FilterQuestList)() = (undefined(*)())0x14114DB30;
     }
     namespace GamePad {
-        static undefined8(*XboxPadPtr)() = (undefined8(*)())0x1451C2318;
+        static undefined8(*XboxPadPtr)() = (undefined8(*)())0x1451C4558;
     }
 }

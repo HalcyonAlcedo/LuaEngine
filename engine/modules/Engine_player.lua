@@ -138,12 +138,12 @@ engine_player = {
 }
 
 local pointer = {
-    Player = function() return GetAddress(0x145011760,{ 0x50 }) end,
-    PlayerData = function() return GetAddress(0x145011760,{ 0x50, 0xC0, 0x98, 0x18, 0x70, 0xC8, 0xD0, 0x5D0, 0x20 }) end, 
-    PlayerSaveData = function() return GetAddress(0x145011710,{ 0xa8 }) end, 
+    Player = function() return GetAddress(0x1450139A0,{ 0x50 }) end,
+    PlayerData = function() return GetAddress(0x1450139A0,{ 0x50, 0xC0, 0x98, 0x18, 0x70, 0xC8, 0xD0, 0x5D0, 0x20 }) end, 
+    PlayerSaveData = function() return GetAddress(0x145013950,{ 0xa8 }) end, 
     Weapon = {
-        Entity = function() return GetAddress(0x145011760,{ 0x50, 0x76B0 }) end,
-        Data = function() return GetAddress(0x145011760,{ 0x50, 0xc0, 0x8, 0x78 }) end
+        Entity = function() return GetAddress(0x1450139A0,{ 0x50, 0x76B0 }) end,
+        Data = function() return GetAddress(0x1450139A0,{ 0x50, 0xc0, 0x8, 0x78 }) end
     }
 }
 
@@ -439,7 +439,7 @@ function engine_player:getPlayerFrameInfo()
         frame = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x10C, 'float'),
         frameEnd = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x114, 'float'),
         frameSpeed = GetAddressData(pointer:Player() + 0x6c, 'float'),
-        frameSpeedMultiplies = GetAddressData(GetAddressData(0x145121688, 'int') + GetAddressData(pointer:Player() + 0x10, 'int') * 0xf8 + 0x9c, 'float')
+        frameSpeedMultiplies = GetAddressData(GetAddressData(0x1451238C8, 'int') + GetAddressData(pointer:Player() + 0x10, 'int') * 0xf8 + 0x9c, 'float')
     }
 end
 
@@ -505,7 +505,7 @@ local function traceHandle(k,v)
     --动作帧速率倍率修改
     if k == 'frameSpeedMultiplies' then
         SetAddressData(
-            GetAddressData(0x145121688, 'int') + GetAddressData(pointer:Player() + 0x10, 'int') * 0xf8 + 0x9c
+            GetAddressData(0x1451238C8, 'int') + GetAddressData(pointer:Player() + 0x10, 'int') * 0xf8 + 0x9c
         ,'float',v)
         return
     end

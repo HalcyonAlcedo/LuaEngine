@@ -18,8 +18,8 @@ engine_world = {
 }
 
 local pointer = {
-    map = function() return GetAddress(0x145011760,{ 0x50, 0x7D20 }) end,
-    worldData = function() return GetAddress(0x1451CA0C0,{ 0x48, 0x58, 0x58, 0x40 }) end
+    map = function() return GetAddress(0x1450139A0,{ 0x50, 0x7D20 }) end,
+    worldData = function() return GetAddress(0x1451C4E68,{ 0x90, 0x40, 0x90, 0x18 }) end
 }
 
 --获取地图Id
@@ -36,11 +36,12 @@ function engine_world:getTime()
 end
 --获取导航坐标
 function engine_world:getWayPosition()
-    if not pointer:map() or not pointer:worldData() then return {x = 0, y = 0, z = 0} end
+    -- pointer:worldData()未完成初始化时可能取到0x1，对初始化进行一下判断
+    if not pointer:map() or not pointer:worldData() or pointer:worldData() < 0x1000 then return {x = 0, y = 0, z = 0} end
     return {
-        x = GetAddressData(pointer:worldData() + 0x2D0, 'float'),
-        y = GetAddressData(pointer:worldData() + 0x2D4, 'float'),
-        z = GetAddressData(pointer:worldData() + 0x2D8, 'float')
+        x = GetAddressData(pointer:worldData() + 0x200, 'float'),
+        y = GetAddressData(pointer:worldData() + 0x204, 'float'),
+        z = GetAddressData(pointer:worldData() + 0x208, 'float')
     }
 end
 --监听

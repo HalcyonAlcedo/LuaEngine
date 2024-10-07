@@ -108,7 +108,7 @@ function engine_monster:getMonsterFrameInfo()
         frame = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x10C, 'float'),
         frameEnd = GetAddressData(GetAddress(pointer.Monster, { 0x468 }) + 0x114, 'float'),
         frameSpeed = GetAddressData(pointer.Monster + 0x6c, 'float'),
-        frameSpeedMultiplies = GetAddressData(GetAddressData(0x145121688, 'int') + GetAddressData(pointer.Monster + 0x10, 'int') * 0xf8 + 0x9c, 'float')
+        frameSpeedMultiplies = GetAddressData(GetAddressData(0x1451238C8, 'int') + GetAddressData(pointer.Monster + 0x10, 'int') * 0xf8 + 0x9c, 'float')
     }
 end
 --获取投射物信息
@@ -160,7 +160,7 @@ local function traceHandle(k,v)
     --动作帧速率倍率修改
     if k == 'frameSpeedMultiplies' then
         SetAddressData(
-            GetAddressData(0x145121688, 'int') + GetAddressData(pointer.Monster + 0x10, 'int') * 0xf8 + 0x9c
+            GetAddressData(0x1451238C8, 'int') + GetAddressData(pointer.Monster + 0x10, 'int') * 0xf8 + 0x9c
         ,'float',v)
         return
     end
