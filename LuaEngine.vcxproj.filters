@@ -39,6 +39,9 @@
     <ClCompile Include="src\md5.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\CircularBufferLogger.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="deps\loader.lib">
@@ -93,6 +96,9 @@
     </ClInclude>
     <ClInclude Include="src\lua\lua_thread.h">
       <Filter>头文件\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CircularBufferLogger.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

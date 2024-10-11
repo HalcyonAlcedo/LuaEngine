@@ -69,6 +69,34 @@ namespace utils {
 		pwBuf = NULL;
 		return retStr;
 	}
+	//安全读取内存
+	std::string readHexValueAtAddress(void* address) {
+		// 确保指针非空
+		if (address == nullptr) {
+			return "00000000"; // 或者返回错误信息
+		}
+
+		// 使用union来避免未定义行为
+		union {
+			uint32_t intValue;
+			char chars[4];
+		} data;
+
+		// 读取内存地址
+		memcpy(&data.intValue, address, sizeof(uint32_t));
+
+		// 转换为十六进制字符串
+		std::stringstream ss;
+		ss << std::hex << data.intValue;
+		std::string hexValue = ss.str();
+
+		// 补充到8个字符，确保格式一致
+		if (hexValue.length() < 8) {
+			hexValue = std::string(8 - hexValue.length(), '0') + hexValue;
+		}
+
+		return hexValue;
+	}
 }
 #pragma endregion
 

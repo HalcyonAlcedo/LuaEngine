@@ -32,6 +32,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -85,7 +86,8 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\hook;$(SolutionDir)src\lua;$(SolutionDir)deps;$(SolutionDir)deps\lua\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,6 +109,7 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="src\CircularBufferLogger.cpp" />
     <ClCompile Include="src\md5.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Sound.cpp" />
@@ -131,6 +134,7 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\CircularBufferLogger.h" />
     <ClInclude Include="src\lua\lua_core_ffi.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\hook\hook_camera.h" />

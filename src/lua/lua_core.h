@@ -1,4 +1,5 @@
 #pragma once
+#include "CircularBufferLogger.h"
 
 using namespace loader;
 
@@ -21,7 +22,7 @@ namespace LuaCore {
 	vector<string> LuaFiles;
 	map<string, LuaScriptData> LuaScript;
 	lua_State* Lc;
-	bool MemoryLog = false;
+	CircularBufferLogger logger(100);
 #pragma endregion
 	//÷ÿ‘ÿ ±º‰
 	DllExport extern time_t reloadTime = 0;

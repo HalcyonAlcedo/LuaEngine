@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "md5.h"
 #include "lua_core_ffi.h"
+#include "CircularBufferLogger.h"
 
 using namespace loader;
 
@@ -19,28 +20,28 @@ namespace LuaExternalData {
 }
 
 #pragma region LuaFun
-//å­˜å…¥æ•´æ•°å˜é‡
+//´æÈëÕûÊı±äÁ¿
 static int Lua_Variable_SaveIntVariable(lua_State* pL) {
 	string variableName = (string)lua_tostring(pL, 1);
 	int variableValue = (int)lua_tointeger(pL, 2);
 	LuaData::IntVariable[variableName] = variableValue;
 	return 0;
 }
-//å­˜å…¥æµ®ç‚¹æ•°å˜é‡
+//´æÈë¸¡µãÊı±äÁ¿
 static int Lua_Variable_SaveFloatVariable(lua_State* pL) {
 	string variableName = (string)lua_tostring(pL, 1);
 	float variableValue = (float)lua_tonumber(pL, 2);
 	LuaData::FloatVariable[variableName] = variableValue;
 	return 0;
 }
-//å­˜å…¥å­—ç¬¦ä¸²å˜é‡
+//´æÈë×Ö·û´®±äÁ¿
 static int Lua_Variable_SaveStringVariable(lua_State* pL) {
 	string variableName = (string)lua_tostring(pL, 1);
 	string variableValue = (string)lua_tostring(pL, 2);
 	LuaData::StringVariable[variableName] = variableValue;
 	return 0;
 }
-//è¯»å–æ•´æ•°å˜é‡
+//¶ÁÈ¡ÕûÊı±äÁ¿
 static int Lua_Variable_ReadIntVariable(lua_State* pL) {
 	string variableName = (string)lua_tostring(pL, -1);
 	int ret;
@@ -51,7 +52,7 @@ static int Lua_Variable_ReadIntVariable(lua_State* pL) {
 	lua_pushinteger(pL, ret);
 	return 1;
 }
-//è¯»å–æµ®ç‚¹æ•°å˜é‡
+//¶ÁÈ¡¸¡µãÊı±äÁ¿
 static int Lua_Variable_ReadFloatVariable(lua_State* pL) {
 	string variableName = (string)lua_tostring(pL, -1);
 	float ret;
@@ -62,7 +63,7 @@ static int Lua_Variable_ReadFloatVariable(lua_State* pL) {
 	lua_pushnumber(pL, ret);
 	return 1;
 }
-//è¯»å–å­—ç¬¦ä¸²å˜é‡
+//¶ÁÈ¡×Ö·û´®±äÁ¿
 static int Lua_Variable_ReadStringVariable(lua_State* pL) {
 	string variableName = (string)lua_tostring(pL, -1);
 	string ret;
@@ -73,7 +74,7 @@ static int Lua_Variable_ReadStringVariable(lua_State* pL) {
 	lua_pushstring(pL, ret.c_str());
 	return 1;
 }
-//é”€æ¯å˜é‡
+//Ïú»Ù±äÁ¿
 static int Lua_Variable_DestroyVariable(lua_State* pL) {
 	string variableTpye = (string)lua_tostring(pL, 1);
 	string variableName = (string)lua_tostring(pL, 2);
@@ -85,7 +86,7 @@ static int Lua_Variable_DestroyVariable(lua_State* pL) {
 		LuaData::StringVariable.erase(variableName);
 	return 0;
 }
-//è·å–éšæœºæ•°
+//»ñÈ¡Ëæ»úÊı
 static int Lua_Math_Rander(lua_State* pL) {
 	float min = (float)lua_tonumber(pL, 1);
 	float max = (float)lua_tonumber(pL, 2);
@@ -157,8 +158,14 @@ static int System_Message_ShowMessage(lua_State* pL) {
 		}
 	}
 	else {
+		std::vector<CustomDataEntry> customData = {};
+		LuaCore::logger.logOperation("System_Message_ShowMessage", MsgLevel::LogError, "ÏòÓÎÏ·ÄÚ·¢ËÍÏûÏ¢Ê§°Ü£¬²ÎÊı±ØĞëÊÇ×Ö·û´®¡¢Êı×Ö»ò×Ö·û´®Êı×é", customData);
 		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
 	}
+	std::vector<CustomDataEntry> customData = {
+		{"message", message},
+	};
+	LuaCore::logger.logOperation("System_Message_ShowMessage", MsgLevel::INFO, "ÏòÓÎÏ·ÄÚ·¢ËÍÏûÏ¢", customData);
 	MH::Chat::ShowGameMessage(*(undefined**)MH::Chat::MainPtr, (undefined*)&message[0], -1, -1, 0);
 	return 0;
 }
@@ -186,9 +193,15 @@ static int System_SendChatMessage(lua_State* pL) {
 		}
 	}
 	else {
+		std::vector<CustomDataEntry> customData = {};
+		LuaCore::logger.logOperation("System_SendChatMessage", MsgLevel::LogError, "·¢ËÍÁÄÌìÏûÏ¢Ê§°Ü£¬²ÎÊı±ØĞëÊÇ×Ö·û´®¡¢Êı×Ö»ò×Ö·û´®Êı×é", customData);
 		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
 	}
 	char buffer[256] = {};
+	std::vector<CustomDataEntry> customData = {
+		{"message", msg},
+	};
+	LuaCore::logger.logOperation("System_SendChatMessage", MsgLevel::INFO, "·¢ËÍÁÄÌìÏûÏ¢", customData);
 	strncpy_s(buffer, sizeof(buffer), msg.c_str(), _TRUNCATE);
 	Chat::SendChatMessage(buffer);
 	return 0;
@@ -270,6 +283,10 @@ static int System_XboxPad_CheckKeyIsPressed(lua_State* pL) {
 static int System_GetFileMD5(lua_State* pL)
 {
 	string file = (string)lua_tostring(pL, 1);
+	std::vector<CustomDataEntry> customData = {
+		{"file", file},
+	};
+	LuaCore::logger.logOperation("System_GetFileMD5", MsgLevel::INFO, "»ñÈ¡ÎÄ¼şMD5?", customData);
 	ifstream in(file.c_str(), ios::binary);
 	if (!in) {
 		lua_pushstring(pL, "");
@@ -295,43 +312,62 @@ static int System_GetFileMD5(lua_State* pL)
 static int System_Memory_GetAddress(lua_State* pL) {
 	vector<int> bytes;
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
-	string mLog = "";
+
+	if (ptr == 0) {
+		lua_pushboolean(pL, false);
+		return 1;
+	}
+
 	std::stringstream stamemoryAddr;
 	stamemoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>((void*)ptr);
-	mLog.append(stamemoryAddr.str()).append(" | ");
 	lua_pushnil(pL);
-	while (lua_next(pL, 2) != 0)
-	{
+
+	std::vector<CustomDataEntry> customData = {};
+
+	while (lua_next(pL, 2) != 0) {
 		uintptr_t offset = (uintptr_t)lua_tointeger(pL, -1);
 		bytes.push_back(offset);
 		std::stringstream memoryAddr;
 		memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>((void*)offset);
-		mLog.append(memoryAddr.str()).append(" | ");
+		customData.push_back({ "address",memoryAddr.str() });
 		lua_pop(pL, 1);
 	}
+
 	void* address = utils::GetPlot((void*)ptr, bytes);
-	if (LuaCore::MemoryLog) {
-		std::stringstream memoryAddr;
-		memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
-		memory_logger->info("è¯»å–å†…å­˜åç§»åœ°å€ ã€{}ã€‘ è¿”å›åœ°å€ï¼š{}", mLog, memoryAddr.str());
-	}
+
+	std::stringstream memoryAddr;
+	memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
+	customData.push_back({ "back address",memoryAddr.str() });
+	LuaCore::logger.logOperation("System_Memory_GetAddress", MsgLevel::INFO, "»ñÈ¡ÄÚ´æµØÖ·", customData);
+
 	if (address != nullptr) {
 		uintptr_t addr = (uintptr_t)address;
 		lua_pushinteger(pL, addr);
 	}
-	else
+	else {
 		lua_pushboolean(pL, false);
+	}
 	return 1;
 }
 static int System_Memory_GetAddressData(lua_State* pL) {
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 	string type = (string)lua_tostring(pL, 2);
-	void* address = (void*)ptr;
-	if (LuaCore::MemoryLog) {
-		std::stringstream memoryAddr;
-		memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
-		memory_logger->info("è¯»å–å†…å­˜æ•°æ®ï¼š{}", memoryAddr.str());
+
+	if (ptr == 0) {
+		lua_pushboolean(pL, false);
+		return 1;
 	}
+
+	void* address = (void*)ptr;
+
+	std::stringstream memoryAddr;
+	memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
+	std::vector<CustomDataEntry> customData = {
+		{"address", memoryAddr.str()},
+		{"value", utils::readHexValueAtAddress(address)}
+	};
+	LuaCore::logger.logOperation("System_Memory_GetAddressData", MsgLevel::INFO, "¶ÁÈ¡ÄÚ´æÊı¾İ", customData);
+
 	if (address != nullptr) {
 		if (type == "int")
 			lua_pushinteger(pL, *(int*)(ptr));
@@ -348,19 +384,35 @@ static int System_Memory_GetAddressData(lua_State* pL) {
 		else
 			lua_pushinteger(pL, *(char*)(ptr));
 	}
-	else
+	else {
 		lua_pushboolean(pL, false);
+	}
 	return 1;
 }
+
 static int System_Memory_SetAddressData(lua_State* pL) {
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 	string type = (string)lua_tostring(pL, 2);
-	void* address = (void*)ptr;
-	if (LuaCore::MemoryLog) {
-		std::stringstream memoryAddr;
-		memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
-		memory_logger->info("å†™å…¥å†…å­˜æ•°æ®ï¼š{}", memoryAddr.str());
+
+	if (ptr == 0) {
+		lua_pushboolean(pL, false);
+		return 1;
 	}
+
+	void* address = (void*)ptr;
+
+	std::stringstream memoryAddr;
+	memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
+	double number = lua_tointeger(pL, 3);
+	std::stringstream ss;
+	ss << std::setfill('0') << std::setw(16)
+		<< std::hex << static_cast<unsigned long long>(number);
+	std::vector<CustomDataEntry> customData = {
+		{ "address", memoryAddr.str() },
+		{ "value", ss.str()}
+	};
+	LuaCore::logger.logOperation("System_Memory_SetAddressData", MsgLevel::INFO, "Ğ´ÈëÄÚ´æÊı¾İ", customData);
+
 	if (address != nullptr) {
 		if (type == "int") {
 			*(int*)(ptr) = (int)lua_tointeger(pL, 3);
@@ -378,21 +430,31 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 			*(char*)(ptr) = (char)lua_tointeger(pL, 3);
 			lua_pushboolean(pL, true);
 		}
-		else
+		else {
 			lua_pushboolean(pL, false);
+		}
 	}
-	else
+	else {
 		lua_pushboolean(pL, false);
+	}
 	return 1;
 }
+
 #pragma endregion
 #pragma region GameFun
-//æ·»åŠ ç‰¹æ•ˆ
+//Ìí¼ÓÌØĞ§
 static int Game_Player_AddEffect(lua_State* pL) {
 	int group = (int)lua_tointeger(pL, 1);
 	int record = (int)lua_tointeger(pL, 2);
 	uintptr_t effects = (uintptr_t)lua_tointeger(pL, 3);
 	void* Effects = nullptr;
+
+	std::vector<CustomDataEntry> customData = {
+		{"group", std::to_string(group)},
+		{"record", std::to_string(record)}
+	};
+	LuaCore::logger.logOperation("Game_Player_AddEffect", MsgLevel::INFO, "Ìí¼ÓÌØĞ§", customData);
+
 	if (effects) {
 		Effects = (void*)effects;
 	}
@@ -404,10 +466,17 @@ static int Game_Player_AddEffect(lua_State* pL) {
 	MH::Player::Effects((undefined*)Effects, group, record);
 	return 0;
 }
-//æ‰§è¡ŒFsmåŠ¨ä½œ
+//Ö´ĞĞFsm¶¯×÷
 static int Game_Player_RunFsmAction(lua_State* pL) {
 	int type = (int)lua_tointeger(pL, 1);
 	int id = (int)lua_tointeger(pL, 2);
+
+	std::vector<CustomDataEntry> customData = {
+		{"type", std::to_string(type)},
+		{"id", std::to_string(id)}
+	};
+	LuaCore::logger.logOperation("Game_Player_RunFsmAction", MsgLevel::INFO, "Ö´ĞĞFsm¶¯×÷", customData);
+
 	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
 	*offsetPtr<int>(PlayerPlot, 0x6284) = type;
@@ -416,15 +485,21 @@ static int Game_Player_RunFsmAction(lua_State* pL) {
 	*offsetPtr<int>(PlayerPlot, 0x6290) = id;
 	return 0;
 }
-//æ‰§è¡ŒLmtåŠ¨ä½œ
+//Ö´ĞĞLmt¶¯×÷
 static int Game_Player_RunLmtAction(lua_State* pL) {
 	int id = (int)lua_tointeger(pL, -1);
+
+	std::vector<CustomDataEntry> customData = {
+	{"id", std::to_string(id)}
+	};
+	LuaCore::logger.logOperation("Game_Player_RunLmtAction", MsgLevel::INFO, "Ö´ĞĞLmt¶¯×÷", customData);
+
 	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
 	MH::Player::CallLmt((undefined*)PlayerPlot, id, 0);
 	return 0;
 }
-//åˆ‡æ¢æ­¦å™¨
+//ÇĞ»»ÎäÆ÷
 static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
 	void* PlayerCountPlot = *(undefined**)MH::World::PlayerCount;
 	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x258);
@@ -436,6 +511,11 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
 	}
 	int type = (int)lua_tointeger(pL, 1);
 	int id = (int)lua_tointeger(pL, 2);
+	std::vector<CustomDataEntry> customData = {
+		{ "type", std::to_string(type) },
+		{ "id", std::to_string(id) }
+	};
+	LuaCore::logger.logOperation("Game_Player_Weapon_ChangeWeapons", MsgLevel::INFO, "ÇĞ»»ÎäÆ÷", customData);
 	if (type <= 13 and type >= 0 and id >= 0) {
 		void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 		PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
@@ -449,7 +529,7 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
 	}
 	return 0;
 }
-//ä¸´æ—¶åˆ·æ–°è£…å¤‡
+//ÁÙÊ±Ë¢ĞÂ×°±¸
 static int Game_Player_RefreshEquip(lua_State* pL) {
 	void* PlayerCountPlot = *(undefined**)MH::World::PlayerCount;
 	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x258);
@@ -459,18 +539,20 @@ static int Game_Player_RefreshEquip(lua_State* pL) {
 	{
 		return 0;
 	}
+	std::vector<CustomDataEntry> customData = {};
+	LuaCore::logger.logOperation("Game_Player_RefreshEquip", MsgLevel::INFO, "ÁÙÊ±Ë¢ĞÂ×°±¸", customData);
 	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x12610);
 	MH::Weapon::RefreshEquip(PlayerPlot);
 	return 0;
 }
-//å‘å°„æŠ•å°„ç‰©
+//·¢ÉäÍ¶ÉäÎï
 struct Vector3 {
 	float x, y, z;
 	Vector3(float x = 0, float y = 0, float z = 0) :x(x), y(y), z(z) { };
 };
-//æ‰§è¡ŒæŠ•å°„ç‰©ç”Ÿæˆ
+//Ö´ĞĞÍ¶ÉäÎïÉú³É
 static bool CallProjectilesGenerate(int Id, float* Coordinate, void* ShlpList = nullptr, void* FromPtr = nullptr) {
 	void* ShlpRoute = MH::Shlp::GetShlp(ShlpList, Id);
 	if (ShlpRoute == nullptr)
@@ -479,59 +561,59 @@ static bool CallProjectilesGenerate(int Id, float* Coordinate, void* ShlpList = 
 	MH::Shlp::CallShlp(ShlpRoute, FromPtr, FromPtr, Coordinate);
 	return true;
 }
-//å¤„ç†æŠ•å°„ç‰©è·¯å¾„æ•°æ®
+//´¦ÀíÍ¶ÉäÎïÂ·¾¶Êı¾İ
 static void GenerateProjectilesCoordinateData(float*& CalculationCoordinates, Vector3 startPoint, Vector3 endPoint) {
-	//ç¼“å­˜æŒ‡é’ˆ
+	//»º´æÖ¸Õë
 	float* temp_float = CalculationCoordinates;
-	//å†™å…¥èµ·å§‹åæ ‡
+	//Ğ´ÈëÆğÊ¼×ø±ê
 	*temp_float = startPoint.x;
 	temp_float++;
 	*temp_float = startPoint.y;
 	temp_float++;
 	*temp_float = startPoint.z;
 	temp_float++;
-	//èµ·å§‹åæ ‡å†™å…¥å®Œæˆï¼Œç©º4ä¸ªå­—èŠ‚
+	//ÆğÊ¼×ø±êĞ´ÈëÍê³É£¬¿Õ4¸ö×Ö½Ú
 	*temp_float = 0;
 	temp_float++;
-	//æ›´æ¢æŒ‡é’ˆä¸ºå•å­—èŠ‚å¹¶å†™å…¥1
+	//¸ü»»Ö¸ÕëÎªµ¥×Ö½Ú²¢Ğ´Èë1
 	unsigned char* temp_byte = (unsigned char*)temp_float;
 	*temp_byte = 1;
 
-	//é‡è®¾ç¼“å­˜æŒ‡é’ˆè‡³åæ ‡åœ°å€40å¤„
+	//ÖØÉè»º´æÖ¸ÕëÖÁ×ø±êµØÖ·40´¦
 	temp_float = offsetPtr<float>(CalculationCoordinates, 0x40);
-	//å†™å…¥ç»“æŸåæ ‡
+	//Ğ´Èë½áÊø×ø±ê
 	*temp_float = endPoint.x;
 	temp_float++;
 	*temp_float = endPoint.y;
 	temp_float++;
 	*temp_float = endPoint.z;
 	temp_float++;
-	//ç»“æŸåæ ‡å†™å…¥å®Œæˆï¼Œç©º4ä¸ªå­—èŠ‚
+	//½áÊø×ø±êĞ´ÈëÍê³É£¬¿Õ4¸ö×Ö½Ú
 	*temp_float = 0;
 	temp_float++;
-	//æ›´æ¢æŒ‡é’ˆä¸ºå•å­—èŠ‚å¹¶å†™å…¥1
+	//¸ü»»Ö¸ÕëÎªµ¥×Ö½Ú²¢Ğ´Èë1
 	temp_byte = (unsigned char*)temp_float;
 	*temp_byte = 1;
 
-	//é‡è®¾ç¼“å­˜æŒ‡é’ˆè‡³åæ ‡åœ°å€A0å¤„
+	//ÖØÉè»º´æÖ¸ÕëÖÁ×ø±êµØÖ·A0´¦
 	int* tempCoordinateTailData = offsetPtr<int>(CalculationCoordinates, 0xA0);
-	//å†™å…¥åæ ‡æ•°æ®å°¾éƒ¨ä¿¡æ¯
+	//Ğ´Èë×ø±êÊı¾İÎ²²¿ĞÅÏ¢
 	*tempCoordinateTailData = 0x12;
 	tempCoordinateTailData++;
 	longlong* tempCoordinateTailData_longlong = (longlong*)tempCoordinateTailData;
 	*tempCoordinateTailData_longlong = -1;
 }
-//ç”ŸæˆæŠ•å°„ç‰©
+//Éú³ÉÍ¶ÉäÎï
 static bool CreateProjectiles(int Id, Vector3 startPoint, Vector3 endPoint, void* ShlpList = nullptr, void* FromPtr = nullptr) {
-	//åˆ›å»ºæŠ•å°„ç‰©è·¯å¾„æ•°æ®ç¼“å­˜æŒ‡é’ˆ
+	//´´½¨Í¶ÉäÎïÂ·¾¶Êı¾İ»º´æÖ¸Õë
 	float* CoordinatesData = new float[73];
-	//å¡«å……ç¼“å­˜åŒºæ•°æ®
+	//Ìî³ä»º´æÇøÊı¾İ
 	memset(CoordinatesData, 0, 73 * 4);
-	//å¤„ç†æŠ•å°„ç‰©è·¯å¾„æ•°æ®
+	//´¦ÀíÍ¶ÉäÎïÂ·¾¶Êı¾İ
 	GenerateProjectilesCoordinateData(CoordinatesData, startPoint, endPoint);
-	//æ‰§è¡Œç”ŸæˆæŠ•å°„ç‰©
+	//Ö´ĞĞÉú³ÉÍ¶ÉäÎï
 	bool GenerateResults = CallProjectilesGenerate(Id, CoordinatesData, ShlpList, FromPtr);
-	//æ¸…ç†ç¼“å†²åŒº
+	//ÇåÀí»º³åÇø
 	delete[]CoordinatesData;
 	return GenerateResults;
 }
@@ -543,6 +625,18 @@ static int Game_Player_CreateProjectiles(lua_State* pL) {
 	float endx = (float)lua_tonumber(pL, 5);
 	float endy = (float)lua_tonumber(pL, 6);
 	float endz = (float)lua_tonumber(pL, 7);
+
+	std::vector<CustomDataEntry> customData = {
+	{ "id", std::to_string(id) },
+	{ "startx", std::to_string(startx) },
+	{ "starty", std::to_string(starty) },
+	{ "startz", std::to_string(startz) },
+	{ "endx", std::to_string(endx) },
+	{ "endy", std::to_string(endy) },
+	{ "endz", std::to_string(endz) }
+	};
+	LuaCore::logger.logOperation("Game_Player_CreateProjectiles", MsgLevel::INFO, "?????????", customData);
+
 	uintptr_t entity = (uintptr_t)lua_tointeger(pL, 8);
 	uintptr_t shlpList = (uintptr_t)lua_tointeger(pL, 9);
 	void* EntityAddress = (void*)entity;
@@ -554,14 +648,14 @@ static int Game_Player_CreateProjectiles(lua_State* pL) {
 	}
 	return 1;
 }
-//è·å–æ¸¸æˆç‰ˆæœ¬
+//»ñÈ¡ÓÎÏ·°æ±¾
 static int Game_Version(lua_State* pL) {
 	lua_pushstring(pL, loader::GameVersion);
 	return 1;
 }
 #pragma endregion
 #pragma region AUDIO
-//éŸ³é¢‘
+//ÒôÆµ
 struct audio {
 	string file;
 	Sound* audio_sound;
@@ -591,75 +685,75 @@ static void applyExternalChange(lua_State* L) {
 static void registerFunc(lua_State* L) {
 
 #pragma region LuaFun
-	//å­˜å…¥æ•´æ•°å˜é‡
+	//´æÈëÕûÊı±äÁ¿
 	lua_register(L, "setGlobalVariable_int", Lua_Variable_SaveIntVariable);
-	//å­˜å…¥æµ®ç‚¹æ•°å˜é‡
+	//´æÈë¸¡µãÊı±äÁ¿
 	lua_register(L, "setGlobalVariable_float", Lua_Variable_SaveFloatVariable);
-	//å­˜å…¥å­—ç¬¦ä¸²å˜é‡
+	//´æÈë×Ö·û´®±äÁ¿
 	lua_register(L, "setGlobalVariable_string", Lua_Variable_SaveStringVariable);
-	//è¯»å–æ•´æ•°å˜é‡
+	//¶ÁÈ¡ÕûÊı±äÁ¿
 	lua_register(L, "GlobalVariable_int", Lua_Variable_ReadIntVariable);
-	//è¯»å–æµ®ç‚¹æ•°å˜é‡
+	//¶ÁÈ¡¸¡µãÊı±äÁ¿
 	lua_register(L, "GlobalVariable_float", Lua_Variable_ReadFloatVariable);
-	//è¯»å–å­—ç¬¦ä¸²å˜é‡
+	//¶ÁÈ¡×Ö·û´®±äÁ¿
 	lua_register(L, "GlobalVariable_string", Lua_Variable_ReadStringVariable);
-	//é”€æ¯å˜é‡
+	//Ïú»Ù±äÁ¿
 	lua_register(L, "DestroyGlobalVariable", Lua_Variable_DestroyVariable);
 #pragma endregion
 #pragma region System
-	//æ£€æŸ¥æŒ‰é”®
+	//¼ì²é°´¼ü
 	lua_register(L, "CheckKey", System_Keyboard_CheckKey);
-	//æ£€æŸ¥æŒ‰é”®æ˜¯å¦å¤„äºæŒ‰ä¸‹çŠ¶æ€
+	//¼ì²é°´¼üÊÇ·ñ´¦ÓÚ°´ÏÂ×´Ì¬
 	lua_register(L, "CheckKeyIsPressed", System_Keyboard_CheckKeyIsPressed);
-	//æ£€æŸ¥XboxæŒ‰é”®
+	//¼ì²éXbox°´¼ü
 	lua_register(L, "XCheckKey", System_XboxPad_CheckKey);
-	//æ£€æŸ¥XboxæŒ‰é”®æ˜¯å¦å¤„äºæŒ‰ä¸‹çŠ¶æ€
+	//¼ì²éXbox°´¼üÊÇ·ñ´¦ÓÚ°´ÏÂ×´Ì¬
 	lua_register(L, "XCheckKeyIsPressed", System_XboxPad_CheckKeyIsPressed);
-	//æ·»åŠ è®¡æ—¶å™¨
+	//Ìí¼Ó¼ÆÊ±Æ÷
 	lua_register(L, "AddChronoscope", System_Chronoscope_AddChronoscope);
-	//æ£€æŸ¥è®¡æ—¶å™¨
+	//¼ì²é¼ÆÊ±Æ÷
 	lua_register(L, "CheckChronoscope", System_Chronoscope_CheckChronoscope);
-	//æ£€æŸ¥è®¡æ—¶å™¨æ˜¯å¦å­˜åœ¨
+	//¼ì²é¼ÆÊ±Æ÷ÊÇ·ñ´æÔÚ
 	lua_register(L, "CheckPresenceChronoscope", System_Chronoscope_CheckPresenceChronoscope);
-	//åˆ é™¤è®¡æ—¶å™¨
+	//É¾³ı¼ÆÊ±Æ÷
 	lua_register(L, "DelChronoscope", System_Chronoscope_DelChronoscope);
-	//å‘æ¸¸æˆå†…å‘é€æ¶ˆæ¯
+	//ÏòÓÎÏ·ÄÚ·¢ËÍÏûÏ¢
 	lua_register(L, "Message", System_Message_ShowMessage);
-	//å‘é€èŠå¤©æ¶ˆæ¯
+	//·¢ËÍÁÄÌìÏûÏ¢
 	lua_register(L, "SendChatMessage", System_SendChatMessage);
-	//å‘æ§åˆ¶å°å‘é€æ¶ˆæ¯
+	//Ïò¿ØÖÆÌ¨·¢ËÍÏûÏ¢
 	lua_register(L, "Console_Info", System_Console_Info);
-	//å‘æ§åˆ¶å°å‘é€é”™è¯¯æ¶ˆæ¯
+	//Ïò¿ØÖÆÌ¨·¢ËÍ´íÎóÏûÏ¢
 	lua_register(L, "Console_Error", System_Console_Error);
-	//è·å–æ–‡ä»¶Md5
+	//»ñÈ¡ÎÄ¼şMd5
 	lua_register(L, "GetFileMD5", System_GetFileMD5);
 #pragma endregion
 #pragma region Memory
-	//è·å–å†…å­˜åœ°å€
+	//»ñÈ¡ÄÚ´æµØÖ·
 	lua_register(L, "GetAddress", System_Memory_GetAddress);
-	//è·å–å†…å­˜åœ°å€æ•°æ®
+	//»ñÈ¡ÄÚ´æµØÖ·Êı¾İ
 	lua_register(L, "GetAddressData", System_Memory_GetAddressData);
-	//ä¿®æ”¹å†…å­˜åœ°å€æ•°æ®
+	//ĞŞ¸ÄÄÚ´æµØÖ·Êı¾İ
 	lua_register(L, "SetAddressData", System_Memory_SetAddressData);
 #pragma endregion
 #pragma region Game
-	//æ·»åŠ ç‰¹æ•ˆ
+	//Ìí¼ÓÌØĞ§
 	lua_register(L, "AddEffect", Game_Player_AddEffect);
-	//æ‰§è¡ŒFsmåŠ¨ä½œ(å®Œå…¨å¯é€šè¿‡ä¿®æ”¹å†…å­˜å®ç°ï¼Œæš‚ä¸”å…ˆåŠ ä¸Šå§)
+	//Ö´ĞĞFsm¶¯×÷(ÍêÈ«¿ÉÍ¨¹ıĞŞ¸ÄÄÚ´æÊµÏÖ£¬ÔİÇÒÏÈ¼ÓÉÏ°É)
 	lua_register(L, "RunFsmAction", Game_Player_RunFsmAction);
-	//æ‰§è¡ŒLmtåŠ¨ä½œ
+	//Ö´ĞĞLmt¶¯×÷
 	lua_register(L, "RunLmtAction", Game_Player_RunLmtAction);
-	//æ›´æ¢ç©å®¶æ­¦å™¨
+	//¸ü»»Íæ¼ÒÎäÆ÷
 	lua_register(L, "ChangeWeapons", Game_Player_Weapon_ChangeWeapons);
-	//åˆ·æ–°è£…å¤‡æ•°æ®
+	//Ë¢ĞÂ×°±¸Êı¾İ
 	lua_register(L, "RefreshEquip", Game_Player_RefreshEquip);
-	//å‘å°„æŠ•å°„ç‰©
+	//·¢ÉäÍ¶ÉäÎï
 	lua_register(L, "CreateProjectiles", Game_Player_CreateProjectiles);
-	//è·å–æ¸¸æˆç‰ˆæœ¬
+	//»ñÈ¡ÓÎÏ·°æ±¾
 	lua_register(L, "GameVersion", Game_Version);
 #pragma endregion
 #pragma region Audio
-	//åŠ è½½éŸ³é¢‘æ–‡ä»¶
+	//¼ÓÔØÒôÆµÎÄ¼ş
 	lua_register(L, "Load_AudioFile", [](lua_State* pL) -> int
 		{
 			LOG(WARN) << "This feature is deprecated and will be removed in a future version.";
@@ -669,7 +763,7 @@ static void registerFunc(lua_State* L) {
 			audioList[name]->LoadFromFile(file);
 			return 0;
 		});
-	//æ’­æ”¾éŸ³é¢‘
+	//²¥·ÅÒôÆµ
 	lua_register(L, "Play_Audio", [](lua_State* pL) -> int
 		{
 			LOG(WARN) << "This feature is deprecated and will be removed in a future version.";
@@ -680,7 +774,7 @@ static void registerFunc(lua_State* L) {
 			player->Play();
 			return 0;
 		});
-	//è·å–éŸ³é¢‘åˆ—è¡¨
+	//»ñÈ¡ÒôÆµÁĞ±í
 	lua_register(L, "AudioList", [](lua_State* pL) -> int
 		{
 			LOG(WARN) << "This feature is deprecated and will be removed in a future version.";
@@ -693,7 +787,7 @@ static void registerFunc(lua_State* L) {
 		});
 #pragma endregion
 #pragma region External
-	//åŠ è½½å¤–éƒ¨æ¥æº
+	//¼ÓÔØÍâ²¿À´Ô´
 	applyExternalChange(L);
 #pragma endregion
 }

@@ -9,7 +9,7 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 
-#ifdef DINPUT8MHW_EXPORTS
+#ifdef MHWLOADER_EXPORTS
 #define DllExport   __declspec( dllexport )
 #else
 #define DllExport   __declspec( dllimport )
