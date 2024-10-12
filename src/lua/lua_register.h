@@ -1,5 +1,4 @@
 #pragma once
-#include "Player.h"
 #include "md5.h"
 #include "lua_core_ffi.h"
 #include "CircularBufferLogger.h"
@@ -135,6 +134,10 @@ static int System_Chronoscope_CheckChronoscope(lua_State* pL) {
 	return 1;
 }
 static int System_Message_ShowMessage(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	int argType = lua_type(pL, 1);
 	std::string message;
 	if (argType == LUA_TSTRING) {
@@ -159,17 +162,21 @@ static int System_Message_ShowMessage(lua_State* pL) {
 	}
 	else {
 		std::vector<CustomDataEntry> customData = {};
-		LuaCore::logger.logOperation("System_Message_ShowMessage", MsgLevel::LogError, "向游戏内发送消息失败，参数必须是字符串、数字或字符串数组", customData);
+		LuaCore::logger.logOperation(script, "System_Message_ShowMessage", MsgLevel::LogError, "向游戏内发送消息失败，参数必须是字符串、数字或字符串数组", customData);
 		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
 	}
 	std::vector<CustomDataEntry> customData = {
 		{"message", message},
 	};
-	LuaCore::logger.logOperation("System_Message_ShowMessage", MsgLevel::INFO, "向游戏内发送消息", customData);
+	LuaCore::logger.logOperation(script, "System_Message_ShowMessage", MsgLevel::INFO, "向游戏内发送消息", customData);
 	MH::Chat::ShowGameMessage(*(undefined**)MH::Chat::MainPtr, (undefined*)&message[0], -1, -1, 0);
 	return 0;
 }
 static int System_SendChatMessage(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	int argType = lua_type(pL, 1);
 	std::string msg;
 	if (argType == LUA_TSTRING) {
@@ -194,14 +201,14 @@ static int System_SendChatMessage(lua_State* pL) {
 	}
 	else {
 		std::vector<CustomDataEntry> customData = {};
-		LuaCore::logger.logOperation("System_SendChatMessage", MsgLevel::LogError, "发送聊天消息失败，参数必须是字符串、数字或字符串数组", customData);
+		LuaCore::logger.logOperation(script, "System_SendChatMessage", MsgLevel::LogError, "发送聊天消息失败，参数必须是字符串、数字或字符串数组", customData);
 		return luaL_error(pL, "Argument must be a string, number, or table of strings/numbers");
 	}
 	char buffer[256] = {};
 	std::vector<CustomDataEntry> customData = {
 		{"message", msg},
 	};
-	LuaCore::logger.logOperation("System_SendChatMessage", MsgLevel::INFO, "发送聊天消息", customData);
+	LuaCore::logger.logOperation(script, "System_SendChatMessage", MsgLevel::INFO, "发送聊天消息", customData);
 	strncpy_s(buffer, sizeof(buffer), msg.c_str(), _TRUNCATE);
 	Chat::SendChatMessage(buffer);
 	return 0;
@@ -282,11 +289,15 @@ static int System_XboxPad_CheckKeyIsPressed(lua_State* pL) {
 }
 static int System_GetFileMD5(lua_State* pL)
 {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	string file = (string)lua_tostring(pL, 1);
 	std::vector<CustomDataEntry> customData = {
 		{"file", file},
 	};
-	LuaCore::logger.logOperation("System_GetFileMD5", MsgLevel::INFO, "获取文件MD5?", customData);
+	LuaCore::logger.logOperation(script, "System_GetFileMD5", MsgLevel::INFO, "获取文件MD5?", customData);
 	ifstream in(file.c_str(), ios::binary);
 	if (!in) {
 		lua_pushstring(pL, "");
@@ -310,6 +321,10 @@ static int System_GetFileMD5(lua_State* pL)
 #pragma endregion
 #pragma region MemoryFun
 static int System_Memory_GetAddress(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	vector<int> bytes;
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 
@@ -338,7 +353,7 @@ static int System_Memory_GetAddress(lua_State* pL) {
 	std::stringstream memoryAddr;
 	memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(address);
 	customData.push_back({ "back address",memoryAddr.str() });
-	LuaCore::logger.logOperation("System_Memory_GetAddress", MsgLevel::INFO, "获取内存地址", customData);
+	LuaCore::logger.logOperation(script, "System_Memory_GetAddress", MsgLevel::INFO, "获取内存地址", customData);
 
 	if (address != nullptr) {
 		uintptr_t addr = (uintptr_t)address;
@@ -350,6 +365,10 @@ static int System_Memory_GetAddress(lua_State* pL) {
 	return 1;
 }
 static int System_Memory_GetAddressData(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 	string type = (string)lua_tostring(pL, 2);
 
@@ -366,7 +385,7 @@ static int System_Memory_GetAddressData(lua_State* pL) {
 		{"address", memoryAddr.str()},
 		{"value", utils::readHexValueAtAddress(address)}
 	};
-	LuaCore::logger.logOperation("System_Memory_GetAddressData", MsgLevel::INFO, "读取内存数据", customData);
+	LuaCore::logger.logOperation(script, "System_Memory_GetAddressData", MsgLevel::INFO, "读取内存数据", customData);
 
 	if (address != nullptr) {
 		if (type == "int")
@@ -391,6 +410,10 @@ static int System_Memory_GetAddressData(lua_State* pL) {
 }
 
 static int System_Memory_SetAddressData(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 	string type = (string)lua_tostring(pL, 2);
 
@@ -411,7 +434,7 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 		{ "address", memoryAddr.str() },
 		{ "value", ss.str()}
 	};
-	LuaCore::logger.logOperation("System_Memory_SetAddressData", MsgLevel::INFO, "写入内存数据", customData);
+	LuaCore::logger.logOperation(script, "System_Memory_SetAddressData", MsgLevel::INFO, "写入内存数据", customData);
 
 	if (address != nullptr) {
 		if (type == "int") {
@@ -444,6 +467,10 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 #pragma region GameFun
 //添加特效
 static int Game_Player_AddEffect(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	int group = (int)lua_tointeger(pL, 1);
 	int record = (int)lua_tointeger(pL, 2);
 	uintptr_t effects = (uintptr_t)lua_tointeger(pL, 3);
@@ -453,7 +480,7 @@ static int Game_Player_AddEffect(lua_State* pL) {
 		{"group", std::to_string(group)},
 		{"record", std::to_string(record)}
 	};
-	LuaCore::logger.logOperation("Game_Player_AddEffect", MsgLevel::INFO, "添加特效", customData);
+	LuaCore::logger.logOperation(script, "Game_Player_AddEffect", MsgLevel::INFO, "添加特效", customData);
 
 	if (effects) {
 		Effects = (void*)effects;
@@ -468,6 +495,10 @@ static int Game_Player_AddEffect(lua_State* pL) {
 }
 //执行Fsm动作
 static int Game_Player_RunFsmAction(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	int type = (int)lua_tointeger(pL, 1);
 	int id = (int)lua_tointeger(pL, 2);
 
@@ -475,7 +506,7 @@ static int Game_Player_RunFsmAction(lua_State* pL) {
 		{"type", std::to_string(type)},
 		{"id", std::to_string(id)}
 	};
-	LuaCore::logger.logOperation("Game_Player_RunFsmAction", MsgLevel::INFO, "执行Fsm动作", customData);
+	LuaCore::logger.logOperation(script, "Game_Player_RunFsmAction", MsgLevel::INFO, "执行Fsm动作", customData);
 
 	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
@@ -487,12 +518,16 @@ static int Game_Player_RunFsmAction(lua_State* pL) {
 }
 //执行Lmt动作
 static int Game_Player_RunLmtAction(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	int id = (int)lua_tointeger(pL, -1);
 
 	std::vector<CustomDataEntry> customData = {
 	{"id", std::to_string(id)}
 	};
-	LuaCore::logger.logOperation("Game_Player_RunLmtAction", MsgLevel::INFO, "执行Lmt动作", customData);
+	LuaCore::logger.logOperation(script, "Game_Player_RunLmtAction", MsgLevel::INFO, "执行Lmt动作", customData);
 
 	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
@@ -501,6 +536,10 @@ static int Game_Player_RunLmtAction(lua_State* pL) {
 }
 //切换武器
 static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	void* PlayerCountPlot = *(undefined**)MH::World::PlayerCount;
 	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x258);
 	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x10);
@@ -515,7 +554,7 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
 		{ "type", std::to_string(type) },
 		{ "id", std::to_string(id) }
 	};
-	LuaCore::logger.logOperation("Game_Player_Weapon_ChangeWeapons", MsgLevel::INFO, "切换武器", customData);
+	LuaCore::logger.logOperation(script, "Game_Player_Weapon_ChangeWeapons", MsgLevel::INFO, "切换武器", customData);
 	if (type <= 13 and type >= 0 and id >= 0) {
 		void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 		PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
@@ -531,6 +570,10 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
 }
 //临时刷新装备
 static int Game_Player_RefreshEquip(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	void* PlayerCountPlot = *(undefined**)MH::World::PlayerCount;
 	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x258);
 	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x10);
@@ -540,7 +583,7 @@ static int Game_Player_RefreshEquip(lua_State* pL) {
 		return 0;
 	}
 	std::vector<CustomDataEntry> customData = {};
-	LuaCore::logger.logOperation("Game_Player_RefreshEquip", MsgLevel::INFO, "临时刷新装备", customData);
+	LuaCore::logger.logOperation(script, "Game_Player_RefreshEquip", MsgLevel::INFO, "临时刷新装备", customData);
 	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
 	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x12610);
@@ -618,6 +661,10 @@ static bool CreateProjectiles(int Id, Vector3 startPoint, Vector3 endPoint, void
 	return GenerateResults;
 }
 static int Game_Player_CreateProjectiles(lua_State* pL) {
+	lua_getglobal(pL, "reserv_Script");
+	const char* script = lua_tostring(pL, -1);
+	lua_pop(pL, 1);
+
 	int id = (int)lua_tointeger(pL, 1);
 	float startx = (float)lua_tonumber(pL, 2);
 	float starty = (float)lua_tonumber(pL, 3);
@@ -635,7 +682,7 @@ static int Game_Player_CreateProjectiles(lua_State* pL) {
 	{ "endy", std::to_string(endy) },
 	{ "endz", std::to_string(endz) }
 	};
-	LuaCore::logger.logOperation("Game_Player_CreateProjectiles", MsgLevel::INFO, "?????????", customData);
+	LuaCore::logger.logOperation(script, "Game_Player_CreateProjectiles", MsgLevel::INFO, "生成投射物", customData);
 
 	uintptr_t entity = (uintptr_t)lua_tointeger(pL, 8);
 	uintptr_t shlpList = (uintptr_t)lua_tointeger(pL, 9);
@@ -653,16 +700,6 @@ static int Game_Version(lua_State* pL) {
 	lua_pushstring(pL, loader::GameVersion);
 	return 1;
 }
-#pragma endregion
-#pragma region AUDIO
-//音频
-struct audio {
-	string file;
-	Sound* audio_sound;
-	audio(string file = "", Sound* audio_sound = nullptr) :file(file), audio_sound(audio_sound) { };
-};
-map<string, Sound*> audioList;
-
 #pragma endregion
 
 static void applyExternalFunc(lua_State* L) {
@@ -682,7 +719,10 @@ static void applyExternalChange(lua_State* L) {
 	applyExternalProcessor(L);
 }
 
-static void registerFunc(lua_State* L) {
+static void registerFunc(lua_State* L, string script) {
+
+	lua_pushstring(L, script.c_str());
+	lua_setglobal(L, "reserv_Script");
 
 #pragma region LuaFun
 	//存入整数变量
@@ -751,40 +791,6 @@ static void registerFunc(lua_State* L) {
 	lua_register(L, "CreateProjectiles", Game_Player_CreateProjectiles);
 	//获取游戏版本
 	lua_register(L, "GameVersion", Game_Version);
-#pragma endregion
-#pragma region Audio
-	//加载音频文件
-	lua_register(L, "Load_AudioFile", [](lua_State* pL) -> int
-		{
-			LOG(WARN) << "This feature is deprecated and will be removed in a future version.";
-			string name = (string)lua_tostring(pL, 1);
-			string file = (string)lua_tostring(pL, 2);
-			audioList[name] = new Sound();
-			audioList[name]->LoadFromFile(file);
-			return 0;
-		});
-	//播放音频
-	lua_register(L, "Play_Audio", [](lua_State* pL) -> int
-		{
-			LOG(WARN) << "This feature is deprecated and will be removed in a future version.";
-			string name = (string)lua_tostring(pL, 1);
-			Player* player = new Player();
-			player->Create();
-			player->SetSound(*audioList[name]);
-			player->Play();
-			return 0;
-		});
-	//获取音频列表
-	lua_register(L, "AudioList", [](lua_State* pL) -> int
-		{
-			LOG(WARN) << "This feature is deprecated and will be removed in a future version.";
-			lua_newtable(pL);
-			for (auto [name, audio] : audioList) {
-				lua_pushstring(pL, name.c_str());
-				lua_settable(pL, -2);
-			}
-			return 1;
-		});
 #pragma endregion
 #pragma region External
 	//加载外部来源

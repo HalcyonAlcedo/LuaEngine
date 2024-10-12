@@ -30,12 +30,6 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Player.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Sound.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="src\md5.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -58,12 +52,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\Player.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Sound.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="src\md5.h">
       <Filter>头文件</Filter>
     </ClInclude>

@@ -111,8 +111,6 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="src\CircularBufferLogger.cpp" />
     <ClCompile Include="src\md5.cpp" />
-    <ClCompile Include="src\Player.cpp" />
-    <ClCompile Include="src\Sound.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="deps\loader.lib" />
@@ -148,8 +146,6 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ClInclude Include="src\game_utils.h" />
     <ClInclude Include="src\lua\lua_thread.h" />
     <ClInclude Include="src\md5.h" />
-    <ClInclude Include="src\Player.h" />
-    <ClInclude Include="src\Sound.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc" />

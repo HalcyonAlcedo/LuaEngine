@@ -1,28 +1,30 @@
 #include "CircularBufferLogger.h"
 
+// 构造函数
 CircularBufferLogger::CircularBufferLogger(size_t bufferSize)
-    : bufferSize_(bufferSize), buffer_(bufferSize), currentIndex_(0) {
-    // 创建log目录
+    : bufferSize_(bufferSize) {
+    // 创建 log 目录
     std::filesystem::create_directory("logs");
-
-    // 设置崩溃时的信号处理函数
-    signal(SIGSEGV, signalHandler);
 }
 
-void CircularBufferLogger::logOperation(const std::string& functionName, MsgLevel level, const std::string& message, const std::vector<CustomDataEntry>& customData) {
+void CircularBufferLogger::logOperation(const std::string& scriptName, const std::string& functionName, MsgLevel level, const std::string& message, const std::vector<CustomDataEntry>& customData) {
     LogRecord record;
-    // 获取当前时间（包括毫秒）
     auto now = std::chrono::system_clock::now();
     auto duration = now.time_since_epoch();
-    record.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count(); // 以毫秒为单位记录时间戳
+    record.timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+    record.scriptName = scriptName;
     record.functionName = functionName;
     record.level = level;
     record.message = message;
     record.customData = customData;
 
-    // 写入环形缓冲区
-    buffer_[currentIndex_] = record;
-    currentIndex_ = (currentIndex_ + 1) % bufferSize_;  // 环形索引
+    // 将记录添加到对应脚本的缓冲区
+    buffers_[scriptName].push_back(record);
+
+    // 如果缓冲区超过大小，移除最旧的记录
+    if (buffers_[scriptName].size() > bufferSize_) {
+        buffers_[scriptName].erase(buffers_[scriptName].begin());
+    }
 }
 
 void CircularBufferLogger::saveLogToFile() const {
@@ -39,24 +41,23 @@ void CircularBufferLogger::saveLogToFile() const {
         return;
     }
 
-    for (const auto& record : buffer_) {
-        if (record.message.empty()) continue;
+    for (const auto& [scriptName, records] : buffers_) { // 遍历每个脚本的缓冲区
+        for (const auto& record : records) {
+            if (record.message.empty()) continue;
 
         // 将每条记录写入二进制文件
         outFile.write(reinterpret_cast<const char*>(&record.timestamp), sizeof(record.timestamp));
+        writeString(outFile, record.scriptName);
         writeString(outFile, record.functionName);
         writeLogLevel(outFile, record.level);
         writeString(outFile, record.message);
-        writeCustomData(outFile, record.customData);  // 写入自定义数据
+        writeCustomData(outFile, record.customData);
+    }
     }
     outFile.close();
-}
-
-void CircularBufferLogger::signalHandler(int signal) {
-    // 创建日志对象并保存日志
-    CircularBufferLogger logger(100);
-    logger.saveLogToFile();
-    exit(signal);
+    // 显示提示框，通知用户日志已保存
+    std::string message = "怪物猎人世界主程序崩溃，崩溃记录已保存至：\n" + filename.str();
+    MessageBoxA(NULL, message.c_str(), "LuaEngine崩溃提示", MB_OK | MB_ICONERROR);
 }
 
 void CircularBufferLogger::writeString(std::ofstream& outFile, const std::string& str) {

@@ -11,6 +11,8 @@
 #include <sstream>
 #include <iomanip>
 #include <filesystem>
+#include <unordered_map>
+#include <windows.h> 
 
 // 日志等级
 enum class MsgLevel {
@@ -30,10 +32,11 @@ struct CustomDataEntry {
 // 日志记录结构体
 struct LogRecord {
     long long timestamp; // 以毫秒为单位的时间戳
-    std::string functionName;                 // 函数名（可选）
-    MsgLevel level;                           // 等级
-    std::string message;                      // 消息
-    std::vector<CustomDataEntry> customData;  // 自定义数据列表
+    std::string scriptName;                 // 脚本名（可选）
+    std::string functionName;               // 函数名（可选）
+    MsgLevel level;                          // 等级
+    std::string message;                     // 消息
+    std::vector<CustomDataEntry> customData; // 自定义数据列表
 };
 
 class CircularBufferLogger {
@@ -41,15 +44,14 @@ public:
     CircularBufferLogger(size_t bufferSize);
 
     // 记录操作
-    void logOperation(const std::string& functionName, MsgLevel level, const std::string& message, const std::vector<CustomDataEntry>& customData = {});
+    void logOperation(const std::string& scriptName, const std::string& functionName, MsgLevel level, const std::string& message, const std::vector<CustomDataEntry>& customData = {});
 
     // 崩溃时将缓冲区中的记录写入二进制文件
     void saveLogToFile() const;
 
 private:
     size_t bufferSize_;
-    std::vector<LogRecord> buffer_;
-    size_t currentIndex_;
+    std::unordered_map<std::string, std::vector<LogRecord>> buffers_; // 每个脚本的独立缓冲区
 
     // 捕获崩溃信号处理函数
     static void signalHandler(int signal);
