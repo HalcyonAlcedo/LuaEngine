@@ -641,7 +641,6 @@ function engine_player:new()
     end
 
     if aob_Save == nil or not aob_quest then
-        print(aob_Save)
         aob_Save = 0x145013950
     end
     if aob_player == nil or not aob_quest then
