@@ -2,17 +2,44 @@
 #include <io.h>
 #include <filesystem>
 #include <tlhelp32.h>
+#include <Windows.h>
+#include <Psapi.h>
 
 using namespace loader;
 using namespace std;
 
 #pragma region General tools
 namespace utils {
+	// 获取 MonsterHunterWorld.exe 的内存范围
+	bool GetMonsterHunterWorldModuleRange(BYTE*& startAddress, BYTE*& endAddress) {
+		HMODULE hMods[1024];
+		DWORD cbNeeded;
+
+		if (EnumProcessModules(GetCurrentProcess(), hMods, sizeof(hMods), &cbNeeded)) {
+			for (unsigned int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++) {
+				char szModName[MAX_PATH];
+				GetModuleFileNameExA(GetCurrentProcess(), hMods[i], szModName, sizeof(szModName));
+				if (strstr(szModName, "MonsterHunterWorld.exe")) { // 检查模块名
+					MODULEINFO moduleInfo;
+					if (GetModuleInformation(GetCurrentProcess(), hMods[i], &moduleInfo, sizeof(moduleInfo))) {
+						startAddress = (BYTE*)moduleInfo.lpBaseOfDll;
+						endAddress = startAddress + moduleInfo.SizeOfImage;
+						return true; // 找到模块并获取范围
+					}
+				}
+			}
+		}
+		return false; // 如果未找到，返回 false
+	}
+
 	//获取偏移地址
 	static void* GetPlot(void* plot, const std::vector<int>& bytes) {
 		void* Plot = plot;
-		//处理基址
-		if ((long long)plot > 0x140000000 && (long long)plot < 0x1455d3000) {
+
+		BYTE* startAddress = nullptr;
+		BYTE* endAddress = nullptr;
+		// 获取 MonsterHunterWorld.exe 的内存范围
+		if (GetMonsterHunterWorldModuleRange(startAddress, endAddress) && (reinterpret_cast<BYTE*>(plot) >= startAddress && reinterpret_cast<BYTE*>(plot) < endAddress)) {
 			Plot = *(undefined**)plot;
 		}
 		for (int i : bytes) {
@@ -25,6 +52,75 @@ namespace utils {
 		}
 		return Plot;
 	}
+	// 检查内存保护状态
+	bool IsReadableMemory(PMEMORY_BASIC_INFORMATION mbi) {
+		// 判断内存区域是否是可读的
+		return (mbi->Protect & PAGE_READONLY) || (mbi->Protect & PAGE_READWRITE) ||
+			(mbi->Protect & PAGE_EXECUTE_READ) || (mbi->Protect & PAGE_EXECUTE_READWRITE);
+	}
+	bool IsMemoryReadable(void* ptr, size_t size) {
+		MEMORY_BASIC_INFORMATION mbi;
+		if (VirtualQuery(ptr, &mbi, sizeof(mbi))) {
+			// 检查页面保护属性
+			bool readable = (mbi.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_READ)) != 0;
+			// 确保请求的读取范围在该内存页内
+			bool inRange = size <= (mbi.RegionSize - ((uintptr_t)ptr - (uintptr_t)mbi.BaseAddress));
+			return readable && inRange;
+		}
+		return false;
+	}
+
+	// 比较当前内存区域是否匹配特征码，支持通配符 ?? 代表任意字节
+	bool CompareMemory(const BYTE* memory, const std::vector<std::pair<BYTE, bool>>& pattern) {
+		for (size_t i = 0; i < pattern.size(); ++i) {
+			// 如果是通配符，跳过比较
+			if (pattern[i].second) {
+				continue;
+			}
+			// 不是通配符的情况，进行字节比较
+			if (memory[i] != pattern[i].first) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// 搜索指定地址范围内的特征码
+	void* SearchPattern(const std::vector<std::pair<BYTE, bool>>& pattern) {
+		BYTE* startAddress = nullptr;
+		BYTE* endAddress = nullptr;
+
+		// 获取 MonsterHunterWorld.exe 的内存范围
+		if (!GetMonsterHunterWorldModuleRange(startAddress, endAddress)) {
+			std::cerr << "Failed to get MonsterHunterWorld.exe module range." << std::endl;
+			return nullptr; // 如果未找到模块范围，返回 nullptr
+		}
+
+		BYTE* currentAddress = startAddress;
+
+		while (currentAddress < endAddress) {
+			MEMORY_BASIC_INFORMATION mbi;
+			if (VirtualQuery(currentAddress, &mbi, sizeof(mbi)) == sizeof(mbi)) {
+				if (IsReadableMemory(&mbi)) {
+					BYTE* regionStart = (BYTE*)mbi.BaseAddress;
+					BYTE* regionEnd = regionStart + mbi.RegionSize;
+
+					if (regionEnd > endAddress) {
+						regionEnd = endAddress;
+					}
+
+					for (BYTE* addr = regionStart; addr <= regionEnd - pattern.size(); ++addr) {
+						if (CompareMemory(addr, pattern)) {
+							return addr; // 找到特征码的位置，返回地址
+						}
+					}
+				}
+			}
+			currentAddress += mbi.RegionSize;
+		}
+		return nullptr; // 如果未找到特征码，返回 nullptr
+	}
+
 	//获取随机数
 	static float GetRandom(float min, float max)
 	{

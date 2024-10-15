@@ -1,11 +1,8 @@
 #pragma once
 
-extern "C" void* _stdcall GetRBXPtr(void*);
-
 #pragma region camera
 namespace hook_camera {
 	struct CameraData {
-		void* Plot;
 		float position_x;
 		float position_y;
 		float position_z;
@@ -14,14 +11,13 @@ namespace hook_camera {
 		float lockPos_z;
 		bool lock;
 		CameraData(
-			void* Plot = nullptr,
 			float position_y = 0,
 			float position_z = 0,
 			float lockPos_x = 0,
 			float lockPos_y = 0,
 			float lockPos_z = 0,
 			bool lock = false)
-			:Plot(Plot), position_y(position_y), position_z(position_z), lockPos_x(lockPos_x), lockPos_y(lockPos_y), lockPos_z(lockPos_z) , lock(lock) {
+			:position_y(position_y), position_z(position_z), lockPos_x(lockPos_x), lockPos_y(lockPos_y), lockPos_z(lockPos_z) , lock(lock) {
 		};
 	};
 	CameraData Camera;
@@ -29,19 +25,16 @@ namespace hook_camera {
 		framework_logger->info("创建相机操作钩子");
 		MH_Initialize();
 		HookLambda(MH::Player::Visual,
-			[]() {
-				GetRBXPtr(&Camera.Plot);
-				if (Camera.Plot != nullptr) {
-					Camera.position_x = *offsetPtr<float>(Camera.Plot, 0x0);
-					Camera.position_y = *offsetPtr<float>(Camera.Plot, 0x4);
-					Camera.position_z = *offsetPtr<float>(Camera.Plot, 0x8);
-					if (Camera.lock) {
-						*offsetPtr<float>(Camera.Plot, 0x0) = Camera.lockPos_x;
-						*offsetPtr<float>(Camera.Plot, 0x4) = Camera.lockPos_y;
-						*offsetPtr<float>(Camera.Plot, 0x8) = Camera.lockPos_z;
-					}
+			[](auto rcx) {
+				Camera.position_x = *offsetPtr<float>(rcx, 0x10);
+				Camera.position_y = *offsetPtr<float>(rcx, 0x14);
+				Camera.position_z = *offsetPtr<float>(rcx, 0x18);
+				if (Camera.lock) {
+					*offsetPtr<float>(rcx, 0x10) = Camera.lockPos_x;
+					*offsetPtr<float>(rcx, 0x14) = Camera.lockPos_y;
+					*offsetPtr<float>(rcx, 0x18) = Camera.lockPos_z;
 				}
-				return original();
+				return original(rcx);
 			});
 		MH_ApplyQueued();
 	}

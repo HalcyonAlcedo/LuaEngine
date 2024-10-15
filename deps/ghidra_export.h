@@ -37,7 +37,7 @@ namespace MH {
         static void* BasePtr = (void*)0x145013950;
         static undefined(*PlayerBasePlot)() = (undefined(*)())0x1450139A0;
         static void(*Effects)(undefined*, int, int) = (void(*)(undefined*, int, int))0x140AE0D70;
-        static undefined(*Visual)() = (undefined(*)())0x141F9EEC6;
+        static undefined(*Visual)(void*) = (undefined(*)(void*))0x141FA187A;
         static void* PlayerDataHandlePlot = (void*)0x143C21EA0;
         static void(*CallLmt)(undefined*, int, int) = (void(*)(undefined*, int, int))0x141C014B0;
         static void(*ActionFrameSpeed)(undefined8*) = (void(*)(undefined8*))0x142228F90;
@@ -92,7 +92,7 @@ namespace MH {
         static undefined(*WeaponOrnaments)() = (undefined(*)())0x1421136F1;
         static undefined(*MainWeaponPtr)() = (undefined(*)())0x142119129;
         static undefined(*SecondaryWeaponPtr)() = (undefined(*)())0x1421522FD;
-        static undefined(*PartWeaponPtr)() = (undefined(*)())0x14211B036;
+        static undefined(*PartWeaponPtr)() = (undefined(*)())0x14211B091;
     }
     namespace EmSetter {
         static undefined8(*CreateMonster)() = (undefined8(*)())0x141A6C1C0;

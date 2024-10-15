@@ -55,9 +55,6 @@ void CircularBufferLogger::saveLogToFile() const {
     }
     }
     outFile.close();
-    // 显示提示框，通知用户日志已保存
-    std::string message = "怪物猎人世界主程序崩溃，崩溃记录已保存至：\n" + filename.str();
-    MessageBoxA(NULL, message.c_str(), "LuaEngine崩溃提示", MB_OK | MB_ICONERROR);
 }
 
 void CircularBufferLogger::writeString(std::ofstream& outFile, const std::string& str) {
