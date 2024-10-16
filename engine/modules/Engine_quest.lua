@@ -102,7 +102,6 @@ function engine_quest:new()
     end
 
     if pointer.time == nil then
-        print(aob_player)
         pointer.time = GetAddress(aob_player, { 0x50, 0x7D20 })
     end
 
