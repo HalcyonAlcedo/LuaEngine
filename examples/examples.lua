@@ -16,8 +16,16 @@ local addFrameSpeed       = 0
 local Keyboard_Shortcut   = '~'
 local MonsterShlpTempData = {}
 local _hit                = nil
+
+local Data_Player
+local Data_Quest
+local Data_World
+
 --游戏初始化执行的代码
 function on_init()
+    Data_Player = engine.Player:new()
+    Data_Quest = engine.Quest:new()
+    Data_World = engine.World:new()
 end
 
 --每次切换场景执行的代码
@@ -39,11 +47,9 @@ end
 
 --图形绘制代码放这里
 function on_imgui()
-    --初始化数据引擎
-    local Data_Player = engine.Player:new()
-    local Data_World = engine.World:new()
-    local Data_Quest = engine.Quest:new()
-
+    if not Data_Player or not Data_Quest or not Data_World then
+        return
+    end
     if openDataview then
         ImGui.SetNextWindowBgAlpha(0.35)
         ImGui.SetNextWindowSize(500, 800)
@@ -171,7 +177,7 @@ function on_imgui()
                 t_addFrameSpeed = ImGui.SliderFloat("增加速率", addFrameSpeed, -2, 10)
                 if addFrameSpeed ~= t_addFrameSpeed then --减少map访问
                     addFrameSpeed = t_addFrameSpeed
-                    AddFrameSpeed(GetAddress(0x145011760, { 0x50 }), addFrameSpeed)
+                    AddFrameSpeed(GetAddress(0x1450139A0, { 0x50 }), addFrameSpeed)
                 end
                 ImGui.Separator()
                 ImGui.Text("派生id: " .. Data_Player.Action.fsm.fsmID)
@@ -218,11 +224,22 @@ function on_imgui()
             , "%.5f", ImGuiInputTextFlags.ReadOnly)
             ImGui.TreePop()
         end
+        --相机
+        if ImGui.TreeNode("相机数据") then
+            local Camera_x,Camera_y,Camera_z,Camera_lock = GetCameraData()
+            ImGui.InputFloat3("坐标", {
+                Camera_x,
+                Camera_y,
+                Camera_z }
+            , "%.5f", ImGuiInputTextFlags.ReadOnly)
+            ImGui.Checkbox("锁定", Camera_lock)
+            ImGui.TreePop()
+        end
         --任务数据
         if ImGui.TreeNode("任务数据") then
             ImGui.Text("任务时间: " .. Data_Quest.Time)
             ImGui.Text("任务ID: " .. Data_Quest.Id)
-            ImGui.Text("任务状态: " .. Data_Quest.State)
+            Data_Quest.State = ImGui.InputInt("任务状态", Data_Quest.State)
             ImGui.TreePop()
         end
         --投射物
@@ -310,7 +327,7 @@ function on_imgui()
                             MonsterShlpTempData[monster].endPos = ImGui.InputFloat3("终点坐标",
                                 MonsterShlpTempData[monster].endPos)
                             if ImGui.Button("发射") and Data_Monster.Shlp.ListPtr then
-                                local fromList = { [0] = GetAddress(0x145011760, { 0x50 }), [1] = monster }
+                                local fromList = { [0] = GetAddress(0x1450139A0, { 0x50 }), [1] = monster }
                                 CreateProjectiles(
                                     MonsterShlpTempData[monster].shell_shlpid,
                                     MonsterShlpTempData[monster].startPos[1],
@@ -365,6 +382,8 @@ function on_imgui()
             end
             ImGui.TreePop()
         end
+
+
         ImGui.End()
     end
 end

@@ -20,35 +20,35 @@ local aob_quest
 local aob_player
 
 local pointer = {
-    time = nil,
-    quest = nil
+    time = function() return GetAddress(aob_player,{ 0x50, 0x7D20 }) end,
+    quest = function() return GetAddressData(aob_quest, 'int') end
 }
 
 --获取当前任务时间
 function engine_quest:getTime()
-    if not pointer.time then return 0 end
-    local time = GetAddressData(pointer.time + 0xC24, 'float')
+    if not pointer:time() then return 0 end
+    local time = GetAddressData(pointer:time() + 0xC24, 'float')
     return time
 end
 
 --获取任务Id
 function engine_quest:getId()
-    if not pointer.quest then return 0 end
-    local id = GetAddressData(pointer.quest + 0x4C, 'int')
+    if not pointer:quest() then return 0 end
+    local id = GetAddressData(pointer:quest() + 0x4C, 'int')
     return id
 end
 
 --获取任务状态
 function engine_quest:getState()
-    if not pointer.quest then return 0 end
-    local state = GetAddressData(pointer.quest + 0x54, 'int')
+    if not pointer:quest() then return 0 end
+    local state = GetAddressData(pointer:quest() + 0x54, 'int')
     return state
 end
 
 --设置任务状态
 function engine_quest:setState(state)
-    if not pointer.quest then return 0 end
-    SetAddressData(pointer.quest + 0x38, 'int', state)
+    if not pointer:quest() then return 0 end
+    SetAddressData(pointer:quest() + 0x38, 'int', state)
 end
 
 --监听
@@ -99,14 +99,6 @@ function engine_quest:new()
     end
     if aob_player == nil or not aob_quest then
         aob_player = 0x1450139A0
-    end
-
-    if pointer.time == nil then
-        pointer.time = GetAddress(aob_player, { 0x50, 0x7D20 })
-    end
-
-    if pointer.quest == nil then
-        pointer.quest = GetAddressData(aob_quest, 'int')
     end
 
     return trace(o)

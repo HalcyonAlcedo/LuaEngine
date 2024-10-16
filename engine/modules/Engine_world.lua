@@ -20,33 +20,33 @@ local aob_world
 local aob_player
 
 local pointer = {
-    map = nil,
-    worldData = nil
+    map = function() return GetAddress(aob_player,{ 0x50, 0x7D20 }) end,
+    worldData = function() return GetAddress(aob_world,{ 0x90, 0x40, 0x90, 0x18 }) end
 }
 
 --获取地图Id
 function engine_world:getMapId()
-    if not pointer.map then return 0 end
-    local Id = GetAddressData(pointer.map + 0xB88, 'int')
+    if not pointer:map() then return 0 end
+    local Id = GetAddressData(pointer:map() + 0xB88, 'int')
     return Id
 end
 
 --获取当前时间
 function engine_world:getTime()
-    if not pointer.map then return 0 end
-    local time = GetAddressData(pointer.map + 0xC24, 'float')
+    if not pointer:map() then return 0 end
+    local time = GetAddressData(pointer:map() + 0xC24, 'float')
     return time
 end
 
 --获取导航坐标
 function engine_world:getWayPosition()
-    if not pointer.map or not pointer.worldData or pointer.worldData < 0x1000 then
+    if not pointer:map() or not pointer:worldData() or pointer:worldData() < 0x1000 then
         return { x = 0, y = 0, z = 0 }
     end
     return {
-        x = GetAddressData(pointer.worldData + 0x200, 'float'),
-        y = GetAddressData(pointer.worldData + 0x204, 'float'),
-        z = GetAddressData(pointer.worldData + 0x208, 'float')
+        x = GetAddressData(pointer:worldData() + 0x200, 'float'),
+        y = GetAddressData(pointer:worldData() + 0x204, 'float'),
+        z = GetAddressData(pointer:worldData() + 0x208, 'float')
     }
 end
 
@@ -94,14 +94,6 @@ function engine_world:new()
     end
     if aob_player == nil or not aob_quest then
         aob_player = 0x1450139A0
-    end
-
-    if pointer.map == nil then
-        pointer.map = GetAddress(aob_player, { 0x50, 0x7D20 })
-    end
-
-    if pointer.worldData == nil then
-        pointer.worldData = GetAddress(aob_world, { 0x90, 0x40, 0x90, 0x18 })
     end
 
     return trace(o)

@@ -338,6 +338,7 @@ static int System_Memory_GetAddress(lua_State* pL) {
 	lua_pushnil(pL);
 
 	std::vector<CustomDataEntry> customData = {};
+	customData.push_back({ "address",stamemoryAddr.str() });
 
 	while (lua_next(pL, 2) != 0) {
 		uintptr_t offset = (uintptr_t)lua_tointeger(pL, -1);
@@ -475,16 +476,22 @@ static int System_Memory_SearchPattern(lua_State* pL) {
 		return 1;
 	}
 
+	std::vector<CustomDataEntry> customData = {};
+
 	lua_pushnil(pL); // 先将 nil 压栈，作为 table 的初始键
 	while (lua_next(pL, 1)) {
 		if (lua_isnumber(pL, -1)) {  // 确保 Lua 表中的值为数字
 			int value = lua_tointeger(pL, -1);
 			pattern.push_back({ static_cast<BYTE>(value), false }); // 处理字节码
+			std::stringstream memoryAddr;
+			memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>((void*)value);
+			customData.push_back({ "address",memoryAddr.str() });
 		}
 		else if (lua_isstring(pL, -1)) {  // 处理通配符 ?? 的情况
 			std::string value = lua_tostring(pL, -1);
 			if (value == "??") {
 				pattern.push_back({ 0x00, true }); // true 表示通配符
+				customData.push_back({ "address","??"});
 			}
 		}
 		lua_pop(pL, 1); // 弹出值，保留键进行下一次迭代
@@ -495,10 +502,16 @@ static int System_Memory_SearchPattern(lua_State* pL) {
 
 	if (foundAddress) {
 		lua_pushinteger(pL, reinterpret_cast<ptrdiff_t>(foundAddress)); // 找到时返回地址
+		std::stringstream memoryAddr;
+		memoryAddr << "0x" << std::hex << reinterpret_cast<uintptr_t>(foundAddress);
+		customData.push_back({ "address",memoryAddr.str() });
 	}
 	else {
+		customData.push_back({ "back address","??" });
 		lua_pushboolean(pL, false); // 未找到时返回 false
 	}
+
+	LuaCore::logger.logOperation(script, "System_Memory_GetAddress", MsgLevel::INFO, "搜索内存地址", customData);
 
 	return 1;
 }
