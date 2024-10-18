@@ -1,4 +1,12 @@
+<div align="center">
+
 # LuaEngine
+
+| **简体中文** | [English](./README.en.md) |
+
+[![GitHub release](https://img.shields.io/github/release/HalcyonAlcedo/LuaEngine.svg)](https://github.com/HalcyonAlcedo/LuaEngine/releases/latest)
+
+<div align="left">
 
 轻量化的怪物猎人世界Lua模组，相比LuaScript拥有更高效的Lua代码调用性能，去除了应用较少的功能，不再提供游戏数据直接读取和修改的接口，转而开放内存读写功能，保留部分游戏调用函数。
 
