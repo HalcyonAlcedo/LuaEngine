@@ -1,4 +1,5 @@
 local openDataview        = true
+local menuButtonPressed   = false
 local Switch_Weapon       = {
     type = 0,
     id = 0
@@ -35,21 +36,27 @@ end
 
 --每次时间变动执行的代码
 function on_time()
-    --开关数据视图
-    if engine.keypad(Keyboard_Shortcut) and
-        (CheckChronoscope('keypad_keyCD_' .. Keyboard_Shortcut)
-            or not CheckPresenceChronoscope('keypad_keyCD_' .. Keyboard_Shortcut))
-    then
-        AddChronoscope(1, 'keypad_keyCD_' .. Keyboard_Shortcut)
-        openDataview = not openDataview
-    end
+
 end
 
 --图形绘制代码放这里
 function on_imgui()
+    -- This in on_imgui so it can be toggled when in the menu
+    -- 开关数据视图
+    if engine.keypad(Keyboard_Shortcut) then
+        if not menuButtonPressed then
+            openDataview = not openDataview
+            menuButtonPressed = true
+        end
+    else
+        menuButtonPressed = false
+    end
+
     if not Data_Player or not Data_Quest or not Data_World then
+        ImGui.Text("ERR - 数据初始化失败")
         return
     end
+    
     if openDataview then
         ImGui.SetNextWindowBgAlpha(0.35)
         ImGui.SetNextWindowSize(500, 800)
