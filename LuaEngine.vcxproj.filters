@@ -46,6 +46,9 @@
     <CustomBuild Include="asm.asm">
       <Filter>汇编文件</Filter>
     </CustomBuild>
+    <CustomBuild Include="GeneralHook.asm">
+      <Filter>汇编文件</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game_utils.h">
@@ -87,6 +90,9 @@
     </ClInclude>
     <ClInclude Include="src\CircularBufferLogger.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\general.h">
+      <Filter>头文件\hook</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
