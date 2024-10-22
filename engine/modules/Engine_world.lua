@@ -89,10 +89,10 @@ function engine_world:new()
         aob_player = SearchPattern({ 0x20, 0x67, "??", "??", 0x00, 0x00, 0x00, 0x00 })
     end
 
-    if aob_world == nil or not aob_quest then
+    if aob_world == nil or not aob_world then
         aob_world = 0x1451C4E68
     end
-    if aob_player == nil or not aob_quest then
+    if aob_player == nil or not aob_player then
         aob_player = 0x1450139A0
     end
 

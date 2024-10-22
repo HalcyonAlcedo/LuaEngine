@@ -9,9 +9,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="汇编文件">
-      <UniqueIdentifier>{510bebd2-d3d7-403d-9433-3cc513c647d2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件">
       <UniqueIdentifier>{3f3fea3e-0109-400a-8835-8384b2486c06}</UniqueIdentifier>
     </Filter>
@@ -41,14 +38,6 @@
     <Library Include="deps\loader.lib">
       <Filter>静态库</Filter>
     </Library>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="asm.asm">
-      <Filter>汇编文件</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GeneralHook.asm">
-      <Filter>汇编文件</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game_utils.h">

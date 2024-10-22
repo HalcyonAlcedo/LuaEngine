@@ -116,19 +116,8 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <Library Include="deps\loader.lib" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="asm.asm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 /Fo $(IntDir)%(fileName).obj /c %(fileName).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(fileName).obj;%(Outputs)</Outputs>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="deps\lua\lua.vcxproj">
       <Project>{3017cbc2-3ff0-4d60-9222-ff476383d31d}</Project>
-    </ProjectReference>
-    <ProjectReference Include="deps\minhook\build\VC17\libMinHook.vcxproj">
-      <Project>{f142a341-5ee0-442d-a15f-98ae9b48dbae}</Project>
     </ProjectReference>
     <ProjectReference Include="deps\safetyhook\build\safetyhook.vcxproj">
       <Project>{9d048f53-e530-379c-a1af-a556a42f68de}</Project>
@@ -153,14 +142,6 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="GeneralHook.asm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 /Fo $(IntDir)%(fileName).obj /c %(fileName).asm</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(fileName).obj;%(Outputs)</Outputs>
-    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

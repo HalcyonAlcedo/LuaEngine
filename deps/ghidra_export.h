@@ -58,7 +58,7 @@ namespace MH {
     namespace Shlp {
         static void* (*GetShlp)(void*, int) = (void* (*)(void*, int))0x140F7DC00;
         static void(*CallShlp)(void*, void*, void*, void*) = (void(*)(void*, void*, void*, void*))0x141AA74A0;
-        static void*(*ctor)() = (void* (*)())0x141AA74A0;
+        static void*(*ctor)() = (void* (*)())0x14214C5BE;
         static void(*dtor)(void*) = (void(*)(void*))0x1422282A0;
     }
     namespace Monster {
@@ -116,7 +116,7 @@ namespace MH {
             static undefined(*CallBuild)() = (undefined(*)())0x1411B6B20;
         }
         static undefined(*BuildShowGameMessage)() = (undefined(*)())0x1419A2D20;
-        static long long* uGuiChatBase = (long long*)0x1451C464C;
+        static long long* uGuiChatBase = (long long*)0x1451C4640;
     }
     namespace Damage {
         static bool(*ApplySoftenBuildup)(longlong, longlong, float) = (bool(*)(longlong, longlong, float))0x1402C78A0;

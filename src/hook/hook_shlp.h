@@ -1,7 +1,5 @@
 #pragma once
 
-extern "C" void* _stdcall GetR12DPtr(void*);
-
 #pragma region shlp
 namespace hook_shlp {
 	struct ProjectilesData {
@@ -15,24 +13,23 @@ namespace hook_shlp {
 	};
 	map<void*, ProjectilesData> ProjectilesList;
 
+	SafetyHookInline g_hook_dtor;
+	SafetyHookMid g_hook_ctor;
 	static void Hook() {
 		framework_logger->info("创建投射物shlp生成和销毁钩子");
-		MH_Initialize();
 
-		HookLambda(MH::Shlp::dtor,
-			[](auto rcx) {
-				ProjectilesList.erase(rcx);
-				return original(rcx);
+		g_hook_ctor = safetyhook::create_mid(MH::Shlp::ctor,
+			+[](SafetyHookContext& ctx) {
+				int shlpid = ctx.r12;
+				void* shlp = reinterpret_cast<void*>(ctx.rax);
+				ProjectilesList[shlp] = ProjectilesData(shlp, shlpid);
 			});
-		HookLambda(MH::Shlp::ctor,
-			[]() {
-				void* ret = original();
-				int shlpid = 0;
-				GetR12DPtr(&shlpid);
-				ProjectilesList[ret] = ProjectilesData(ret, shlpid);
-				return ret;
-			});
-		MH_ApplyQueued();
+
+		g_hook_dtor = safetyhook::create_inline(MH::Shlp::dtor, reinterpret_cast<void*>(
+			+[](void* shlp) {
+				ProjectilesList.erase(shlp);
+				return g_hook_dtor.call<int>(shlp);
+			}));
 	}
 	static void Registe(lua_State* L) {
 		engine_logger->info("注册投射物shlp相关函数");

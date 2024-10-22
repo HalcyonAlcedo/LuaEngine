@@ -14,25 +14,25 @@ namespace hook_monster {
 		};
 	};
 	map<void*, MonsterData> Monsters;
+	SafetyHookInline g_hook_ctor, g_hook_dtor;
 	static void Hook() {
 		framework_logger->info("创建怪物生成和销毁钩子");
-		MH_Initialize();
-		HookLambda(MH::Monster::ctor,
-			[](auto monster, auto id, auto subId) {
-				auto ret = original(monster, id, subId);
+
+		g_hook_ctor = safetyhook::create_inline(MH::Monster::ctor, reinterpret_cast<void*>(
+			+[](void* monster, int id, int subId) {
+				auto ret = g_hook_ctor.call<int>(monster, id, subId);
 				Monsters[monster] = MonsterData(
 					monster, id, subId
 				);
 				LuaCore::run("on_monster_create");
 				return ret;
-			});
-		HookLambda(MH::Monster::dtor,
-			[](auto monster) {
+			}));
+		g_hook_dtor = safetyhook::create_inline(MH::Monster::dtor, reinterpret_cast<void*>(
+			+[](void* monster) {
 				Monsters.erase(monster);
 				LuaCore::run("on_monster_destroy");
-				return original(monster);
-			});
-		MH_ApplyQueued();
+				return g_hook_dtor.call<int>(monster);
+			}));
 	}
 	static void Registe(lua_State* L) {
 		//注册怪物获取函数

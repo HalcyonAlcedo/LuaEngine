@@ -321,6 +321,135 @@ static int System_GetFileMD5(lua_State* pL)
 #pragma endregion
 #pragma region MemoryFun
 static int System_Memory_GetAddress(lua_State* pL) {
+	vector<int> bytes;
+	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
+
+	if (ptr == 0) {
+		lua_pushboolean(pL, false);
+		return 1;
+	}
+
+	lua_pushnil(pL);
+	while (lua_next(pL, 2) != 0) {
+		uintptr_t offset = (uintptr_t)lua_tointeger(pL, -1);
+		bytes.push_back(offset);
+		lua_pop(pL, 1);
+	}
+
+	void* address = utils::GetPlot((void*)ptr, bytes);
+
+	if (address != nullptr) {
+		uintptr_t addr = (uintptr_t)address;
+		lua_pushinteger(pL, addr);
+	}
+	else {
+		lua_pushboolean(pL, false);
+	}
+	return 1;
+}
+static int System_Memory_GetAddressData(lua_State* pL) {
+	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
+	string type = (string)lua_tostring(pL, 2);
+
+	if (ptr == 0) {
+		lua_pushboolean(pL, false);
+		return 1;
+	}
+
+	void* address = (void*)ptr;
+	if (address != nullptr) {
+		if (type == "int")
+			lua_pushinteger(pL, *(int*)(ptr));
+		else if (type == "float")
+			lua_pushnumber(pL, *(float*)(ptr));
+		else if (type == "bool")
+			lua_pushboolean(pL, *(bool*)(ptr));
+		else if (type == "byte")
+			lua_pushinteger(pL, *(char*)(ptr));
+		else if (type == "string") {
+			string memory_string = (char*)(ptr);
+			lua_pushstring(pL, memory_string.c_str());
+		}
+		else
+			lua_pushinteger(pL, *(char*)(ptr));
+	}
+	else {
+		lua_pushboolean(pL, false);
+	}
+	return 1;
+}
+static int System_Memory_SetAddressData(lua_State* pL) {
+	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
+	string type = (string)lua_tostring(pL, 2);
+
+	if (ptr == 0) {
+		lua_pushboolean(pL, false);
+		return 1;
+	}
+
+	void* address = (void*)ptr;
+
+	if (address != nullptr) {
+		if (type == "int") {
+			*(int*)(ptr) = (int)lua_tointeger(pL, 3);
+			lua_pushboolean(pL, true);
+		}
+		else if (type == "float") {
+			*(float*)(ptr) = (float)lua_tonumber(pL, 3);
+			lua_pushboolean(pL, true);
+		}
+		else if (type == "bool") {
+			*(bool*)(ptr) = (bool)lua_toboolean(pL, 3);
+			lua_pushboolean(pL, true);
+		}
+		else if (type == "byte") {
+			*(char*)(ptr) = (char)lua_tointeger(pL, 3);
+			lua_pushboolean(pL, true);
+		}
+		else {
+			lua_pushboolean(pL, false);
+		}
+	}
+	else {
+		lua_pushboolean(pL, false);
+	}
+	return 1;
+}
+static int System_Memory_SearchPattern(lua_State* pL) {
+	std::vector<std::pair<BYTE, bool>> pattern;
+
+	if (!lua_istable(pL, 1)) {
+		lua_pushboolean(pL, false); // 参数不是表时返回 false
+		return 1;
+	}
+
+	lua_pushnil(pL); // 先将 nil 压栈，作为 table 的初始键
+	while (lua_next(pL, 1)) {
+		if (lua_isnumber(pL, -1)) {  // 确保 Lua 表中的值为数字
+			int value = lua_tointeger(pL, -1);
+			pattern.push_back({ static_cast<BYTE>(value), false }); // 处理字节码
+		}
+		else if (lua_isstring(pL, -1)) {  // 处理通配符 ?? 的情况
+			std::string value = lua_tostring(pL, -1);
+			if (value == "??") {
+				pattern.push_back({ 0x00, true }); // true 表示通配符
+			}
+		}
+		lua_pop(pL, 1); // 弹出值，保留键进行下一次迭代
+	}
+
+	// 调用 C++ SearchPattern 函数
+	void* foundAddress = utils::SearchPattern(pattern);
+
+	if (foundAddress) {
+		lua_pushinteger(pL, reinterpret_cast<ptrdiff_t>(foundAddress)); // 找到时返回地址
+	}
+	else {
+		lua_pushboolean(pL, false); // 未找到时返回 false
+	}
+	return 1;
+}
+static int System_Memory_GetAddress_Safe(lua_State* pL) {
 	lua_getglobal(pL, "reserv_Script");
 	const char* script = lua_tostring(pL, -1);
 	lua_pop(pL, 1);
@@ -365,7 +494,7 @@ static int System_Memory_GetAddress(lua_State* pL) {
 	}
 	return 1;
 }
-static int System_Memory_GetAddressData(lua_State* pL) {
+static int System_Memory_GetAddressData_Safe(lua_State* pL) {
 	lua_getglobal(pL, "reserv_Script");
 	const char* script = lua_tostring(pL, -1);
 	lua_pop(pL, 1);
@@ -409,8 +538,7 @@ static int System_Memory_GetAddressData(lua_State* pL) {
 	}
 	return 1;
 }
-
-static int System_Memory_SetAddressData(lua_State* pL) {
+static int System_Memory_SetAddressData_Safe(lua_State* pL) {
 	lua_getglobal(pL, "reserv_Script");
 	const char* script = lua_tostring(pL, -1);
 	lua_pop(pL, 1);
@@ -463,8 +591,7 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 	}
 	return 1;
 }
-
-static int System_Memory_SearchPattern(lua_State* pL) {
+static int System_Memory_SearchPattern_Safe(lua_State* pL) {
 	lua_getglobal(pL, "reserv_Script");
 	const char* script = lua_tostring(pL, -1);
 	lua_pop(pL, 1);
@@ -491,7 +618,7 @@ static int System_Memory_SearchPattern(lua_State* pL) {
 			std::string value = lua_tostring(pL, -1);
 			if (value == "??") {
 				pattern.push_back({ 0x00, true }); // true 表示通配符
-				customData.push_back({ "address","??"});
+				customData.push_back({ "address","??" });
 			}
 		}
 		lua_pop(pL, 1); // 弹出值，保留键进行下一次迭代
@@ -830,6 +957,14 @@ static void registerFunc(lua_State* L, string script) {
 	lua_register(L, "SetAddressData", System_Memory_SetAddressData);
 	//搜索内存地址
 	lua_register(L, "SearchPattern", System_Memory_SearchPattern);
+	//获取内存地址(安全)
+	lua_register(L, "SafeGetAddress", System_Memory_GetAddress_Safe);
+	//获取内存地址数据(安全)
+	lua_register(L, "SafeGetAddressData", System_Memory_GetAddressData_Safe);
+	//修改内存地址数据(安全)
+	lua_register(L, "SafeSetAddressData", System_Memory_SetAddressData_Safe);
+	//搜索内存地址(安全)
+	lua_register(L, "SafeSearchPattern", System_Memory_SearchPattern_Safe);
 #pragma endregion
 #pragma region Game
 	//添加特效

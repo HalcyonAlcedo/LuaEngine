@@ -14,21 +14,17 @@ namespace hook_hit {
 		};
 	};
 	HitData Hit;
+	SafetyHookMid g_hook_HitPtr;
 	static void Hook() {
 		framework_logger->info("创建受击处理钩子");
-		MH_Initialize();
-		HookLambda(MH::Player::HitPtr,
-			[](auto rcx, auto rdx) {
-				//受击统计，清除计数器交给逻辑代码，不在这里执行
-				Hit.HitCount += 1;
-				Hit.HitPlot = *((void**)(rdx + 0x8));
-				//如果设定了无敌，则设置rcx为0，后续交给程序自己执行
-				if (Hit.Invulnerable) rcx = 0;
 
-				auto ret = original(rcx, rdx);
-				return ret;
+		g_hook_HitPtr = safetyhook::create_mid(MH::Player::HitPtr,
+			+[](SafetyHookContext& ctx) {
+				Hit.HitCount += 1;
+				Hit.HitPlot = *((void**)(ctx.rdx + 0x8));
+				//如果设定了无敌，则设置rcx为0，后续交给程序自己执行
+				if (Hit.Invulnerable) ctx.rcx = 0;
 			});
-		MH_ApplyQueued();
 	}
 	static void Registe(lua_State* L) {
 		engine_logger->info("注册受击相关函数");

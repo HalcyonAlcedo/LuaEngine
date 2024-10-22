@@ -97,7 +97,7 @@ function engine_quest:new()
     if aob_quest == nil or not aob_quest then
         aob_quest = 0x14500ED30
     end
-    if aob_player == nil or not aob_quest then
+    if aob_player == nil or not aob_player then
         aob_player = 0x1450139A0
     end
 

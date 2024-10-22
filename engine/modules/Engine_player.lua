@@ -142,7 +142,6 @@ local aob_player
 
 local pointer = {
     Player = function() return GetAddress(aob_player,{ 0x50 }) end,
-    PlayerData = function() return GetAddress(aob_player,{ 0x50, 0xC0, 0x98, 0x18, 0x70, 0xC8, 0xD0, 0x5D0, 0x20 }) end, 
     PlayerSaveData = function() return GetAddress(aob_Save,{ 0xa8 }) end, 
     Weapon = {
         Entity = function() return GetAddress(aob_player,{ 0x50, 0x76B0 }) end,
@@ -273,9 +272,8 @@ function engine_player:getPlayerWeaponInfo()
             --武器Id
             id = GetAddressData(pointer.Weapon:Data() + 0x2EC, 'int'),
             --武器命中的怪物地址
-            --hit = GetAddress(pointer:PlayerData(), { 0x2C8 })
+            hit = GetAddress(pointer:Player(), { 0x12958 })
         }
-        --if not player_weapon_info.hit then player_weapon_info.hit = 0 end
         if player_weapon_info.position.x
             and player_weapon_info.position.y
             and player_weapon_info.position.z
@@ -583,12 +581,54 @@ local function trace(t)
     local proxy = {}
     local mt = {
         __index = function(_, k)
-            return t[k] -- 直接从原始对象中获取
+            if k == 'position' then
+                t[k] = engine_player:getPlayerPosition()
+            elseif k == 'cntrposition' then
+                t[k] =  engine_player:getPlayerCNTRPosition()
+            elseif k == 'reposition' then
+                t[k] =  engine_player:getPlayerRepatriatePos()
+            elseif k == 'incremental' then
+                t[k] =  engine_player:getPlayerIncrementalPos()
+            elseif k == 'size' then
+                t[k] =  engine_player:getPlayerModelSize()
+            elseif k == 'straightPos' then
+                t[k] =  engine_player:getPlayerCollimatorPos()
+            elseif k == 'parabolaPos' then
+                t[k] =  engine_player:getPlayerParabolaCollimatorPos()
+            elseif k == 'aimingState' then
+                t[k] =  engine_player:getPlayerAimingState()
+            elseif k == 'Quaternion' then
+                t[k] =  engine_player:getPlayerQuaternion()
+            elseif k == 'Eulerian' then
+                t[k] =  engine_player:getPlayerEulerian()
+            elseif k == 'Weapon' then
+                t[k] =  engine_player:getPlayerWeaponInfo()
+            elseif k == 'Armor' then
+                t[k] =  engine_player:getPlayerArmorInfo()
+            elseif k == 'Layered' then
+                t[k] =  engine_player:getPlayerLayeredInfo()
+            elseif k == 'TempArmorData' then
+                t[k] =  engine_player:getPlayerTempArmorDataInfo()
+            elseif k == 'Characteristic' then
+                t[k] =  engine_player:getPlayerCharacteristic()
+            elseif k == 'Action' then
+                t[k] =  engine_player:getPlayerActionInfo()
+            elseif k == 'Gravity' then
+                t[k] =  engine_player:getPlayerGravityInfo()
+            elseif k == 'Frame' then
+                t[k] =  engine_player:getPlayerFrameInfo()
+            end
+
+            if type(t[k]) == "table" then
+                return trace(t[k]) -- 仅对未追踪的表进行监听
+            end
+
+            return rawget(t, k) -- 返回原始值
         end,
         __newindex = function(_, k, v)
-            traceHandle(k, v) -- 调用处理函数
-            rawset(t, k, v)   -- 更新原始对象的值
-        end
+            traceHandle(k, v)
+            rawset(t, k, v) -- 其他情况直接设置
+        end,
     }
     setmetatable(proxy, mt) -- 设置元表
     return proxy
@@ -640,10 +680,10 @@ function engine_player:new()
         aob_player = SearchPattern({ 0x20, 0x67, "??", "??", 0x00, 0x00, 0x00, 0x00 })
     end
 
-    if aob_Save == nil or not aob_quest then
+    if aob_Save == nil or not aob_Save then
         aob_Save = 0x145013950
     end
-    if aob_player == nil or not aob_quest then
+    if aob_player == nil or not aob_player then
         aob_player = 0x1450139A0
     end
 
@@ -689,20 +729,7 @@ function engine_player:new()
     --玩家动作帧
     o.Frame = self:getPlayerFrameInfo()
 
-    --创建监听
-    o.Characteristic.health = trace(o.Characteristic.health)
-    o.Characteristic.stamina = trace(o.Characteristic.stamina)
-    o.Position = trace(o.Position)
-    o.Model = trace(o.Model)
-    o.Action = trace(o.Action)
-    o.Gravity = trace(o.Gravity)
-    o.Frame = trace(o.Frame)
-    o.Layered = trace(o.Layered)
-    o.Angle = trace(o.Angle)
-
-    setmetatable(o, self)
-    self.__index = self
-    return o
+    return trace(o)
 end
 
 return engine_player

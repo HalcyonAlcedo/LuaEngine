@@ -21,11 +21,12 @@ namespace hook_camera {
 		};
 	};
 	CameraData Camera;
+	SafetyHookMid g_hook_visual;
 	static void Hook() {
 		framework_logger->info("创建相机操作钩子");
-		MH_Initialize();
-		HookLambda(MH::Player::Visual,
-			[](auto rcx) {
+		g_hook_visual = safetyhook::create_mid(MH::Player::Visual,
+			+[](SafetyHookContext& ctx) {
+				void* rcx = reinterpret_cast<void*>(ctx.rcx);
 				Camera.position_x = *offsetPtr<float>(rcx, 0x10);
 				Camera.position_y = *offsetPtr<float>(rcx, 0x14);
 				Camera.position_z = *offsetPtr<float>(rcx, 0x18);
@@ -34,9 +35,7 @@ namespace hook_camera {
 					*offsetPtr<float>(rcx, 0x14) = Camera.lockPos_y;
 					*offsetPtr<float>(rcx, 0x18) = Camera.lockPos_z;
 				}
-				return original(rcx);
 			});
-		MH_ApplyQueued();
 	}
 	static void Registe(lua_State* L) {
 		engine_logger->info("注册相机相关函数");

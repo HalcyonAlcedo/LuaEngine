@@ -1,8 +1,6 @@
 #pragma once
 #include <windows.h>
 #include <iostream>
-#include <safetyhook.hpp>
-
 namespace hook_general {
 
     struct Registers {
@@ -58,99 +56,37 @@ namespace hook_general {
             int luaFuncRef = pair.second;
             lua_rawgeti(L, LUA_REGISTRYINDEX, luaFuncRef); // 获取 Lua 函数
             lua_newtable(L); // 创建一个 Lua 表，用于传递寄存器数据
-            lua_pushstring(L, "rax");
-            lua_pushinteger(L, ctx.rax);
-            lua_settable(L, -3);
-            lua_pushstring(L, "rbx");
-            lua_pushinteger(L, ctx.rbx);
-            lua_settable(L, -3);
-            lua_pushstring(L, "rcx");
-            lua_pushinteger(L, ctx.rcx);
-            lua_settable(L, -3);
-            lua_pushstring(L, "rdx");
-            lua_pushinteger(L, ctx.rdx);
-            lua_settable(L, -3);
-            lua_pushstring(L, "rsi");
-            lua_pushinteger(L, ctx.rsi);
-            lua_settable(L, -3);
-            lua_pushstring(L, "rdi");
-            lua_pushinteger(L, ctx.rdi);
-            lua_settable(L, -3);
-            lua_pushstring(L, "r8");
-            lua_pushinteger(L, ctx.r8);
-            lua_settable(L, -3);
-            lua_pushstring(L, "r9");
-            lua_pushinteger(L, ctx.r9);
-            lua_settable(L, -3);
-            lua_pushstring(L, "r10");
-            lua_pushinteger(L, ctx.r10);
-            lua_settable(L, -3);
-            lua_pushstring(L, "r11");
-            lua_pushinteger(L, ctx.r11);
-            lua_settable(L, -3);
-            lua_pushstring(L, "r12");
-            lua_pushinteger(L, ctx.r12);
-            lua_settable(L, -3);
-            lua_pushstring(L, "r13");
-            lua_pushinteger(L, ctx.r13);
-            lua_settable(L, -3);
-            lua_pushstring(L, "r14");
-            lua_pushinteger(L, ctx.r14);
-            lua_settable(L, -3);
-            lua_pushstring(L, "r15");
-            lua_pushinteger(L, ctx.r15);
-            lua_settable(L, -3);
-            lua_pushstring(L, "rsp");
-            lua_pushinteger(L, ctx.rsp);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm0");
-            lua_pushnumber(L, ctx.xmm0.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm1");
-            lua_pushnumber(L, ctx.xmm1.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm2");
-            lua_pushnumber(L, ctx.xmm2.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm3");
-            lua_pushnumber(L, ctx.xmm3.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm4");
-            lua_pushnumber(L, ctx.xmm4.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm5");
-            lua_pushnumber(L, ctx.xmm5.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm6");
-            lua_pushnumber(L, ctx.xmm6.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm7");
-            lua_pushnumber(L, ctx.xmm7.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm8");
-            lua_pushnumber(L, ctx.xmm8.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm9");
-            lua_pushnumber(L, ctx.xmm9.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm10");
-            lua_pushnumber(L, ctx.xmm10.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm11");
-            lua_pushnumber(L, ctx.xmm11.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm12");
-            lua_pushnumber(L, ctx.xmm12.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm13");
-            lua_pushnumber(L, ctx.xmm13.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm14");
-            lua_pushnumber(L, ctx.xmm14.f32[4]);
-            lua_settable(L, -3);
-            lua_pushstring(L, "xmm15");
-            lua_pushnumber(L, ctx.xmm15.f32[4]);
-            lua_settable(L, -3);
+            lua_pushstring(L, "rax"); lua_pushinteger(L, ctx.rax); lua_settable(L, -3);
+            lua_pushstring(L, "rbx"); lua_pushinteger(L, ctx.rbx); lua_settable(L, -3);
+            lua_pushstring(L, "rcx"); lua_pushinteger(L, ctx.rcx); lua_settable(L, -3);
+            lua_pushstring(L, "rdx"); lua_pushinteger(L, ctx.rdx); lua_settable(L, -3);
+            lua_pushstring(L, "rsi"); lua_pushinteger(L, ctx.rsi); lua_settable(L, -3);
+            lua_pushstring(L, "rdi"); lua_pushinteger(L, ctx.rdi); lua_settable(L, -3);
+            lua_pushstring(L, "r8"); lua_pushinteger(L, ctx.r8); lua_settable(L, -3);
+            lua_pushstring(L, "r9"); lua_pushinteger(L, ctx.r9); lua_settable(L, -3);
+            lua_pushstring(L, "r10"); lua_pushinteger(L, ctx.r10); lua_settable(L, -3);
+            lua_pushstring(L, "r11"); lua_pushinteger(L, ctx.r11); lua_settable(L, -3);
+            lua_pushstring(L, "r12"); lua_pushinteger(L, ctx.r12); lua_settable(L, -3);
+            lua_pushstring(L, "r13"); lua_pushinteger(L, ctx.r13); lua_settable(L, -3);
+            lua_pushstring(L, "r14"); lua_pushinteger(L, ctx.r14); lua_settable(L, -3);
+            lua_pushstring(L, "r15"); lua_pushinteger(L, ctx.r15); lua_settable(L, -3);
+            lua_pushstring(L, "rsp"); lua_pushinteger(L, ctx.rsp); lua_settable(L, -3);
+            lua_pushstring(L, "xmm0"); lua_pushnumber(L, ctx.xmm0.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm1"); lua_pushnumber(L, ctx.xmm1.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm2"); lua_pushnumber(L, ctx.xmm2.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm3"); lua_pushnumber(L, ctx.xmm3.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm4"); lua_pushnumber(L, ctx.xmm4.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm5"); lua_pushnumber(L, ctx.xmm5.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm6"); lua_pushnumber(L, ctx.xmm6.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm7"); lua_pushnumber(L, ctx.xmm7.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm8"); lua_pushnumber(L, ctx.xmm8.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm9"); lua_pushnumber(L, ctx.xmm9.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm10"); lua_pushnumber(L, ctx.xmm10.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm11"); lua_pushnumber(L, ctx.xmm11.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm12"); lua_pushnumber(L, ctx.xmm12.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm13"); lua_pushnumber(L, ctx.xmm13.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm14"); lua_pushnumber(L, ctx.xmm14.f32[0]); lua_settable(L, -3);
+            lua_pushstring(L, "xmm15"); lua_pushnumber(L, ctx.xmm15.f32[0]); lua_settable(L, -3);
 
             // 调用 Lua 函数，传递寄存器数据表
             if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
@@ -177,22 +113,22 @@ namespace hook_general {
                 lua_pushstring(L, "r13"); lua_gettable(L, -2); ctx.r13 = lua_tointeger(L, -1); lua_pop(L, 1);
                 lua_pushstring(L, "r14"); lua_gettable(L, -2); ctx.r14 = lua_tointeger(L, -1); lua_pop(L, 1);
                 lua_pushstring(L, "r15"); lua_gettable(L, -2); ctx.r15 = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm0"); lua_gettable(L, -2); ctx.xmm0.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm1"); lua_gettable(L, -2); ctx.xmm1.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm2"); lua_gettable(L, -2); ctx.xmm2.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm3"); lua_gettable(L, -2); ctx.xmm3.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm4"); lua_gettable(L, -2); ctx.xmm4.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm5"); lua_gettable(L, -2); ctx.xmm5.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm6"); lua_gettable(L, -2); ctx.xmm6.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm7"); lua_gettable(L, -2); ctx.xmm7.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm8"); lua_gettable(L, -2); ctx.xmm8.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm9"); lua_gettable(L, -2); ctx.xmm9.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm10"); lua_gettable(L, -2); ctx.xmm10.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm11"); lua_gettable(L, -2); ctx.xmm11.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm12"); lua_gettable(L, -2); ctx.xmm12.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm13"); lua_gettable(L, -2); ctx.xmm13.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm14"); lua_gettable(L, -2); ctx.xmm14.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm15"); lua_gettable(L, -2); ctx.xmm15.f32[4] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm0"); lua_gettable(L, -2); ctx.xmm0.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm1"); lua_gettable(L, -2); ctx.xmm1.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm2"); lua_gettable(L, -2); ctx.xmm2.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm3"); lua_gettable(L, -2); ctx.xmm3.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm4"); lua_gettable(L, -2); ctx.xmm4.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm5"); lua_gettable(L, -2); ctx.xmm5.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm6"); lua_gettable(L, -2); ctx.xmm6.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm7"); lua_gettable(L, -2); ctx.xmm7.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm8"); lua_gettable(L, -2); ctx.xmm8.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm9"); lua_gettable(L, -2); ctx.xmm9.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm10"); lua_gettable(L, -2); ctx.xmm10.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm11"); lua_gettable(L, -2); ctx.xmm11.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm12"); lua_gettable(L, -2); ctx.xmm12.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm13"); lua_gettable(L, -2); ctx.xmm13.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm14"); lua_gettable(L, -2); ctx.xmm14.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                lua_pushstring(L, "xmm15"); lua_gettable(L, -2); ctx.xmm15.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
             }
 
             lua_pop(L, 1); // 弹出返回的表
