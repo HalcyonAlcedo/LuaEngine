@@ -324,7 +324,7 @@ static int System_Memory_GetAddress(lua_State* pL) {
 	vector<int> bytes;
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 
-	if (ptr == 0) {
+	if (ptr == 0 || !utils::IsMemoryReadable((void*)ptr, sizeof(ptr))) {
 		lua_pushboolean(pL, false);
 		return 1;
 	}
@@ -351,7 +351,7 @@ static int System_Memory_GetAddressData(lua_State* pL) {
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 	string type = (string)lua_tostring(pL, 2);
 
-	if (ptr == 0) {
+	if (ptr == 0 || !utils::IsMemoryReadable((void*)ptr, sizeof(ptr))) {
 		lua_pushboolean(pL, false);
 		return 1;
 	}
@@ -382,7 +382,7 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 	string type = (string)lua_tostring(pL, 2);
 
-	if (ptr == 0) {
+	if (ptr == 0 || !utils::IsMemoryReadable((void*)ptr, sizeof(ptr))) {
 		lua_pushboolean(pL, false);
 		return 1;
 	}

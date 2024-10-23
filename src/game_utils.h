@@ -10,8 +10,23 @@ using namespace std;
 
 #pragma region General tools
 namespace utils {
+
+	BYTE* startAddress = nullptr;
+	BYTE* endAddress = nullptr;
+	struct CacheEntry {
+		bool readable;
+		size_t size;
+	};
+
+	std::unordered_map<void*, CacheEntry> addressCache;
+
 	// 获取 MonsterHunterWorld.exe 的内存范围
-	bool GetMonsterHunterWorldModuleRange(BYTE*& startAddress, BYTE*& endAddress) {
+	bool GetMonsterHunterWorldModuleRange() {
+		if (startAddress != nullptr && endAddress != nullptr)
+		{
+			return true;
+		}
+
 		HMODULE hMods[1024];
 		DWORD cbNeeded;
 
@@ -36,10 +51,8 @@ namespace utils {
 	static void* GetPlot(void* plot, const std::vector<int>& bytes) {
 		void* Plot = plot;
 
-		BYTE* startAddress = nullptr;
-		BYTE* endAddress = nullptr;
 		// 获取 MonsterHunterWorld.exe 的内存范围
-		if (GetMonsterHunterWorldModuleRange(startAddress, endAddress) && (reinterpret_cast<BYTE*>(plot) >= startAddress && reinterpret_cast<BYTE*>(plot) < endAddress)) {
+		if (GetMonsterHunterWorldModuleRange() && (reinterpret_cast<BYTE*>(plot) >= startAddress && reinterpret_cast<BYTE*>(plot) < endAddress)) {
 			Plot = *(undefined**)plot;
 		}
 		for (int i : bytes) {
@@ -59,12 +72,19 @@ namespace utils {
 			(mbi->Protect & PAGE_EXECUTE_READ) || (mbi->Protect & PAGE_EXECUTE_READWRITE);
 	}
 	bool IsMemoryReadable(void* ptr, size_t size) {
+		// 检查缓存
+		auto it = addressCache.find(ptr);
+		if (it != addressCache.end() && it->second.size == size) {
+			return it->second.readable;
+		}
+
 		MEMORY_BASIC_INFORMATION mbi;
 		if (VirtualQuery(ptr, &mbi, sizeof(mbi))) {
-			// 检查页面保护属性
 			bool readable = (mbi.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_READ)) != 0;
-			// 确保请求的读取范围在该内存页内
 			bool inRange = size <= (mbi.RegionSize - ((uintptr_t)ptr - (uintptr_t)mbi.BaseAddress));
+
+			// 更新缓存
+			addressCache[ptr] = { readable && inRange, size };
 			return readable && inRange;
 		}
 		return false;
@@ -91,7 +111,7 @@ namespace utils {
 		BYTE* endAddress = nullptr;
 
 		// 获取 MonsterHunterWorld.exe 的内存范围
-		if (!GetMonsterHunterWorldModuleRange(startAddress, endAddress)) {
+		if (!GetMonsterHunterWorldModuleRange()) {
 			std::cerr << "Failed to get MonsterHunterWorld.exe module range." << std::endl;
 			return nullptr; // 如果未找到模块范围，返回 nullptr
 		}
