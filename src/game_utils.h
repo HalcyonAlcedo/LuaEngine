@@ -73,6 +73,7 @@ namespace utils {
 	}
 	bool IsMemoryReadable(void* ptr, size_t size) {
 		// 检查缓存
+		/*
 		auto it = addressCache.find(ptr);
 		if (it != addressCache.end() && it->second.size == size) {
 			return it->second.readable;
@@ -86,6 +87,18 @@ namespace utils {
 			// 更新缓存
 			addressCache[ptr] = { readable && inRange, size };
 			return readable && inRange;
+		}
+		*/
+		__try {
+			// 尝试访问内存
+			volatile char temp;
+			for (size_t i = 0; i < size; i++) {
+				temp = *((volatile char*)ptr + i);  // 尝试读取每个字节
+			}
+			return true;  // 如果没有异常，内存可读
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			return false;  // 如果捕获到访问异常，内存不可读
 		}
 		return false;
 	}
@@ -107,9 +120,6 @@ namespace utils {
 
 	// 搜索指定地址范围内的特征码
 	void* SearchPattern(const std::vector<std::pair<BYTE, bool>>& pattern) {
-		BYTE* startAddress = nullptr;
-		BYTE* endAddress = nullptr;
-
 		// 获取 MonsterHunterWorld.exe 的内存范围
 		if (!GetMonsterHunterWorldModuleRange()) {
 			std::cerr << "Failed to get MonsterHunterWorld.exe module range." << std::endl;

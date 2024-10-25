@@ -22,6 +22,9 @@
     <Filter Include="头文件\lua">
       <UniqueIdentifier>{3a12cf5d-628d-484b-abff-ef183cc53b61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\safetyhook">
+      <UniqueIdentifier>{24584e3f-3021-42ee-8156-66fe70aca491}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -32,6 +35,12 @@
     </ClCompile>
     <ClCompile Include="src\CircularBufferLogger.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\safetyhook\Zydis.c">
+      <Filter>头文件\safetyhook</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\safetyhook\safetyhook.cpp">
+      <Filter>头文件\safetyhook</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,10 +92,19 @@
     <ClInclude Include="src\general.h">
       <Filter>头文件\hook</Filter>
     </ClInclude>
+    <ClInclude Include="deps\safetyhook\Zydis.h">
+      <Filter>头文件\safetyhook</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\safetyhook\safetyhook.hpp">
+      <Filter>头文件\safetyhook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc">
       <Filter>静态库</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcpkg.json" />
   </ItemGroup>
 </Project>

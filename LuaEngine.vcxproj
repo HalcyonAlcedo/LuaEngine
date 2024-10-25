@@ -54,6 +54,10 @@
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnabled>false</VcpkgEnabled>
+    <VcpkgEnableManifest>false</VcpkgEnableManifest>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <VcpkgUseStatic>false</VcpkgUseStatic>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -81,10 +85,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;LuaEngine_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;LuaEngine_EXPORTS;_WINDOWS;_USRDLL;ZYDIS_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\hook;$(SolutionDir)src\lua;$(SolutionDir)deps;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\safetyhook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)src;$(SolutionDir)src\hook;$(SolutionDir)src\lua;$(SolutionDir)deps;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\safetyhook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -108,6 +112,8 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="deps\safetyhook\safetyhook.cpp" />
+    <ClCompile Include="deps\safetyhook\Zydis.c" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="src\CircularBufferLogger.cpp" />
     <ClCompile Include="src\md5.cpp" />
@@ -119,11 +125,10 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
     <ProjectReference Include="deps\lua\lua.vcxproj">
       <Project>{3017cbc2-3ff0-4d60-9222-ff476383d31d}</Project>
     </ProjectReference>
-    <ProjectReference Include="deps\safetyhook\build\safetyhook.vcxproj">
-      <Project>{9d048f53-e530-379c-a1af-a556a42f68de}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="deps\safetyhook\safetyhook.hpp" />
+    <ClInclude Include="deps\safetyhook\Zydis.h" />
     <ClInclude Include="src\CircularBufferLogger.h" />
     <ClInclude Include="src\general.h" />
     <ClInclude Include="src\lua\lua_core_ffi.h" />
@@ -142,6 +147,9 @@ echo d| xcopy  /i /y "$(SolutionDir)engine\modules" "$(SolutionDir)build\Lua\mod
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LuaEngine.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcpkg.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
