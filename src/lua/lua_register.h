@@ -1,7 +1,9 @@
 #pragma once
+#include "Player.h"
 #include "md5.h"
 #include "lua_core_ffi.h"
 #include "CircularBufferLogger.h"
+#include <algorithm>
 
 using namespace loader;
 
@@ -16,6 +18,11 @@ typedef void (*StatesProcessor) (lua_State* L);
 namespace LuaExternalData {
 	std::vector<StatesProcessor> AllStatesProcessor;
 	map<const char*, lua_CFunction> StatelessFunctions;
+}
+
+namespace LuaAudioData {
+	map<string, std::shared_ptr<Sound>> AudioList;
+	std::vector<std::unique_ptr<Player>> Players;
 }
 
 #pragma region LuaFun
@@ -882,6 +889,80 @@ static int Game_Version(lua_State* pL) {
 }
 #pragma endregion
 
+#pragma region Audio
+static void Lua_Audio_PruneFinishedPlayers() {
+	auto& players = LuaAudioData::Players;
+	players.erase(std::remove_if(players.begin(), players.end(), [](const std::unique_ptr<Player>& player) {
+		return !player || player->IsFinished();
+		}), players.end());
+}
+
+static int Lua_Audio_LoadAudioFile(lua_State* pL) {
+	const char* nameArg = lua_tostring(pL, 1);
+	const char* fileArg = lua_tostring(pL, 2);
+	if (!nameArg || !fileArg) {
+		LOG(ERR) << "Load_AudioFile requires name and file path.";
+		return 0;
+	}
+
+	string name = nameArg;
+	string file = fileArg;
+	auto sound = std::make_shared<Sound>();
+	if (!sound->LoadFromFile(file)) {
+		LOG(ERR) << "Load_AudioFile failed: " << file;
+		return 0;
+	}
+
+	LuaAudioData::AudioList[name] = sound;
+	return 0;
+}
+
+static int Lua_Audio_PlayAudio(lua_State* pL) {
+	const char* nameArg = lua_tostring(pL, 1);
+	if (!nameArg) {
+		LOG(ERR) << "Play_Audio requires an audio name.";
+		return 0;
+	}
+
+	Lua_Audio_PruneFinishedPlayers();
+
+	string name = nameArg;
+	auto it = LuaAudioData::AudioList.find(name);
+	if (it == LuaAudioData::AudioList.end()) {
+		LOG(ERR) << "Play_Audio failed: audio not loaded: " << name;
+		return 0;
+	}
+
+	auto player = std::make_unique<Player>();
+	if (!player->Create()) {
+		LOG(ERR) << "Play_Audio failed: cannot create XAudio2 player.";
+		return 0;
+	}
+	if (!player->SetSound(it->second)) {
+		LOG(ERR) << "Play_Audio failed: cannot bind sound: " << name;
+		return 0;
+	}
+	if (!player->Play()) {
+		LOG(ERR) << "Play_Audio failed: cannot start playback: " << name;
+		return 0;
+	}
+
+	LuaAudioData::Players.push_back(std::move(player));
+	return 0;
+}
+
+static int Lua_Audio_AudioList(lua_State* pL) {
+	lua_newtable(pL);
+	int index = 1;
+	for (const auto& audio : LuaAudioData::AudioList) {
+		lua_pushinteger(pL, index++);
+		lua_pushstring(pL, audio.first.c_str());
+		lua_settable(pL, -3);
+	}
+	return 1;
+}
+#pragma endregion
+
 static void applyExternalFunc(lua_State* L) {
 	for (auto& p : LuaExternalData::StatelessFunctions) {
 		lua_register(L, p.first, p.second);
@@ -981,6 +1062,11 @@ static void registerFunc(lua_State* L, string script) {
 	lua_register(L, "CreateProjectiles", Game_Player_CreateProjectiles);
 	//获取游戏版本
 	lua_register(L, "GameVersion", Game_Version);
+#pragma endregion
+#pragma region Audio
+	lua_register(L, "Load_AudioFile", Lua_Audio_LoadAudioFile);
+	lua_register(L, "Play_Audio", Lua_Audio_PlayAudio);
+	lua_register(L, "AudioList", Lua_Audio_AudioList);
 #pragma endregion
 #pragma region External
 	//加载外部来源
