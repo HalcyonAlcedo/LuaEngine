@@ -22,7 +22,7 @@ struct Vector3 {
 	Vector3(float x = 0, float y = 0, float z = 0) :x(x), y(y), z(z) { };
 };
 namespace WeaponOrnaments {
-	//»º´æÊý¾Ý
+	//ç¼“å­˜æ•°æ®
 	namespace TempData {
 		void* t_ornaments = nullptr;
 		bool t_setOrnamentsCoordinate = false;
@@ -30,31 +30,31 @@ namespace WeaponOrnaments {
 		bool t_setOrnamentsSize = false;
 		Vector3 t_SetOrnamentsSize;
 	}
-	//×°ÊÎÎï×ø±ê
+	//è£…é¥°ç‰©åæ ‡
 	Vector3 OrnamentsCoordinate = Vector3();
-	//×°ÊÎÎïÄ£ÐÍ´óÐ¡
+	//è£…é¥°ç‰©æ¨¡åž‹å¤§å°
 	Vector3 OrnamentsSize = Vector3();
-	//½â³ý×°ÊÎÎï×ø±ê¿ØÖÆ
+	//è§£é™¤è£…é¥°ç‰©åæ ‡æŽ§åˆ¶
 	static void DecontrolOrnamentsCoordinate() {
 		TempData::t_setOrnamentsCoordinate = false;
 	}
-	//½â³ý×°ÊÎÎï´óÐ¡¿ØÖÆ
+	//è§£é™¤è£…é¥°ç‰©å¤§å°æŽ§åˆ¶
 	static void DecontrolOrnamentsSize() {
 		TempData::t_setOrnamentsSize = false;
 	}
-	//×°ÊÎÎï×ø±êÉèÖÃ(X×ø±ê,Y×ø±ê,Z×ø±ê)
+	//è£…é¥°ç‰©åæ ‡è®¾ç½®(Xåæ ‡,Yåæ ‡,Zåæ ‡)
 	static void SetOrnamentsCoordinate(float X, float Y, float Z) {
 		TempData::t_SetOrnamentsCoordinate = Vector3(X, Y, Z);
 		TempData::t_setOrnamentsCoordinate = true;
 	}
-	//×°ÊÎÎï´óÐ¡ÉèÖÃ(X×ø±ê,Y×ø±ê,Z×ø±ê)
+	//è£…é¥°ç‰©å¤§å°è®¾ç½®(Xåæ ‡,Yåæ ‡,Zåæ ‡)
 	static void SetOrnamentsSize(float X, float Y, float Z) {
 		TempData::t_SetOrnamentsSize = Vector3(X, Y, Z);
 		TempData::t_setOrnamentsSize = true;
 	}
 }
 namespace Weapons {
-	//»º´æÊý¾Ý
+	//ç¼“å­˜æ•°æ®
 	namespace TempData {
 		void* t_mainWeapon = nullptr;
 		void* t_secondaryWeapon = nullptr;
@@ -73,72 +73,72 @@ namespace Weapons {
 		bool t_setPartWeaponSize = false;
 		Vector3 t_SetPartWeaponSize;
 	}
-	//Ö÷ÎäÆ÷×ø±ê
+	//ä¸»æ­¦å™¨åæ ‡
 	Vector3 MainWeaponCoordinate = Vector3();
-	//Ö÷ÎäÆ÷Ä£ÐÍ´óÐ¡
+	//ä¸»æ­¦å™¨æ¨¡åž‹å¤§å°
 	Vector3 MainWeaponSize = Vector3();
-	//¸±ÎäÆ÷×ø±ê
+	//å‰¯æ­¦å™¨åæ ‡
 	Vector3 SecondaryWeaponCoordinate = Vector3();
-	//¸±ÎäÆ÷Ä£ÐÍ´óÐ¡
+	//å‰¯æ­¦å™¨æ¨¡åž‹å¤§å°
 	Vector3 SecondaryWeaponSize = Vector3();
-	//ÎäÆ÷Áã¼þ×ø±ê
+	//æ­¦å™¨é›¶ä»¶åæ ‡
 	Vector3 PartWeaponCoordinate = Vector3();
-	//ÎäÆ÷Áã¼þÄ£ÐÍ´óÐ¡
+	//æ­¦å™¨é›¶ä»¶æ¨¡åž‹å¤§å°
 	Vector3 PartWeaponSize = Vector3();
-	//ÎäÆ÷ÃüÖÐ×ø±ê
+	//æ­¦å™¨å‘½ä¸­åæ ‡
 	Vector3 HitCoordinate = Vector3();
-	//½â³ýÖ÷ÎäÆ÷×ø±ê¿ØÖÆ
+	//è§£é™¤ä¸»æ­¦å™¨åæ ‡æŽ§åˆ¶
 	static void DecontrolMainWeaponCoordinate() {
 		TempData::t_setMainWeaponCoordinate = false;
 	}
-	//½â³ýÖ÷ÎäÆ÷´óÐ¡¿ØÖÆ
+	//è§£é™¤ä¸»æ­¦å™¨å¤§å°æŽ§åˆ¶
 	static void DecontrolMainWeaponSize() {
 		TempData::t_setMainWeaponSize = false;
 	}
-	//Ö÷ÎäÆ÷×ø±êÉèÖÃ(X×ø±ê,Y×ø±ê,Z×ø±ê)
+	//ä¸»æ­¦å™¨åæ ‡è®¾ç½®(Xåæ ‡,Yåæ ‡,Zåæ ‡)
 	static void SetMainWeaponCoordinate(float X, float Y, float Z) {
 		TempData::t_SetMainWeaponCoordinate = Vector3(X, Y, Z);
 		TempData::t_setMainWeaponCoordinate = true;
 	}
-	//Ö÷ÎäÆ÷´óÐ¡ÉèÖÃ(X×ø±ê,Y×ø±ê,Z×ø±ê)
+	//ä¸»æ­¦å™¨å¤§å°è®¾ç½®(Xåæ ‡,Yåæ ‡,Zåæ ‡)
 	static void SetMainWeaponSize(float X, float Y, float Z) {
 		TempData::t_SetMainWeaponSize = Vector3(X, Y, Z);
 		TempData::t_setMainWeaponSize = true;
 	}
 
-	//½â³ý¸±ÎäÆ÷×ø±ê¿ØÖÆ
+	//è§£é™¤å‰¯æ­¦å™¨åæ ‡æŽ§åˆ¶
 	static void DecontrolSecondaryWeaponCoordinate() {
 		TempData::t_setSecondaryWeaponCoordinate = false;
 	}
-	//½â³ý¸±ÎäÆ÷´óÐ¡¿ØÖÆ
+	//è§£é™¤å‰¯æ­¦å™¨å¤§å°æŽ§åˆ¶
 	static void DecontrolSecondaryWeaponSize() {
 		TempData::t_setSecondaryWeaponSize = false;
 	}
-	//¸±ÎäÆ÷×ø±êÉèÖÃ(X×ø±ê,Y×ø±ê,Z×ø±ê)
+	//å‰¯æ­¦å™¨åæ ‡è®¾ç½®(Xåæ ‡,Yåæ ‡,Zåæ ‡)
 	static void SetSecondaryWeaponCoordinate(float X, float Y, float Z) {
 		TempData::t_SetSecondaryWeaponCoordinate = Vector3(X, Y, Z);
 		TempData::t_setSecondaryWeaponCoordinate = true;
 	}
-	//¸±ÎäÆ÷´óÐ¡ÉèÖÃ(X×ø±ê,Y×ø±ê,Z×ø±ê)
+	//å‰¯æ­¦å™¨å¤§å°è®¾ç½®(Xåæ ‡,Yåæ ‡,Zåæ ‡)
 	static void SetSecondaryWeaponSize(float X, float Y, float Z) {
 		TempData::t_SetSecondaryWeaponSize = Vector3(X, Y, Z);
 		TempData::t_setSecondaryWeaponSize = true;
 	}
 
-	//½â³ýÎäÆ÷Áã¼þ×ø±ê¿ØÖÆ
+	//è§£é™¤æ­¦å™¨é›¶ä»¶åæ ‡æŽ§åˆ¶
 	static void DecontrolPartWeaponCoordinate() {
 		TempData::t_setPartWeaponCoordinate = false;
 	}
-	//½â³ýÎäÆ÷Áã¼þ´óÐ¡¿ØÖÆ
+	//è§£é™¤æ­¦å™¨é›¶ä»¶å¤§å°æŽ§åˆ¶
 	static void DecontrolPartWeaponSize() {
 		TempData::t_setPartWeaponSize = false;
 	}
-	//ÎäÆ÷Áã¼þ×ø±êÉèÖÃ(X×ø±ê,Y×ø±ê,Z×ø±ê)
+	//æ­¦å™¨é›¶ä»¶åæ ‡è®¾ç½®(Xåæ ‡,Yåæ ‡,Zåæ ‡)
 	static void SetPartWeaponCoordinate(float X, float Y, float Z) {
 		TempData::t_SetPartWeaponCoordinate = Vector3(X, Y, Z);
 		TempData::t_setPartWeaponCoordinate = true;
 	}
-	//ÎäÆ÷Áã¼þ´óÐ¡ÉèÖÃ(X×ø±ê,Y×ø±ê,Z×ø±ê)
+	//æ­¦å™¨é›¶ä»¶å¤§å°è®¾ç½®(Xåæ ‡,Yåæ ‡,Zåæ ‡)
 	static void SetPartWeaponSize(float X, float Y, float Z) {
 		TempData::t_SetPartWeaponSize = Vector3(X, Y, Z);
 		TempData::t_setPartWeaponSize = true;
@@ -159,7 +159,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 			for (std::string file_name : LuaCore::getLuaFiles()) {
 				LuaCore::LuaScriptData luae = LuaCore::getLuas()[file_name];
 				if (luae.start) {
-					//»ñÈ¡Íæ¼ÒÎäÆ÷×°ÊÎÎï×ø±ê
+					//èŽ·å–çŽ©å®¶æ­¦å™¨è£…é¥°ç‰©åæ ‡
 					lua_register(luae.L, "GetOrnamentsCoordinate", [](lua_State* pL) -> int
 						{
 							lua_pushnumber(pL, WeaponOrnaments::OrnamentsCoordinate.x);
@@ -167,7 +167,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							lua_pushnumber(pL, WeaponOrnaments::OrnamentsCoordinate.z);
 							return 3;
 						});
-					//»ñÈ¡Íæ¼ÒÎäÆ÷×°ÊÎÎïÄ£ÐÍ´óÐ¡
+					//èŽ·å–çŽ©å®¶æ­¦å™¨è£…é¥°ç‰©æ¨¡åž‹å¤§å°
 					lua_register(luae.L, "GetOrnamentsSize", [](lua_State* pL) -> int
 						{
 							lua_pushnumber(pL, WeaponOrnaments::OrnamentsSize.x);
@@ -175,7 +175,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							lua_pushnumber(pL, WeaponOrnaments::OrnamentsSize.z);
 							return 3;
 						});
-					//ÉèÖÃÍæ¼ÒÎäÆ÷×°ÊÎÎï×ø±ê
+					//è®¾ç½®çŽ©å®¶æ­¦å™¨è£…é¥°ç‰©åæ ‡
 					lua_register(luae.L, "SetOrnamentsCoordinate", [](lua_State* pL) -> int
 						{
 							float x = (float)lua_tonumber(pL, 1);
@@ -184,7 +184,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							WeaponOrnaments::SetOrnamentsCoordinate(x, y, z);
 							return 0;
 						});
-					//ÉèÖÃÍæ¼ÒÎäÆ÷×°ÊÎÎïÄ£ÐÍ´óÐ¡
+					//è®¾ç½®çŽ©å®¶æ­¦å™¨è£…é¥°ç‰©æ¨¡åž‹å¤§å°
 					lua_register(luae.L, "SetOrnamentsSize", [](lua_State* pL) -> int
 						{
 							float x = (float)lua_tonumber(pL, 1);
@@ -193,19 +193,19 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							WeaponOrnaments::SetOrnamentsSize(x, y, z);
 							return 0;
 						});
-					//½â³ýÍæ¼ÒÎäÆ÷×°ÊÎÎï×ø±êÉèÖÃ
+					//è§£é™¤çŽ©å®¶æ­¦å™¨è£…é¥°ç‰©åæ ‡è®¾ç½®
 					lua_register(luae.L, "DecontrolOrnamentsCoordinate", [](lua_State* pL) -> int
 						{
 							WeaponOrnaments::DecontrolOrnamentsCoordinate();
 							return 0;
 						});
-					//½â³ýÍæ¼ÒÎäÆ÷×°ÊÎÎïÄ£ÐÍ´óÐ¡ÉèÖÃ
+					//è§£é™¤çŽ©å®¶æ­¦å™¨è£…é¥°ç‰©æ¨¡åž‹å¤§å°è®¾ç½®
 					lua_register(luae.L, "DecontrolOrnamentsSize", [](lua_State* pL) -> int
 						{
 							WeaponOrnaments::DecontrolOrnamentsSize();
 							return 0;
 						});
-					//»ñÈ¡Íæ¼ÒÖ÷ÎäÆ÷×ø±ê
+					//èŽ·å–çŽ©å®¶ä¸»æ­¦å™¨åæ ‡
 					lua_register(luae.L, "GetMainWeaponCoordinate", [](lua_State* pL) -> int
 						{
 							lua_pushnumber(pL, Weapons::MainWeaponCoordinate.x);
@@ -213,7 +213,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							lua_pushnumber(pL, Weapons::MainWeaponCoordinate.z);
 							return 3;
 						});
-					//»ñÈ¡Íæ¼ÒÖ÷ÎäÆ÷Ä£ÐÍ´óÐ¡
+					//èŽ·å–çŽ©å®¶ä¸»æ­¦å™¨æ¨¡åž‹å¤§å°
 					lua_register(luae.L, "GetMainWeaponSize", [](lua_State* pL) -> int
 						{
 							lua_pushnumber(pL, Weapons::MainWeaponSize.x);
@@ -221,7 +221,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							lua_pushnumber(pL, Weapons::MainWeaponSize.z);
 							return 3;
 						});
-					//ÉèÖÃÍæ¼ÒÖ÷ÎäÆ÷×ø±ê
+					//è®¾ç½®çŽ©å®¶ä¸»æ­¦å™¨åæ ‡
 					lua_register(luae.L, "SetMainWeaponCoordinate", [](lua_State* pL) -> int
 						{
 							float x = (float)lua_tonumber(pL, 1);
@@ -230,7 +230,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							Weapons::SetMainWeaponCoordinate(x, y, z);
 							return 0;
 						});
-					//ÉèÖÃÍæ¼ÒÖ÷ÎäÆ÷Ä£ÐÍ´óÐ¡
+					//è®¾ç½®çŽ©å®¶ä¸»æ­¦å™¨æ¨¡åž‹å¤§å°
 					lua_register(luae.L, "SetMainWeaponSize", [](lua_State* pL) -> int
 						{
 							float x = (float)lua_tonumber(pL, 1);
@@ -239,19 +239,19 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							Weapons::SetMainWeaponSize(x, y, z);
 							return 0;
 						});
-					//½â³ýÍæ¼ÒÖ÷ÎäÆ÷×ø±êÉèÖÃ
+					//è§£é™¤çŽ©å®¶ä¸»æ­¦å™¨åæ ‡è®¾ç½®
 					lua_register(luae.L, "DecontrolMainWeaponCoordinate", [](lua_State* pL) -> int
 						{
 							Weapons::DecontrolMainWeaponCoordinate();
 							return 0;
 						});
-					//½â³ýÍæ¼ÒÖ÷ÎäÆ÷Ä£ÐÍ´óÐ¡ÉèÖÃ
+					//è§£é™¤çŽ©å®¶ä¸»æ­¦å™¨æ¨¡åž‹å¤§å°è®¾ç½®
 					lua_register(luae.L, "DecontrolMainWeaponSize", [](lua_State* pL) -> int
 						{
 							Weapons::DecontrolMainWeaponSize();
 							return 0;
 						});
-					//»ñÈ¡Íæ¼Ò¸±ÎäÆ÷×ø±ê
+					//èŽ·å–çŽ©å®¶å‰¯æ­¦å™¨åæ ‡
 					lua_register(luae.L, "GetSecondaryWeaponCoordinate", [](lua_State* pL) -> int
 						{
 							lua_pushnumber(pL, Weapons::SecondaryWeaponCoordinate.x);
@@ -259,7 +259,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							lua_pushnumber(pL, Weapons::SecondaryWeaponCoordinate.z);
 							return 3;
 						});
-					//»ñÈ¡Íæ¼Ò¸±ÎäÆ÷Ä£ÐÍ´óÐ¡
+					//èŽ·å–çŽ©å®¶å‰¯æ­¦å™¨æ¨¡åž‹å¤§å°
 					lua_register(luae.L, "GetSecondaryWeaponSize", [](lua_State* pL) -> int
 						{
 							lua_pushnumber(pL, Weapons::SecondaryWeaponSize.x);
@@ -267,7 +267,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							lua_pushnumber(pL, Weapons::SecondaryWeaponSize.z);
 							return 3;
 						});
-					//ÉèÖÃÍæ¼Ò¸±ÎäÆ÷×ø±ê
+					//è®¾ç½®çŽ©å®¶å‰¯æ­¦å™¨åæ ‡
 					lua_register(luae.L, "SetSecondaryWeaponCoordinate", [](lua_State* pL) -> int
 						{
 							float x = (float)lua_tonumber(pL, 1);
@@ -276,7 +276,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							Weapons::SetSecondaryWeaponCoordinate(x, y, z);
 							return 0;
 						});
-					//ÉèÖÃÍæ¼Ò¸±ÎäÆ÷Ä£ÐÍ´óÐ¡
+					//è®¾ç½®çŽ©å®¶å‰¯æ­¦å™¨æ¨¡åž‹å¤§å°
 					lua_register(luae.L, "SetSecondaryWeaponSize", [](lua_State* pL) -> int
 						{
 							float x = (float)lua_tonumber(pL, 1);
@@ -285,19 +285,19 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							Weapons::SetSecondaryWeaponSize(x, y, z);
 							return 0;
 						});
-					//½â³ýÍæ¼Ò¸±ÎäÆ÷×ø±êÉèÖÃ
+					//è§£é™¤çŽ©å®¶å‰¯æ­¦å™¨åæ ‡è®¾ç½®
 					lua_register(luae.L, "DecontrolSecondaryWeaponCoordinate", [](lua_State* pL) -> int
 						{
 							Weapons::DecontrolSecondaryWeaponCoordinate();
 							return 0;
 						});
-					//½â³ýÍæ¼Ò¸±ÎäÆ÷Ä£ÐÍ´óÐ¡ÉèÖÃ
+					//è§£é™¤çŽ©å®¶å‰¯æ­¦å™¨æ¨¡åž‹å¤§å°è®¾ç½®
 					lua_register(luae.L, "DecontrolSecondaryWeaponSize", [](lua_State* pL) -> int
 						{
 							Weapons::DecontrolSecondaryWeaponSize();
 							return 0;
 						});
-					//»ñÈ¡Íæ¼ÒÎäÆ÷Áã¼þ×ø±ê
+					//èŽ·å–çŽ©å®¶æ­¦å™¨é›¶ä»¶åæ ‡
 					lua_register(luae.L, "GetPartWeaponCoordinate", [](lua_State* pL) -> int
 						{
 							lua_pushnumber(pL, Weapons::PartWeaponCoordinate.x);
@@ -305,7 +305,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							lua_pushnumber(pL, Weapons::PartWeaponCoordinate.z);
 							return 3;
 						});
-					//»ñÈ¡Íæ¼ÒÎäÆ÷Áã¼þÄ£ÐÍ´óÐ¡
+					//èŽ·å–çŽ©å®¶æ­¦å™¨é›¶ä»¶æ¨¡åž‹å¤§å°
 					lua_register(luae.L, "GetPartWeaponSize", [](lua_State* pL) -> int
 						{
 							lua_pushnumber(pL, Weapons::PartWeaponSize.x);
@@ -313,7 +313,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							lua_pushnumber(pL, Weapons::PartWeaponSize.z);
 							return 3;
 						});
-					//ÉèÖÃÍæ¼ÒÎäÆ÷Áã¼þ×ø±ê
+					//è®¾ç½®çŽ©å®¶æ­¦å™¨é›¶ä»¶åæ ‡
 					lua_register(luae.L, "SetPartWeaponCoordinate", [](lua_State* pL) -> int
 						{
 							float x = (float)lua_tonumber(pL, 1);
@@ -322,7 +322,7 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							Weapons::SetPartWeaponCoordinate(x, y, z);
 							return 0;
 						});
-					//ÉèÖÃÍæ¼ÒÎäÆ÷Áã¼þÄ£ÐÍ´óÐ¡
+					//è®¾ç½®çŽ©å®¶æ­¦å™¨é›¶ä»¶æ¨¡åž‹å¤§å°
 					lua_register(luae.L, "SetPartWeaponSize", [](lua_State* pL) -> int
 						{
 							float x = (float)lua_tonumber(pL, 1);
@@ -331,13 +331,13 @@ DWORD WINAPI AttachThread(LPVOID lParam) {
 							Weapons::SetPartWeaponSize(x, y, z);
 							return 0;
 						});
-					//½â³ýÍæ¼ÒÎäÆ÷Áã¼þ×ø±êÉèÖÃ
+					//è§£é™¤çŽ©å®¶æ­¦å™¨é›¶ä»¶åæ ‡è®¾ç½®
 					lua_register(luae.L, "DecontrolPartWeaponCoordinate", [](lua_State* pL) -> int
 						{
 							Weapons::DecontrolPartWeaponCoordinate();
 							return 0;
 						});
-					//½â³ýÍæ¼ÒÎäÆ÷Áã¼þÄ£ÐÍ´óÐ¡ÉèÖÃ
+					//è§£é™¤çŽ©å®¶æ­¦å™¨é›¶ä»¶æ¨¡åž‹å¤§å°è®¾ç½®
 					lua_register(luae.L, "DecontrolPartWeaponSize", [](lua_State* pL) -> int
 						{
 							Weapons::DecontrolPartWeaponSize();

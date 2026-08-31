@@ -13,11 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(简体，中国) resources
+// 涓枃(绠�浣擄紝涓浗) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
-#pragma code_page(936)
+#pragma code_page(65001)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -51,8 +51,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,3,0,582
- PRODUCTVERSION 1,3,0,582
+ FILEVERSION 1,3,2,0
+ PRODUCTVERSION 1,3,2,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -67,12 +67,12 @@ BEGIN
     BEGIN
         BLOCK "080404b0"
         BEGIN
-            VALUE "FileVersion", "1.3.0.582"
+            VALUE "FileVersion", "1.3.2.0"
             VALUE "InternalName", "LuaEngin.dll"
             VALUE "LegalCopyright", "Copyright (C) 2023 Alcedo"
             VALUE "OriginalFilename", "LuaEngin.dll"
             VALUE "ProductName", "LuaEngin"
-            VALUE "ProductVersion", "1.3.0.582"
+            VALUE "ProductVersion", "1.3.2.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -81,7 +81,7 @@ BEGIN
     END
 END
 
-#endif    // 中文(简体，中国) resources
+#endif    // 涓枃(绠�浣擄紝涓浗) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

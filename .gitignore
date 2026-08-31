@@ -23,6 +23,8 @@ mono_crash.*
 [Rr]eleases/
 x64/
 x86/
+build-cmake/
+cmake-build*/
 lib/
 build/
 [Aa][Rr][Mm]/

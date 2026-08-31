@@ -2,27 +2,30 @@
 #include "lua_register.h"
 
 /// <summary>
-/// Îª FFI µ÷ÓÃÌá¹©µÄ¼æÈİ²ã
+/// ä¸º FFI è°ƒç”¨æä¾›çš„å…¼å®¹å±‚
 /// </summary>
 extern "C" {
 	/// <summary>
-	/// ÎªËùÓĞ lua_State ×¢²áÒ»¸öÈ«¾Öº¯Êı
+	/// ä¸ºæ‰€æœ‰ lua_State æ³¨å†Œä¸€ä¸ªå…¨å±€å‡½æ•°
 	/// </summary>
 	DllExport void LuaCoreAddFunction(const char* name, lua_CFunction func) {
 		engine_logger->info("adding external function " + (string)name);
+		// å¤–éƒ¨æ’ä»¶å¯èƒ½åœ¨åŠ è½½çº¿ç¨‹è°ƒç”¨,ä¸ applyExternalChange çš„éå†äº’æ–¥
+		std::lock_guard<std::recursive_mutex> luaLock(LuaEngine::LuaMutex());
 		LuaExternalData::StatelessFunctions[name] = func;
 	}
 
 	/// <summary>
-	/// ÎªËùÓĞ lua_State ×¢²áÒ»¸ö×Ô¶¨Òå»Øµ÷º¯Êı
+	/// ä¸ºæ‰€æœ‰ lua_State æ³¨å†Œä¸€ä¸ªè‡ªå®šä¹‰å›è°ƒå‡½æ•°
 	/// </summary>
 	DllExport void LuaCoreAddStateProcessor(StatesProcessor processor) {
 		engine_logger->info("adding external processor");
+		std::lock_guard<std::recursive_mutex> luaLock(LuaEngine::LuaMutex());
 		LuaExternalData::AllStatesProcessor.push_back(processor);
 	}
 
 	/// <summary>
-	/// ×¢²á×é¼şĞÅÏ¢
+	/// æ³¨å†Œç»„ä»¶ä¿¡æ¯
 	/// </summary>
 	DllExport void RegComponent(const char* name, int state) {
 		engine_logger->info(format("received register signal from {} (state = {})", name, state));
@@ -31,18 +34,18 @@ extern "C" {
 	}
 
 	/// <summary>
-	/// <para>Êä³öÈÕÖ¾</para>
+	/// <para>è¾“å‡ºæ—¥å¿—</para>
 	/// 
-	/// ÈÕÖ¾µÈ¼¶£º
+	/// æ—¥å¿—ç­‰çº§ï¼š
 	/// <para>0 -> DEBUG</para>
 	/// <para>1 -> INFO</para>
 	/// <para>2 -> WARN</para>
 	/// <para>3 -> ERROR</para>
 	/// </summary>
 	/// <param name="level">
-	/// ÈÕÖ¾µÈ¼¶
+	/// æ—¥å¿—ç­‰çº§
 	/// </param>
-	/// <param name="content">ÈÕÖ¾ÄÚÈİ</param>
+	/// <param name="content">æ—¥å¿—å†…å®¹</param>
 	DllExport void Log(int level, const char* content) {
 		switch (level)
 		{

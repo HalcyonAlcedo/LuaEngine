@@ -870,6 +870,10 @@ public:
     /// @brief Check if the hook is enabled.
     [[nodiscard]] bool enabled() const { return m_hook.enabled(); }
 
+    /// @brief Get a pointer to the stub (LuaEngine addition: used to map each
+    /// hook's stub call-site back to its target at dispatch time).
+    [[nodiscard]] uint8_t* stub() const { return m_stub.data(); }
+
 private:
     InlineHook m_hook{};
     uint8_t* m_target{};

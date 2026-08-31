@@ -14,6 +14,31 @@
     方法
     AimPosition             使得玩家朝向点
 ]]
+
+--[[
+本模块内部使用的安全封装:GetAddress / GetAddressData 失败时返回 0(数字)
+而非 false,保证地址未初始化阶段(游戏启动/切图)所有算术表达式安全求值。
+仅遮蔽本模块作用域,对外注册的原始 API 与用户脚本不受影响;
+bool 类型在有效地址上读到的真实布尔值原样保留。
+]]
+local _GetAddress = GetAddress
+local GetAddress = function(base, ...)
+    local r = _GetAddress(base, ...)
+    if r == false then return 0 end
+    return r
+end
+local _GetAddressData = GetAddressData
+local GetAddressData = function(addr, t)
+    if type(addr) ~= 'number' or addr < 0x10000 then
+        return 0 -- 无效地址(失败链路的 0 值算术结果),直接降级为 0
+    end
+    local r = _GetAddressData(addr, t)
+    if r == false and t ~= 'bool' then
+        return 0 -- 有效地址但读取失败(指针悬挂等),降级为 0
+    end
+    return r
+end
+
 engine_player = {
     info = {
         name = 'Player'
@@ -151,73 +176,81 @@ local pointer = {
 
 --获取玩家坐标
 function engine_player:getPlayerPosition()
-    if not pointer:Player() then return { x = 0, y = 0, z = 0 } end
+    local Player = pointer:Player()
+    if not Player then return { x = 0, y = 0, z = 0 } end
     return {
-        x = GetAddressData(pointer:Player() + 0x160, 'float'),
-        y = GetAddressData(pointer:Player() + 0x164, 'float'),
-        z = GetAddressData(pointer:Player() + 0x168, 'float')
+        x = GetAddressData(Player + 0x160, 'float'),
+        y = GetAddressData(Player + 0x164, 'float'),
+        z = GetAddressData(Player + 0x168, 'float')
     }
 end
 
 --获取玩家中心点坐标
 function engine_player:getPlayerCNTRPosition()
-    if not pointer:Player() then return { x = 0, y = 0, z = 0, h = 0 } end
+    local Player = pointer:Player()
+    if not Player then return { x = 0, y = 0, z = 0, h = 0 } end
     return {
-        x = GetAddressData(pointer:Player() + 0x390, 'float'),
-        y = GetAddressData(pointer:Player() + 0x394, 'float'),
-        z = GetAddressData(pointer:Player() + 0x398, 'float'),
-        h = GetAddressData(pointer:Player() + 0x39c, 'float')
+        x = GetAddressData(Player + 0x390, 'float'),
+        y = GetAddressData(Player + 0x394, 'float'),
+        z = GetAddressData(Player + 0x398, 'float'),
+        h = GetAddressData(Player + 0x39c, 'float')
     }
 end
 
 --获取遣返坐标
 function engine_player:getPlayerRepatriatePos()
-    if not pointer:Player() then return { x = 0, y = 0, z = 0 } end
+    local Player = pointer:Player()
+    if not Player then return { x = 0, y = 0, z = 0 } end
     return {
-        x = GetAddressData(pointer:Player() + 0xA50, 'float'),
-        y = GetAddressData(pointer:Player() + 0xA54, 'float'),
-        z = GetAddressData(pointer:Player() + 0xA58, 'float')
+        x = GetAddressData(Player + 0xA50, 'float'),
+        y = GetAddressData(Player + 0xA54, 'float'),
+        z = GetAddressData(Player + 0xA58, 'float')
     }
 end
 
 --获取运动增量坐标
 function engine_player:getPlayerIncrementalPos()
-    if not GetAddress(pointer:Player(), { 0x468 }) then return { x = 0, y = 0, z = 0 } end
+    local Player = pointer:Player()
+    local p468 = GetAddress(Player, { 0x468 })
+    if not p468 then return { x = 0, y = 0, z = 0 } end
     return {
-        x = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0xe250, 'float'),
-        y = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0xe254, 'float'),
-        z = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0xe258, 'float'),
+        x = GetAddressData(p468 + 0xe250, 'float'),
+        y = GetAddressData(p468 + 0xe254, 'float'),
+        z = GetAddressData(p468 + 0xe258, 'float'),
     }
 end
 
 --获取玩家模型大小
 function engine_player:getPlayerModelSize()
-    if not pointer:Player() then return { x = 0, y = 0, z = 0 } end
+    local Player = pointer:Player()
+    if not Player then return { x = 0, y = 0, z = 0 } end
     return {
-        x = GetAddressData(pointer:Player() + 0x180, 'float'),
-        y = GetAddressData(pointer:Player() + 0x184, 'float'),
-        z = GetAddressData(pointer:Player() + 0x188, 'float')
+        x = GetAddressData(Player + 0x180, 'float'),
+        y = GetAddressData(Player + 0x184, 'float'),
+        z = GetAddressData(Player + 0x188, 'float')
     }
 end
 
 --获取玩家准星指向坐标
 function engine_player:getPlayerCollimatorPos()
-    if not pointer:Player() then return { x = 0, y = 0, z = 0 } end
+    local Player = pointer:Player()
+    if not Player then return { x = 0, y = 0, z = 0 } end
     return {
-        x = GetAddressData(pointer:Player() + 0x7D30, 'float'),
-        y = GetAddressData(pointer:Player() + 0x7D34, 'float'),
-        z = GetAddressData(pointer:Player() + 0x7D38, 'float')
+        x = GetAddressData(Player + 0x7D30, 'float'),
+        y = GetAddressData(Player + 0x7D34, 'float'),
+        z = GetAddressData(Player + 0x7D38, 'float')
     }
 end
 
 --获取玩家四元数角
 function engine_player:getPlayerQuaternion()
-    if not pointer:Player() then return { x = 0, y = 0, z = 0, w = 0 } end
+    local Player = pointer:Player()
+    if not Player then return { x = 0, y = 0, z = 0, w = 0 } end
     return {
-        w = GetAddressData(pointer:Player() + 0x170, 'float'),
-        x = GetAddressData(pointer:Player() + 0x174, 'float'),
-        y = GetAddressData(pointer:Player() + 0x178, 'float'),
-        z = GetAddressData(pointer:Player() + 0x17c, 'float')
+        w = GetAddressData(Player + 0x170, 'float'),
+        x = GetAddressData(Player + 0x174, 'float'),
+        y = GetAddressData(Player + 0x178, 'float'),
+        z = GetAddressData(Player + 0x17c, 'float')
     }
 end
 
@@ -242,35 +275,39 @@ end
 
 --获取玩家抛物线准星指向坐标
 function engine_player:getPlayerParabolaCollimatorPos()
-    if not pointer:Player() then return { x = 0, y = 0, z = 0 } end
+    local Player = pointer:Player()
+    if not Player then return { x = 0, y = 0, z = 0 } end
     return {
-        x = GetAddressData(pointer:Player() + 0x7D40, 'float'),
-        y = GetAddressData(pointer:Player() + 0x7D44, 'float'),
-        z = GetAddressData(pointer:Player() + 0x7D48, 'float')
+        x = GetAddressData(Player + 0x7D40, 'float'),
+        y = GetAddressData(Player + 0x7D44, 'float'),
+        z = GetAddressData(Player + 0x7D48, 'float')
     }
 end
 
 --获取玩家瞄准状态
 function engine_player:getPlayerAimingState()
-    if not pointer:Player() then return false end
-    return GetAddressData(GetAddress(pointer:Player(), { 0xC0 }) + 0xC28, 'bool')
+    local Player = pointer:Player()
+    if not Player then return false end
+    return GetAddressData(GetAddress(Player, { 0xC0 }) + 0xC28, 'bool')
 end
 
 --获取玩家武器数据
 function engine_player:getPlayerWeaponInfo()
     --地址检查
-    if pointer.Weapon:Entity() and pointer.Weapon:Data() then
+    local WeaponEntity = pointer.Weapon:Entity()
+    local WeaponData = pointer.Weapon:Data()
+    if WeaponEntity and WeaponData then
         local player_weapon_info = {
             --武器坐标
             position = {
-                x = GetAddressData(pointer.Weapon:Entity() + 0x160, 'float'),
-                y = GetAddressData(pointer.Weapon:Entity() + 0x164, 'float'),
-                z = GetAddressData(pointer.Weapon:Entity() + 0x168, 'float')
+                x = GetAddressData(WeaponEntity + 0x160, 'float'),
+                y = GetAddressData(WeaponEntity + 0x164, 'float'),
+                z = GetAddressData(WeaponEntity + 0x168, 'float')
             },
             --武器类型
-            type = GetAddressData(pointer.Weapon:Data() + 0x2E8, 'int'),
+            type = GetAddressData(WeaponData + 0x2E8, 'int'),
             --武器Id
-            id = GetAddressData(pointer.Weapon:Data() + 0x2EC, 'int'),
+            id = GetAddressData(WeaponData + 0x2EC, 'int'),
             --武器命中的怪物地址
             hit = GetAddress(pointer:Player(), { 0x12958 })
         }
@@ -293,92 +330,97 @@ end
 
 --获取玩家装备信息
 function engine_player:getPlayerArmorInfo()
-    if not pointer.Weapon:Entity() then return { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 } end
+    local WeaponEntity = pointer.Weapon:Entity()
+    local WeaponData = pointer.Weapon:Data()
+    if not WeaponEntity then return { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 } end
     return {
         --头id
-        head = GetAddressData(pointer.Weapon:Data() + 0x1C4, 'int'),
+        head = GetAddressData(WeaponData + 0x1C4, 'int'),
         --胸id
-        chest = GetAddressData(pointer.Weapon:Data() + 0x1C8, 'int'),
+        chest = GetAddressData(WeaponData + 0x1C8, 'int'),
         --手id
-        arm = GetAddressData(pointer.Weapon:Data() + 0x1CC, 'int'),
+        arm = GetAddressData(WeaponData + 0x1CC, 'int'),
         --腰id
-        waist = GetAddressData(pointer.Weapon:Data() + 0x1D0, 'int'),
+        waist = GetAddressData(WeaponData + 0x1D0, 'int'),
         --鞋id
-        leg = GetAddressData(pointer.Weapon:Data() + 0x1D4, 'int'),
+        leg = GetAddressData(WeaponData + 0x1D4, 'int'),
     }
 end
 
 --获取玩家幻化信息
 function engine_player:getPlayerLayeredInfo()
-    if not pointer:PlayerSaveData() then return { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 } end
+    local PlayerSaveData = pointer:PlayerSaveData()
+    if not PlayerSaveData then return { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 } end
     return {
         --头id
-        layeredHead = GetAddressData(pointer:PlayerSaveData() + 0xE7434, 'int'),
+        layeredHead = GetAddressData(PlayerSaveData + 0xE7434, 'int'),
         --胸id
-        layeredChest = GetAddressData(pointer:PlayerSaveData() + 0xE7438, 'int'),
+        layeredChest = GetAddressData(PlayerSaveData + 0xE7438, 'int'),
         --手id
-        layeredArm = GetAddressData(pointer:PlayerSaveData() + 0xE743C, 'int'),
+        layeredArm = GetAddressData(PlayerSaveData + 0xE743C, 'int'),
         --腰id
-        layeredWaist = GetAddressData(pointer:PlayerSaveData() + 0xE7440, 'int'),
+        layeredWaist = GetAddressData(PlayerSaveData + 0xE7440, 'int'),
         --鞋id
-        layeredLeg = GetAddressData(pointer:PlayerSaveData() + 0xE7444, 'int'),
+        layeredLeg = GetAddressData(PlayerSaveData + 0xE7444, 'int'),
     }
 end
 
 --获取玩家临时装备信息
 function engine_player:getPlayerTempArmorDataInfo()
-    if not pointer:Player() then
+    local Player = pointer:Player()
+    if not Player then
         return {
             layered = { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 },
             Armor = { head = 0, chest = 0, arm = 0, waist = 0, leg = 0 },
             colour = { head = { r = 0, g = 0, b = 0, a = 0 }, chest = { r = 0, g = 0, b = 0, a = 0 }, arm = { r = 0, g = 0, b = 0, a = 0 }, waist = { r = 0, g = 0, b = 0, a = 0 }, leg = { r = 0, g = 0, b = 0, a = 0 } }
         }
     end
+    local armorAddr = GetAddress(Player, { 0x12610 })
     return {
         armor = {
-            head = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xCC, 'int'),
-            chest = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xD0, 'int'),
-            arm = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xD4, 'int'),
-            waist = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xD8, 'int'),
-            leg = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xDC, 'int')
+            head = GetAddressData(armorAddr + 0xCC, 'int'),
+            chest = GetAddressData(armorAddr + 0xD0, 'int'),
+            arm = GetAddressData(armorAddr + 0xD4, 'int'),
+            waist = GetAddressData(armorAddr + 0xD8, 'int'),
+            leg = GetAddressData(armorAddr + 0xDC, 'int')
         },
         layered = {
-            head = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xE4, 'int'),
-            chest = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xE8, 'int'),
-            arm = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xEC, 'int'),
-            waist = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xF0, 'int'),
-            leg = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xF4, 'int')
+            head = GetAddressData(armorAddr + 0xE4, 'int'),
+            chest = GetAddressData(armorAddr + 0xE8, 'int'),
+            arm = GetAddressData(armorAddr + 0xEC, 'int'),
+            waist = GetAddressData(armorAddr + 0xF0, 'int'),
+            leg = GetAddressData(armorAddr + 0xF4, 'int')
         },
         colour = {
             head = {
-                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x170, 'float'),
-                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x174, 'float'),
-                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x178, 'float'),
-                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x17C, 'float')
+                r = GetAddressData(armorAddr + 0x170, 'float'),
+                g = GetAddressData(armorAddr + 0x174, 'float'),
+                b = GetAddressData(armorAddr + 0x178, 'float'),
+                a = GetAddressData(armorAddr + 0x17C, 'float')
             },
             chest = {
-                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x180, 'float'),
-                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x184, 'float'),
-                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x188, 'float'),
-                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x18C, 'float')
+                r = GetAddressData(armorAddr + 0x180, 'float'),
+                g = GetAddressData(armorAddr + 0x184, 'float'),
+                b = GetAddressData(armorAddr + 0x188, 'float'),
+                a = GetAddressData(armorAddr + 0x18C, 'float')
             },
             arm = {
-                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x190, 'float'),
-                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x194, 'float'),
-                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x198, 'float'),
-                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x19C, 'float')
+                r = GetAddressData(armorAddr + 0x190, 'float'),
+                g = GetAddressData(armorAddr + 0x194, 'float'),
+                b = GetAddressData(armorAddr + 0x198, 'float'),
+                a = GetAddressData(armorAddr + 0x19C, 'float')
             },
             waist = {
-                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1A0, 'float'),
-                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1A4, 'float'),
-                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1A8, 'float'),
-                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1AC, 'float')
+                r = GetAddressData(armorAddr + 0x1A0, 'float'),
+                g = GetAddressData(armorAddr + 0x1A4, 'float'),
+                b = GetAddressData(armorAddr + 0x1A8, 'float'),
+                a = GetAddressData(armorAddr + 0x1AC, 'float')
             },
             leg = {
-                r = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1B0, 'float'),
-                g = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1B4, 'float'),
-                b = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1B8, 'float'),
-                a = GetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0x1BC, 'float')
+                r = GetAddressData(armorAddr + 0x1B0, 'float'),
+                g = GetAddressData(armorAddr + 0x1B4, 'float'),
+                b = GetAddressData(armorAddr + 0x1B8, 'float'),
+                a = GetAddressData(armorAddr + 0x1BC, 'float')
             }
         }
     }
@@ -386,7 +428,8 @@ end
 
 --获取玩家状态信息
 function engine_player:getPlayerCharacteristic()
-    if not pointer:Player() then
+    local Player = pointer:Player()
+    if not Player then
         return {
             health = {
                 health_base = 0,
@@ -400,23 +443,25 @@ function engine_player:getPlayerCharacteristic()
             }
         }
     end
+    local healthAddr = GetAddress(Player, { 0x7630 })
     return {
         health = {
             health_base = GetAddressData(pointer:Player() + 0x7628, 'float'),
-            health_current = GetAddressData(GetAddress(pointer:Player(), { 0x7630 }) + 0x64, 'float'),
-            health_max = GetAddressData(GetAddress(pointer:Player(), { 0x7630 }) + 0x60, 'float'),
+            health_current = GetAddressData(healthAddr + 0x64, 'float'),
+            health_max = GetAddressData(healthAddr + 0x60, 'float'),
         },
         stamina = {
-            stamina_current = GetAddressData(GetAddress(pointer:Player(), { 0x7630 }) + 0x12C, 'float'),
-            stamina_max = GetAddressData(GetAddress(pointer:Player(), { 0x7630 }) + 0x134, 'float'),
-            stamina_eat = GetAddressData(GetAddress(pointer:Player(), { 0x7630 }) + 0x13C, 'float'),
+            stamina_current = GetAddressData(healthAddr + 0x12C, 'float'),
+            stamina_max = GetAddressData(healthAddr + 0x134, 'float'),
+            stamina_eat = GetAddressData(healthAddr + 0x13C, 'float'),
         }
     }
 end
 
 --获取玩家动作信息
 function engine_player:getPlayerActionInfo()
-    if not pointer:Player() then
+    local Player = pointer:Player()
+    if not Player then
         return {
             lmtID = 0,
             fsm = {
@@ -427,18 +472,19 @@ function engine_player:getPlayerActionInfo()
         }
     end
     return {
-        lmtID = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0xE9C4, 'int'),
+        lmtID = GetAddressData(GetAddress(Player, { 0x468 }) + 0xE9C4, 'int'),
         fsm = {
-            fsmID = GetAddressData(pointer:Player() + 0x6278, 'int'),
-            fsmTarget = GetAddressData(pointer:Player() + 0x6274, 'int')
+            fsmID = GetAddressData(Player + 0x6278, 'int'),
+            fsmTarget = GetAddressData(Player + 0x6274, 'int')
         },
-        useItem = GetAddressData(pointer:Player() + 0xb780, 'int')
+        useItem = GetAddressData(Player + 0xb780, 'int')
     }
 end
 
 --获取重力信息
 function engine_player:getPlayerGravityInfo()
-    if not pointer:Player() then
+    local Player = pointer:Player()
+    if not Player then
         return {
             gravity = 0,
             fall = 0,
@@ -446,15 +492,16 @@ function engine_player:getPlayerGravityInfo()
         }
     end
     return {
-        gravity = GetAddressData(pointer:Player() + 0x14B0, 'float'),
-        fall = GetAddressData(pointer:Player() + 0xE178, 'float'),
-        liftoff = GetAddressData(pointer:Player() + 0x112C, 'bool')
+        gravity = GetAddressData(Player + 0x14B0, 'float'),
+        fall = GetAddressData(Player + 0xE178, 'float'),
+        liftoff = GetAddressData(Player + 0x112C, 'bool')
     }
 end
 
 --获取动作帧信息
 function engine_player:getPlayerFrameInfo()
-    if not pointer:Player() then
+    local Player = pointer:Player()
+    if not Player then
         return {
             frame = 0,
             frameEnd = 0,
@@ -462,62 +509,64 @@ function engine_player:getPlayerFrameInfo()
             frameSpeedMultiplies = 0
         }
     end
+    local p468 = GetAddress(Player, { 0x468 })
     return {
-        frame = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x10C, 'float'),
-        frameEnd = GetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x114, 'float'),
-        frameSpeed = GetAddressData(pointer:Player() + 0x6c, 'float'),
+        frame = GetAddressData(p468 + 0x10C, 'float'),
+        frameEnd = GetAddressData(p468 + 0x114, 'float'),
+        frameSpeed = GetAddressData(Player + 0x6c, 'float'),
         frameSpeedMultiplies = GetAddressData(
-            GetAddressData(0x1451238C8, 'int') + GetAddressData(pointer:Player() + 0x10, 'int') * 0xf8 + 0x9c, 'float')
+            GetAddressData(0x1451238C8, 'int') + GetAddressData(Player + 0x10, 'int') * 0xf8 + 0x9c, 'float')
     }
 end
 
 --监听
 local function traceHandle(k, v)
+    local Player = pointer:Player()
     --耐力修改
     if k == 'stamina_current' then
-        SetAddressData(GetAddress(pointer:Player(), { 0x7630 }) + 0x12C, 'float', v)
+        SetAddressData(GetAddress(Player, { 0x7630 }) + 0x12C, 'float', v)
         return
     end
     if k == 'stamina_max' then
-        SetAddressData(GetAddress(pointer:Player(), { 0x7630 }) + 0x134, 'float', v)
+        SetAddressData(GetAddress(Player, { 0x7630 }) + 0x134, 'float', v)
         return
     end
     --健康修改
     if k == 'health_base' then
-        SetAddressData(pointer:Player() + 0x7628, 'float', v)
+        SetAddressData(Player + 0x7628, 'float', v)
         return
     end
     if k == 'health_current' then
-        SetAddressData(GetAddress(pointer:Player(), { 0x7630 }) + 0x64, 'float', v)
+        SetAddressData(GetAddress(Player, { 0x7630 }) + 0x64, 'float', v)
         return
     end
     --坐标修改
     if k == 'position' then
-        SetAddressData(pointer:Player() + 0x160, 'float', v.x)
-        SetAddressData(pointer:Player() + 0x164, 'float', v.y)
-        SetAddressData(pointer:Player() + 0x168, 'float', v.z)
+        SetAddressData(Player + 0x160, 'float', v.x)
+        SetAddressData(Player + 0x164, 'float', v.y)
+        SetAddressData(Player + 0x168, 'float', v.z)
         return
     end
     --遣返坐标修改
     if k == 'reposition' then
-        SetAddressData(pointer:Player() + 0xA50, 'float', v.x)
-        SetAddressData(pointer:Player() + 0xA54, 'float', v.y)
-        SetAddressData(pointer:Player() + 0xA58, 'float', v.z)
+        SetAddressData(Player + 0xA50, 'float', v.x)
+        SetAddressData(Player + 0xA54, 'float', v.y)
+        SetAddressData(Player + 0xA58, 'float', v.z)
         return
     end
     --模型大小修改
     if k == 'size' then
-        SetAddressData(pointer:Player() + 0x180, 'float', v.x)
-        SetAddressData(pointer:Player() + 0x184, 'float', v.y)
-        SetAddressData(pointer:Player() + 0x188, 'float', v.z)
+        SetAddressData(Player + 0x180, 'float', v.x)
+        SetAddressData(Player + 0x184, 'float', v.y)
+        SetAddressData(Player + 0x188, 'float', v.z)
         return
     end
     --四元数角修改
     if k == 'Quaternion' then
-        SetAddressData(pointer:Player() + 0x170, 'float', v.w)
-        SetAddressData(pointer:Player() + 0x174, 'float', v.x)
-        SetAddressData(pointer:Player() + 0x178, 'float', v.y)
-        SetAddressData(pointer:Player() + 0x17c, 'float', v.z)
+        SetAddressData(Player + 0x170, 'float', v.w)
+        SetAddressData(Player + 0x174, 'float', v.x)
+        SetAddressData(Player + 0x178, 'float', v.y)
+        SetAddressData(Player + 0x17c, 'float', v.z)
     end
     --动作修改
     if k == 'lmtID' then
@@ -530,49 +579,49 @@ local function traceHandle(k, v)
     end
     --重力修改
     if k == 'gravity' then
-        SetAddressData(pointer:Player() + 0x14B0, 'float', v)
+        SetAddressData(Player + 0x14B0, 'float', v)
         return
     end
     if k == 'fall' then
-        SetAddressData(pointer:Player() + 0xE178, 'float', v)
+        SetAddressData(Player + 0xE178, 'float', v)
         return
     end
     --动作帧修改
     if k == 'frame' then
-        SetAddressData(GetAddress(pointer:Player(), { 0x468 }) + 0x10C, 'float', v)
+        SetAddressData(GetAddress(Player, { 0x468 }) + 0x10C, 'float', v)
         return
     end
     --动作帧速率倍率修改
     if k == 'frameSpeedMultiplies' then
         SetAddressData(
-            GetAddressData(0x1451238C8, 'int') + GetAddressData(pointer:Player() + 0x10, 'int') * 0xf8 + 0x9c
+            GetAddressData(0x1451238C8, 'int') + GetAddressData(Player + 0x10, 'int') * 0xf8 + 0x9c
             , 'float', v)
         return
     end
     --幻化
     if k == 'layeredHead' then
         SetAddressData(pointer:PlayerSaveData() + 0xE7434, 'int', v)
-        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xE4, 'int', v)
+        SetAddressData(GetAddress(Player, { 0x12610 }) + 0xE4, 'int', v)
         RefreshEquip()
     end
     if k == 'layeredChest' then
         SetAddressData(pointer:PlayerSaveData() + 0xE7438, 'int', v)
-        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xE8, 'int', v)
+        SetAddressData(GetAddress(Player, { 0x12610 }) + 0xE8, 'int', v)
         RefreshEquip()
     end
     if k == 'layeredArm' then
         SetAddressData(pointer:PlayerSaveData() + 0xE743C, 'int', v)
-        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xEC, 'int', v)
+        SetAddressData(GetAddress(Player, { 0x12610 }) + 0xEC, 'int', v)
         RefreshEquip()
     end
     if k == 'layeredWaist' then
         SetAddressData(pointer:PlayerSaveData() + 0xE7440, 'int', v)
-        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xF0, 'int', v)
+        SetAddressData(GetAddress(Player, { 0x12610 }) + 0xF0, 'int', v)
         RefreshEquip()
     end
     if k == 'layeredLeg' then
         SetAddressData(pointer:PlayerSaveData() + 0xE7444, 'int', v)
-        SetAddressData(GetAddress(pointer:Player(), { 0x12610 }) + 0xF4, 'int', v)
+        SetAddressData(GetAddress(Player, { 0x12610 }) + 0xF4, 'int', v)
         RefreshEquip()
     end
 end
@@ -674,17 +723,20 @@ end
 function engine_player:new()
     local o = {}
 
-    --获取基址
-    if aob_Save == nil or aob_player == nil then
-        aob_Save = SearchPattern({ 0xE0, 0x9E, "??", "??", 0x00, 0x00, 0x00, 0x00, 0x68 })
-        aob_player = SearchPattern({ 0x20, 0x67, "??", "??", 0x00, 0x00, 0x00, 0x00 })
-    end
-
-    if aob_Save == nil or not aob_Save then
-        aob_Save = 0x145013950
-    end
-    if aob_player == nil or not aob_player then
-        aob_player = 0x1450139A0
+    --获取基址(扫描结果缓存到全局变量,跨脚本状态共享,避免每个状态重复全模块扫描)
+    aob_Save = GlobalVariable_int('Engine_aob_Save')
+    aob_player = GlobalVariable_int('Engine_aob_Player')
+    if aob_Save == 0 or aob_player == 0 then
+        if aob_Save == 0 then
+            aob_Save = SearchPattern({ 0xE0, 0x9E, "??", "??", 0x00, 0x00, 0x00, 0x00, 0x68 })
+            if not aob_Save then aob_Save = 0x145013950 end
+            setGlobalVariable_int('Engine_aob_Save', aob_Save)
+        end
+        if aob_player == 0 then
+            aob_player = SearchPattern({ 0x20, 0x67, "??", "??", 0x00, 0x00, 0x00, 0x00 })
+            if not aob_player then aob_player = 0x1450139A0 end
+            setGlobalVariable_int('Engine_aob_Player', aob_player)
+        end
     end
 
     --玩家坐标

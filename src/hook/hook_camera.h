@@ -1,4 +1,5 @@
 #pragma once
+#include "game_utils.h"
 
 #pragma region camera
 namespace hook_camera {
@@ -23,10 +24,13 @@ namespace hook_camera {
 	CameraData Camera;
 	SafetyHookMid g_hook_visual;
 	static void Hook() {
-		framework_logger->info("´´½¨Ïà»ú²Ù×÷¹³×Ó");
+		framework_logger->info("åˆ›å»ºç›¸æœºæ“ä½œé’©å­");
 		g_hook_visual = safetyhook::create_mid(MH::Player::Visual,
 			+[](SafetyHookContext& ctx) {
 				void* rcx = reinterpret_cast<void*>(ctx.rcx);
+				// rcx å¯èƒ½ä¸ºç©ºæˆ–æŒ‡å‘å·²é‡Šæ”¾å¯¹è±¡(åœºæ™¯åˆ‡æ¢ç­‰),å…ˆæ ¡éªŒå†è§£å¼•ç”¨
+				if (rcx == nullptr || !utils::IsMemoryReadable(rcx, 0x20))
+					return;
 				Camera.position_x = *offsetPtr<float>(rcx, 0x10);
 				Camera.position_y = *offsetPtr<float>(rcx, 0x14);
 				Camera.position_z = *offsetPtr<float>(rcx, 0x18);
@@ -38,7 +42,7 @@ namespace hook_camera {
 			});
 	}
 	static void Registe(lua_State* L) {
-		engine_logger->info("×¢²áÏà»úÏà¹Øº¯Êı");
+		engine_logger->info("æ³¨å†Œç›¸æœºç›¸å…³å‡½æ•°");
 		lua_register(L, "GetCameraData", [](lua_State* pL) -> int
 			{
 				lua_pushnumber(pL, Camera.position_x);

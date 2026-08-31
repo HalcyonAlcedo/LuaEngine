@@ -1,9 +1,9 @@
 #include "CircularBufferLogger.h"
 
-// ¹¹Ôìº¯Êı
+// æ„é€ å‡½æ•°
 CircularBufferLogger::CircularBufferLogger(size_t bufferSize)
     : bufferSize_(bufferSize) {
-    // ´´½¨ log Ä¿Â¼
+    // åˆ›å»º log ç›®å½•
     std::filesystem::create_directory("logs");
 }
 
@@ -18,34 +18,46 @@ void CircularBufferLogger::logOperation(const std::string& scriptName, const std
     record.message = message;
     record.customData = customData;
 
-    // ½«¼ÇÂ¼Ìí¼Óµ½¶ÔÓ¦½Å±¾µÄ»º³åÇø
-    buffers_[scriptName].push_back(record);
+    // ä¸»çº¿ç¨‹ã€addTask å·¥ä½œçº¿ç¨‹ã€é’©å­çº¿ç¨‹éƒ½å¯èƒ½è°ƒç”¨,å¿…é¡»åŠ é”ä¿æŠ¤
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto& buffer = buffers_[scriptName];
+    // é¦–æ¬¡ä½¿ç”¨æ—¶é¢„åˆ†é…,é¿å…çƒ­è·¯å¾„ä¸Šçš„åå¤æ‰©å®¹
+    if (buffer.capacity() < bufferSize_)
+        buffer.reserve(bufferSize_);
+    // å°†è®°å½•æ·»åŠ åˆ°å¯¹åº”è„šæœ¬çš„ç¼“å†²åŒº
+    buffer.push_back(std::move(record));
 
-    // Èç¹û»º³åÇø³¬¹ı´óĞ¡£¬ÒÆ³ı×î¾ÉµÄ¼ÇÂ¼
-    if (buffers_[scriptName].size() > bufferSize_) {
-        buffers_[scriptName].erase(buffers_[scriptName].begin());
+    // å¦‚æœç¼“å†²åŒºè¶…è¿‡å¤§å°ï¼Œç§»é™¤æœ€æ—§çš„è®°å½•
+    if (buffer.size() > bufferSize_) {
+        buffer.erase(buffer.begin());
     }
 }
 
 void CircularBufferLogger::saveLogToFile() const {
+    // å´©æºƒå¤„ç†è·¯å¾„:æ‹¿ä¸åˆ°é”è¯´æ˜å…¶ä»–çº¿ç¨‹æ­£åœ¨å†™æ—¥å¿—,æ”¾å¼ƒä¿å­˜ä»¥å…æ­»é”
+    std::unique_lock<std::mutex> lock(mutex_, std::try_to_lock);
+    if (!lock.owns_lock()) {
+        return;
+    }
+
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::tm localTime;
-    localtime_s(&localTime, &now);  // Ê¹ÓÃ localtime_s
+    localtime_s(&localTime, &now);  // ä½¿ç”¨ localtime_s
 
     std::stringstream filename;
     filename << "logs/log_" << std::put_time(&localTime, "%Y%m%d_%H%M%S") << ".crash";
     std::ofstream outFile(filename.str(), std::ios::binary);
 
     if (!outFile.is_open()) {
-        std::cerr << "ÎŞ·¨´´½¨ÈÕÖ¾ÎÄ¼ş" << std::endl;
+        std::cerr << "æ— æ³•åˆ›å»ºæ—¥å¿—æ–‡ä»¶" << std::endl;
         return;
     }
 
-    for (const auto& [scriptName, records] : buffers_) { // ±éÀúÃ¿¸ö½Å±¾µÄ»º³åÇø
+    for (const auto& [scriptName, records] : buffers_) { // éå†æ¯ä¸ªè„šæœ¬çš„ç¼“å†²åŒº
         for (const auto& record : records) {
             if (record.message.empty()) continue;
 
-        // ½«Ã¿Ìõ¼ÇÂ¼Ğ´Èë¶ş½øÖÆÎÄ¼ş
+        // å°†æ¯æ¡è®°å½•å†™å…¥äºŒè¿›åˆ¶æ–‡ä»¶
         outFile.write(reinterpret_cast<const char*>(&record.timestamp), sizeof(record.timestamp));
         writeString(outFile, record.scriptName);
         writeString(outFile, record.functionName);

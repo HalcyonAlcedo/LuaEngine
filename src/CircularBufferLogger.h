@@ -12,9 +12,10 @@
 #include <iomanip>
 #include <filesystem>
 #include <unordered_map>
-#include <windows.h> 
+#include <mutex>
+#include <windows.h>
 
-// ÈÕÖ¾µÈ¼¶
+// æ—¥å¿—ç­‰çº§
 enum class MsgLevel {
     INFO,
     WARNING,
@@ -23,46 +24,47 @@ enum class MsgLevel {
     WRITE
 };
 
-// ×Ô¶¨ÒåÊı¾İµÄÌõÄ¿½á¹¹Ìå
+// è‡ªå®šä¹‰æ•°æ®çš„æ¡ç›®ç»“æ„ä½“
 struct CustomDataEntry {
     std::string title;
     std::string content;
 };
 
-// ÈÕÖ¾¼ÇÂ¼½á¹¹Ìå
+// æ—¥å¿—è®°å½•ç»“æ„ä½“
 struct LogRecord {
-    long long timestamp; // ÒÔºÁÃëÎªµ¥Î»µÄÊ±¼ä´Á
-    std::string scriptName;                 // ½Å±¾Ãû£¨¿ÉÑ¡£©
-    std::string functionName;               // º¯ÊıÃû£¨¿ÉÑ¡£©
-    MsgLevel level;                          // µÈ¼¶
-    std::string message;                     // ÏûÏ¢
-    std::vector<CustomDataEntry> customData; // ×Ô¶¨ÒåÊı¾İÁĞ±í
+    long long timestamp; // ä»¥æ¯«ç§’ä¸ºå•ä½çš„æ—¶é—´æˆ³
+    std::string scriptName;                 // è„šæœ¬åï¼ˆå¯é€‰ï¼‰
+    std::string functionName;               // å‡½æ•°åï¼ˆå¯é€‰ï¼‰
+    MsgLevel level;                          // ç­‰çº§
+    std::string message;                     // æ¶ˆæ¯
+    std::vector<CustomDataEntry> customData; // è‡ªå®šä¹‰æ•°æ®åˆ—è¡¨
 };
 
 class CircularBufferLogger {
 public:
     CircularBufferLogger(size_t bufferSize);
 
-    // ¼ÇÂ¼²Ù×÷
+    // è®°å½•æ“ä½œ
     void logOperation(const std::string& scriptName, const std::string& functionName, MsgLevel level, const std::string& message, const std::vector<CustomDataEntry>& customData = {});
 
-    // ±ÀÀ£Ê±½«»º³åÇøÖĞµÄ¼ÇÂ¼Ğ´Èë¶ş½øÖÆÎÄ¼ş
+    // å´©æºƒæ—¶å°†ç¼“å†²åŒºä¸­çš„è®°å½•å†™å…¥äºŒè¿›åˆ¶æ–‡ä»¶
     void saveLogToFile() const;
 
 private:
     size_t bufferSize_;
-    std::unordered_map<std::string, std::vector<LogRecord>> buffers_; // Ã¿¸ö½Å±¾µÄ¶ÀÁ¢»º³åÇø
+    std::unordered_map<std::string, std::vector<LogRecord>> buffers_; // æ¯ä¸ªè„šæœ¬çš„ç‹¬ç«‹ç¼“å†²åŒº
+    // å¤šçº¿ç¨‹ä¿æŠ¤:ä¸»çº¿ç¨‹ã€addTask å·¥ä½œçº¿ç¨‹ã€é’©å­çº¿ç¨‹éƒ½å¯èƒ½å†™å…¥æ—¥å¿—ã€‚
+    // saveLogToFile åœ¨å¼‚å¸¸è¿‡æ»¤å™¨ä¸­ç”¨ try_lock è·å–,æ‹¿ä¸åˆ°é”æ—¶æ”¾å¼ƒä¿å­˜,
+    // é¿å…åœ¨å´©æºƒå¤„ç†è·¯å¾„ä¸Šæ­»é”ã€‚
+    mutable std::mutex mutex_;
 
-    // ²¶»ñ±ÀÀ£ĞÅºÅ´¦Àíº¯Êı
-    static void signalHandler(int signal);
-
-    // Ğ´Èë×Ö·û´®µ½ÎÄ¼ş
+    // å†™å…¥å­—ç¬¦ä¸²åˆ°æ–‡ä»¶
     static void writeString(std::ofstream& outFile, const std::string& str);
 
-    // Ğ´ÈëÈÕÖ¾µÈ¼¶µ½ÎÄ¼ş
+    // å†™å…¥æ—¥å¿—ç­‰çº§åˆ°æ–‡ä»¶
     static void writeLogLevel(std::ofstream& outFile, MsgLevel level);
 
-    // Ğ´Èë×Ô¶¨ÒåÊı¾İÁĞ±íµ½ÎÄ¼ş
+    // å†™å…¥è‡ªå®šä¹‰æ•°æ®åˆ—è¡¨åˆ°æ–‡ä»¶
     static void writeCustomData(std::ofstream& outFile, const std::vector<CustomDataEntry>& customData);
 };
 
