@@ -16,7 +16,7 @@ namespace hook_monster {
 	map<void*, MonsterData> Monsters;
 	SafetyHookInline g_hook_ctor, g_hook_dtor;
 	static void Hook() {
-		framework_logger->info("´´½¨¹ÖÎïÉú³ÉºÍÏú»Ù¹³×Ó");
+		framework_logger->info("åˆ›å»ºæ€ªç‰©ç”Ÿæˆå’Œé”€æ¯é’©å­");
 
 		g_hook_ctor = safetyhook::create_inline(MH::Monster::ctor, reinterpret_cast<void*>(
 			+[](void* monster, int id, int subId) {
@@ -35,22 +35,22 @@ namespace hook_monster {
 			}));
 	}
 	static void Registe(lua_State* L) {
-		//×¢²á¹ÖÎï»ñÈ¡º¯Êı
-		engine_logger->info("×¢²á¹ÖÎïÏà¹Øº¯Êı");
+		//æ³¨å†Œæ€ªç‰©è·å–å‡½æ•°
+		engine_logger->info("æ³¨å†Œæ€ªç‰©ç›¸å…³å‡½æ•°");
 		lua_register(L, "GetAllMonster", [](lua_State* pL) -> int
 			{
-				lua_newtable(pL);//´´½¨Ò»¸ö±í¸ñ£¬·ÅÔÚÕ»¶¥
+				lua_newtable(pL);//åˆ›å»ºä¸€ä¸ªè¡¨æ ¼ï¼Œæ”¾åœ¨æ ˆé¡¶
 				for (auto [monster, monsterData] : Monsters) {
 					if (monster != nullptr) {
-						lua_pushinteger(pL, (long long)monster);//Ñ¹ÈëµØÖ·
-						lua_newtable(pL);//Ñ¹Èë±àºÅĞÅÏ¢±í
-						lua_pushstring(pL, "Id");//¹ÖÎïId
+						lua_pushinteger(pL, (long long)monster);//å‹å…¥åœ°å€
+						lua_newtable(pL);//å‹å…¥ç¼–å·ä¿¡æ¯è¡¨
+						lua_pushstring(pL, "Id");//æ€ªç‰©Id
 						lua_pushinteger(pL, monsterData.Id);
 						lua_settable(pL, -3);
-						lua_pushstring(pL, "SubId");//¹ÖÎïSubId
+						lua_pushstring(pL, "SubId");//æ€ªç‰©SubId
 						lua_pushinteger(pL, monsterData.SubId);
 						lua_settable(pL, -3);
-						lua_settable(pL, -3);//µ¯³öµ½¶¥²ã
+						lua_settable(pL, -3);//å¼¹å‡ºåˆ°é¡¶å±‚
 					}
 				}
 				return 1;

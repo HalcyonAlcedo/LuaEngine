@@ -16,7 +16,7 @@ namespace hook_animals {
 	map<void*, AnimalsData> Animals;
 	SafetyHookInline g_hook_ctor, g_hook_dtor;
 	static void Hook() {
-		framework_logger->info("´´½¨»·¾³ÉúÎïÉú³ÉºÍÏú»Ù¹³×Ó");
+		framework_logger->info("åˆ›å»ºç¯å¢ƒç”Ÿç‰©ç”Ÿæˆå’Œé”€æ¯é’©å­");
 		g_hook_ctor = safetyhook::create_inline(MH::EnvironmentalBiological::ctor, reinterpret_cast<void*>(
 			+[](void* environmental, int id, int subId) {
 				auto ret = g_hook_ctor.call<int>(environmental, id, subId);
@@ -32,22 +32,22 @@ namespace hook_animals {
 			}));
 	}
 	static void Registe(lua_State* L) {
-		engine_logger->info("×¢²á»·¾³ÉúÎïÏà¹Øº¯Êı");
-		//×¢²á»·¾³ÉúÎï»ñÈ¡º¯Êı
+		engine_logger->info("æ³¨å†Œç¯å¢ƒç”Ÿç‰©ç›¸å…³å‡½æ•°");
+		//æ³¨å†Œç¯å¢ƒç”Ÿç‰©è·å–å‡½æ•°
 		lua_register(L, "GetAllAnimals", [](lua_State* pL) -> int
 			{
-				lua_newtable(pL);//´´½¨Ò»¸ö±í¸ñ£¬·ÅÔÚÕ»¶¥
+				lua_newtable(pL);//åˆ›å»ºä¸€ä¸ªè¡¨æ ¼ï¼Œæ”¾åœ¨æ ˆé¡¶
 				for (auto [animals, animalsData] : Animals) {
 					if (animals != nullptr) {
-						lua_pushinteger(pL, (long long)animals);//Ñ¹ÈëµØÖ·
-						lua_newtable(pL);//Ñ¹Èë±àºÅĞÅÏ¢±í
-						lua_pushstring(pL, "Id");//ÉúÎïId
+						lua_pushinteger(pL, (long long)animals);//å‹å…¥åœ°å€
+						lua_newtable(pL);//å‹å…¥ç¼–å·ä¿¡æ¯è¡¨
+						lua_pushstring(pL, "Id");//ç”Ÿç‰©Id
 						lua_pushinteger(pL, animalsData.Id);
 						lua_settable(pL, -3);
-						lua_pushstring(pL, "SubId");//ÉúÎïSubId
+						lua_pushstring(pL, "SubId");//ç”Ÿç‰©SubId
 						lua_pushinteger(pL, animalsData.SubId);
 						lua_settable(pL, -3);
-						lua_settable(pL, -3);//µ¯³öµ½¶¥²ã
+						lua_settable(pL, -3);//å¼¹å‡ºåˆ°é¡¶å±‚
 					}
 				}
 				return 1;

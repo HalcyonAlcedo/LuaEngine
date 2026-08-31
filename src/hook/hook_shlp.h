@@ -1,4 +1,5 @@
 #pragma once
+#include "game_utils.h"
 
 #pragma region shlp
 namespace hook_shlp {
@@ -16,12 +17,15 @@ namespace hook_shlp {
 	SafetyHookInline g_hook_dtor;
 	SafetyHookMid g_hook_ctor;
 	static void Hook() {
-		framework_logger->info("´´½¨Í¶ÉäÎïshlpÉú³ÉºÍÏú»Ù¹³×Ó");
+		framework_logger->info("åˆ›å»ºæŠ•å°„ç‰©shlpç”Ÿæˆå’Œé”€æ¯é’©å­");
 
 		g_hook_ctor = safetyhook::create_mid(MH::Shlp::ctor,
 			+[](SafetyHookContext& ctx) {
-				int shlpid = ctx.r12;
+				int shlpid = (int)ctx.r12;
 				void* shlp = reinterpret_cast<void*>(ctx.rax);
+				// mid-hook æ—¶ rax ä¸ä¸€å®šæ˜¯å·²æ„é€ å¥½çš„å¯¹è±¡,æ ¡éªŒæœ‰æ•ˆæ€§åå†å…¥è¡¨
+				if (shlp == nullptr || !utils::IsMemoryReadable(shlp, sizeof(void*)))
+					return;
 				ProjectilesList[shlp] = ProjectilesData(shlp, shlpid);
 			});
 
@@ -32,18 +36,18 @@ namespace hook_shlp {
 			}));
 	}
 	static void Registe(lua_State* L) {
-		engine_logger->info("×¢²áÍ¶ÉäÎïshlpÏà¹Øº¯Êı");
-		//×¢²áÍ¶ÉäÎï»ñÈ¡º¯Êı
+		engine_logger->info("æ³¨å†ŒæŠ•å°„ç‰©shlpç›¸å…³å‡½æ•°");
+		//æ³¨å†ŒæŠ•å°„ç‰©è·å–å‡½æ•°
 		lua_register(L, "GetShlp", [](lua_State* pL) -> int
 			{
-				lua_newtable(pL);//´´½¨Ò»¸ö±í¸ñ£¬·ÅÔÚÕ»¶¥
+				lua_newtable(pL);//åˆ›å»ºä¸€ä¸ªè¡¨æ ¼ï¼Œæ”¾åœ¨æ ˆé¡¶
 				for (auto [Plot, shlpData] : ProjectilesList) {
 					lua_pushinteger(pL, (long long)Plot);
-					lua_newtable(pL);//Ñ¹Èë±àºÅĞÅÏ¢±í
+					lua_newtable(pL);//å‹å…¥ç¼–å·ä¿¡æ¯è¡¨
 					lua_pushstring(pL, "Id");//Id
 					lua_pushinteger(pL, (long long)shlpData.Id);
 					lua_settable(pL, -3);
-					lua_settable(pL, -3);//µ¯³öµ½¶¥²ã
+					lua_settable(pL, -3);//å¼¹å‡ºåˆ°é¡¶å±‚
 				}
 				return 1;
 			});

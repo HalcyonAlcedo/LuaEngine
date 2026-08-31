@@ -13,12 +13,6 @@ namespace utils {
 
 	BYTE* startAddress = nullptr;
 	BYTE* endAddress = nullptr;
-	struct CacheEntry {
-		bool readable;
-		size_t size;
-	};
-
-	std::unordered_map<void*, CacheEntry> addressCache;
 
 	// 获取 MonsterHunterWorld.exe 的内存范围
 	bool GetMonsterHunterWorldModuleRange() {
@@ -48,22 +42,54 @@ namespace utils {
 	}
 
 	//获取偏移地址
+	// 整个指针链解引用包裹在 SEH 中:场景切换时游戏对象可能被销毁,
+	// 中间指针悬挂(非空但已释放)时返回 nullptr,由调用方决定后续行为。
+	// 提供 initializer_list 重载:它不携带析构对象,可在调用方的
+	// __try 块内使用(MSVC C2712 限制)。
 	static void* GetPlot(void* plot, const std::vector<int>& bytes) {
-		void* Plot = plot;
+		__try {
+			void* Plot = plot;
 
-		// 获取 MonsterHunterWorld.exe 的内存范围
-		if (GetMonsterHunterWorldModuleRange() && (reinterpret_cast<BYTE*>(plot) >= startAddress && reinterpret_cast<BYTE*>(plot) < endAddress)) {
-			Plot = *(undefined**)plot;
-		}
-		for (int i : bytes) {
-			if (Plot != nullptr) {
-				Plot = *offsetPtr<undefined**>((undefined(*)())Plot, i);
+			// 获取 MonsterHunterWorld.exe 的内存范围
+			if (GetMonsterHunterWorldModuleRange() && (reinterpret_cast<BYTE*>(plot) >= startAddress && reinterpret_cast<BYTE*>(plot) < endAddress)) {
+				Plot = *(undefined**)plot;
 			}
-			else {
-				return nullptr;
+			for (int i : bytes) {
+				if (Plot != nullptr) {
+					Plot = *offsetPtr<undefined**>((undefined(*)())Plot, i);
+				}
+				else {
+					return nullptr;
+				}
 			}
+			return Plot;
 		}
-		return Plot;
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			return nullptr;
+		}
+	}
+
+	static void* GetPlot(void* plot, std::initializer_list<int> bytes) {
+		__try {
+			void* Plot = plot;
+
+			// 获取 MonsterHunterWorld.exe 的内存范围
+			if (GetMonsterHunterWorldModuleRange() && (reinterpret_cast<BYTE*>(plot) >= startAddress && reinterpret_cast<BYTE*>(plot) < endAddress)) {
+				Plot = *(undefined**)plot;
+			}
+			for (int i : bytes) {
+				if (Plot != nullptr) {
+					Plot = *offsetPtr<undefined**>((undefined(*)())Plot, i);
+				}
+				else {
+					return nullptr;
+				}
+			}
+			return Plot;
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			return nullptr;
+		}
 	}
 	// 检查内存保护状态
 	bool IsReadableMemory(PMEMORY_BASIC_INFORMATION mbi) {
@@ -71,36 +97,80 @@ namespace utils {
 		return (mbi->Protect & PAGE_READONLY) || (mbi->Protect & PAGE_READWRITE) ||
 			(mbi->Protect & PAGE_EXECUTE_READ) || (mbi->Protect & PAGE_EXECUTE_READWRITE);
 	}
+	// 检查指定范围的内存是否可读。
+	// 先用 VirtualQuery 快速判断(可跨多个区域逐段检查),再用 __try/__except
+	// 实际读取兜底(防止页面保护与查询结果不一致的极端情况)。
+	// 注意:此函数只保证"当前可读",游戏内存随时可能被释放,调用方仍需
+	// 谨慎处理返回 true 之后的访问(竞态窗口)。
 	bool IsMemoryReadable(void* ptr, size_t size) {
-		// 检查缓存
-		/*
-		auto it = addressCache.find(ptr);
-		if (it != addressCache.end() && it->second.size == size) {
-			return it->second.readable;
-		}
+		if (ptr == nullptr || size == 0)
+			return false;
 
+		// 快速路径:VirtualQuery 逐区域检查
+		uintptr_t current = (uintptr_t)ptr;
+		uintptr_t end = current + size;
 		MEMORY_BASIC_INFORMATION mbi;
-		if (VirtualQuery(ptr, &mbi, sizeof(mbi))) {
-			bool readable = (mbi.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_READ)) != 0;
-			bool inRange = size <= (mbi.RegionSize - ((uintptr_t)ptr - (uintptr_t)mbi.BaseAddress));
-
-			// 更新缓存
-			addressCache[ptr] = { readable && inRange, size };
-			return readable && inRange;
+		bool queryOk = true;
+		while (current < end) {
+			if (VirtualQuery((void*)current, &mbi, sizeof(mbi)) != sizeof(mbi)) {
+				queryOk = false;
+				break;
+			}
+			if (mbi.State != MEM_COMMIT || !IsReadableMemory(&mbi)) {
+				queryOk = false;
+				break;
+			}
+			current = (uintptr_t)mbi.BaseAddress + mbi.RegionSize;
 		}
-		*/
+		if (queryOk)
+			return true;
+
+		// 兜底:SEH 保护下的实际读取
 		__try {
-			// 尝试访问内存
 			volatile char temp;
 			for (size_t i = 0; i < size; i++) {
 				temp = *((volatile char*)ptr + i);  // 尝试读取每个字节
 			}
-			return true;  // 如果没有异常，内存可读
+			return true;
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
-			return false;  // 如果捕获到访问异常，内存不可读
+			return false;
 		}
 		return false;
+	}
+
+	// 检查指定地址所在内存是否为可执行代码区域(用于钩子地址校验)
+	bool IsExecutableMemory(void* ptr) {
+		if (ptr == nullptr)
+			return false;
+		MEMORY_BASIC_INFORMATION mbi;
+		if (VirtualQuery(ptr, &mbi, sizeof(mbi)) != sizeof(mbi))
+			return false;
+		if (mbi.State != MEM_COMMIT)
+			return false;
+		return (mbi.Protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY)) != 0;
+	}
+
+	// 有界读取以 NUL 结尾的字符串:最多读取 maxLen 字节,且不会越过
+	// 当前可读内存区域的边界。返回读取到的字符串(可能因截断而不完整)。
+	std::string ReadStringBounded(void* ptr, size_t maxLen = 4096) {
+		if (ptr == nullptr || maxLen == 0)
+			return "";
+		uintptr_t current = (uintptr_t)ptr;
+		MEMORY_BASIC_INFORMATION mbi;
+		if (VirtualQuery((void*)current, &mbi, sizeof(mbi)) != sizeof(mbi) ||
+			mbi.State != MEM_COMMIT || !IsReadableMemory(&mbi)) {
+			return "";
+		}
+		uintptr_t regionEnd = (uintptr_t)mbi.BaseAddress + mbi.RegionSize;
+		size_t limit = (size_t)(regionEnd - current);
+		if (limit > maxLen)
+			limit = maxLen;
+		const char* p = (const char*)ptr;
+		size_t len = 0;
+		while (len < limit && p[len] != '\0')
+			len++;
+		return std::string(p, len);
 	}
 
 	// 比较当前内存区域是否匹配特征码，支持通配符 ?? 代表任意字节
@@ -274,9 +344,15 @@ namespace Chronoscope {
 	}
 	//计时器更新程序
 	static void chronoscope() {
-		void* TimePlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x7D20 });
-		if(TimePlot != nullptr)
-			NowTime = *offsetPtr<float>(TimePlot, 0xC24);
+		__try {
+			// 使用 initializer_list 重载:不产生带析构函数的临时对象
+			void* TimePlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x7D20 });
+			if (TimePlot != nullptr)
+				NowTime = *offsetPtr<float>(TimePlot, 0xC24);
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			// 场景切换等时刻指针可能失效,保持上次时间值
+		}
 	}
 }
 #pragma endregion
@@ -464,30 +540,40 @@ namespace XboxPad {
 		return false;
 	}
 	static void Updata() {
-		KeyState::LJoystickUp = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC44) > 0.0;
-		KeyState::LJoystickRight = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC40) > 0.0;
-		KeyState::LJoystickDown = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC44) < 0.0;
-		KeyState::LJoystickLeft = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC40) < 0.0;
-		KeyState::RJoystickUp = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC48) > 0.0;
-		KeyState::RJoystickRight = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC4C) > 0.0;
-		KeyState::RJoystickDown = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC48) < 0.0;
-		KeyState::RJoystickLeft = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC4C) < 0.0;
-		KeyState::LJoystickPress = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC64) != 0.0;
-		KeyState::RJoystickPress = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC68) != 0.0;
-		KeyState::LT = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC88) != 0.0;
-		KeyState::RT = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC8C) != 0.0;
-		KeyState::LB = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC80) != 0.0;
-		KeyState::RB = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC84) != 0.0;
-		KeyState::Up = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC70) != 0.0;
-		KeyState::Right = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC74) != 0.0;
-		KeyState::Down = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC78) != 0.0;
-		KeyState::Left = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC7C) != 0.0;
-		KeyState::Y = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC90) != 0.0;
-		KeyState::B = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC94) != 0.0;
-		KeyState::A = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC98) != 0.0;
-		KeyState::X = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC9C) != 0.0;
-		KeyState::Window = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC60) != 0.0;
-		KeyState::Menu = *offsetPtr<float>(*(undefined**)MH::GamePad::XboxPadPtr, 0xC6C) != 0.0;
+		__try {
+			void* PadPlot = *(undefined**)MH::GamePad::XboxPadPtr;
+			if (PadPlot == nullptr) {
+				// 未连接手柄时指针可能为空,跳过本次更新
+				return;
+			}
+			KeyState::LJoystickUp = *offsetPtr<float>(PadPlot, 0xC44) > 0.0;
+			KeyState::LJoystickRight = *offsetPtr<float>(PadPlot, 0xC40) > 0.0;
+			KeyState::LJoystickDown = *offsetPtr<float>(PadPlot, 0xC44) < 0.0;
+			KeyState::LJoystickLeft = *offsetPtr<float>(PadPlot, 0xC40) < 0.0;
+			KeyState::RJoystickUp = *offsetPtr<float>(PadPlot, 0xC48) > 0.0;
+			KeyState::RJoystickRight = *offsetPtr<float>(PadPlot, 0xC4C) > 0.0;
+			KeyState::RJoystickDown = *offsetPtr<float>(PadPlot, 0xC48) < 0.0;
+			KeyState::RJoystickLeft = *offsetPtr<float>(PadPlot, 0xC4C) < 0.0;
+			KeyState::LJoystickPress = *offsetPtr<float>(PadPlot, 0xC64) != 0.0;
+			KeyState::RJoystickPress = *offsetPtr<float>(PadPlot, 0xC68) != 0.0;
+			KeyState::LT = *offsetPtr<float>(PadPlot, 0xC88) != 0.0;
+			KeyState::RT = *offsetPtr<float>(PadPlot, 0xC8C) != 0.0;
+			KeyState::LB = *offsetPtr<float>(PadPlot, 0xC80) != 0.0;
+			KeyState::RB = *offsetPtr<float>(PadPlot, 0xC84) != 0.0;
+			KeyState::Up = *offsetPtr<float>(PadPlot, 0xC70) != 0.0;
+			KeyState::Right = *offsetPtr<float>(PadPlot, 0xC74) != 0.0;
+			KeyState::Down = *offsetPtr<float>(PadPlot, 0xC78) != 0.0;
+			KeyState::Left = *offsetPtr<float>(PadPlot, 0xC7C) != 0.0;
+			KeyState::Y = *offsetPtr<float>(PadPlot, 0xC90) != 0.0;
+			KeyState::B = *offsetPtr<float>(PadPlot, 0xC94) != 0.0;
+			KeyState::A = *offsetPtr<float>(PadPlot, 0xC98) != 0.0;
+			KeyState::X = *offsetPtr<float>(PadPlot, 0xC9C) != 0.0;
+			KeyState::Window = *offsetPtr<float>(PadPlot, 0xC60) != 0.0;
+			KeyState::Menu = *offsetPtr<float>(PadPlot, 0xC6C) != 0.0;
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			// 手柄指针失效时保持上次状态
+		}
 	}
 }
 #pragma endregion

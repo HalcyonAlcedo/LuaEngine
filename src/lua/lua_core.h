@@ -1,5 +1,6 @@
 #pragma once
 #include "CircularBufferLogger.h"
+#include "core.h"
 
 using namespace loader;
 
@@ -24,19 +25,19 @@ namespace LuaCore {
 	lua_State* Lc;
 	CircularBufferLogger logger(100);
 #pragma endregion
-	//ÖØÔØÊ±¼ä
+	//é‡è½½æ—¶é—´
 	DllExport extern time_t reloadTime = 0;
-	//´íÎó»Øµ÷
+	//é”™è¯¯å›è°ƒ
 	static int LuaErrorCallBack(lua_State* L)
 	{
 		lua_Debug debug = {};
-		//´íÎóËù´¦µÄµÄµ÷ÓÃ²ã¼¶
+		//é”™è¯¯æ‰€å¤„çš„çš„è°ƒç”¨å±‚çº§
 		int rank = 0;
-		//Öğ²ã»ñÈ¡luaÅ×³öµÄ´íÎó£¬Ö±µ½»ñÈ¡µ½
+		//é€å±‚è·å–luaæŠ›å‡ºçš„é”™è¯¯ï¼Œç›´åˆ°è·å–åˆ°
 		while (lua_getstack(L, rank, &debug)) {
 			rank++;
 		}
-		//ÅĞ¶ÏÕ»¶¥ÊÇ·ñÎª×Ö·û´®ÀàĞÍ
+		//åˆ¤æ–­æ ˆé¡¶æ˜¯å¦ä¸ºå­—ç¬¦ä¸²ç±»å‹
 		int type = lua_type(L, -1);
 		if (type != 4)
 			return 0;
@@ -46,7 +47,7 @@ namespace LuaCore {
 		std::string errorMsg = "LuaEngine Error:\n" + error;
 		lua_logger->error(errorMsg);
 		LOG(ERR) << errorMsg;
-		//½«´íÎóĞÅÏ¢Ñ¹ÈËÕ»
+		//å°†é”™è¯¯ä¿¡æ¯å‹äººæ ˆ
 		lua_pushstring(L, errorMsg.c_str());
 		return 1;
 	}
@@ -57,9 +58,9 @@ namespace LuaCore {
 		}
 		return 1;
 	}
-	//¼ÓÔØLuaÓÎÏ·ÒıÇæ
+	//åŠ è½½Luaæ¸¸æˆå¼•æ“
 	static void loadEngine(lua_State* L) {
-		engine_logger->info("³õÊ¼»¯Engine.luaÊı¾İÒıÇæ");
+		engine_logger->info("åˆå§‹åŒ–Engine.luaæ•°æ®å¼•æ“");
 		int err = 0;
 		err = luaL_dofile(L, "Lua\\Engine.lua");
 		if (err != 0)
@@ -71,10 +72,10 @@ namespace LuaCore {
 			}
 		}
 	}
-	//¼ÓÔØLua½Å±¾
+	//åŠ è½½Luaè„šæœ¬
 	static void Lua_Load(string path, vector<string>& files)
 	{
-		engine_logger->info("¿ªÊ¼½øĞĞLua½Å±¾¼ÓÔØ");
+		engine_logger->info("å¼€å§‹è¿›è¡ŒLuaè„šæœ¬åŠ è½½");
 		using namespace std::filesystem;
 		if (exists(path) && is_directory(path))
 		{
@@ -92,11 +93,11 @@ namespace LuaCore {
 			}
 		}
 	}
-	//ÔËĞĞlua½Å±¾
+	//è¿è¡Œluaè„šæœ¬
 	DllExport extern int Lua_Run(lua_State* L, string LuaFile)
 	{
 		int err = 0;
-		//¼ÓÔØÒıÇæ
+		//åŠ è½½å¼•æ“
 		loadEngine(L);
 		err = luaL_dofile(L, LuaCore::LuaScript[LuaFile].file.c_str());
 		if (err != 0)
@@ -106,16 +107,23 @@ namespace LuaCore {
 				string error = lua_tostring(L, -1);
 				LuaErrorRecord(error);
 			}
-			engine_logger->warn("Lua½Å±¾{}ÎÄ¼ş¼ÓÔØ³öÏÖ´íÎó", LuaFile);
+			engine_logger->warn("Luaè„šæœ¬{}æ–‡ä»¶åŠ è½½å‡ºç°é”™è¯¯", LuaFile);
 			return -1;
 		}
-		//ÉèÖÃ´íÎó»Øµ÷º¯Êı
+		//è®¾ç½®é”™è¯¯å›è°ƒå‡½æ•°
 		lua_pushcfunction(L, LuaErrorCallBack);
-		engine_logger->info("¼ÓÔØ{}ÎÄ¼şÖÁLuaÒıÇæ", LuaFile);
+		engine_logger->info("åŠ è½½{}æ–‡ä»¶è‡³Luaå¼•æ“", LuaFile);
 		return 1;
 	}
-	//ÔËĞĞlua´úÂë
+	//è¿è¡Œluaä»£ç 
+	// ä¸»çº¿ç¨‹è°ƒç”¨æ–¹(time é’©å­ç­‰)ä½¿ç”¨ try_lock:è‹¥å·¥ä½œçº¿ç¨‹(addTask/luaHook)
+	// æ­£åœ¨æ‰§è¡Œ Lua,åˆ™è·³è¿‡æœ¬æ¬¡è°ƒç”¨,ç»ä¸é˜»å¡ä¸»çº¿ç¨‹,é¿å…ä¸å·¥ä½œçº¿ç¨‹äº’ç›¸ç­‰å¾…
+	// é€ æˆæ¸¸æˆæ­»é”ã€‚åŒä¸€çº¿ç¨‹æŒæœ‰é”æ—¶ try_lock å¯é‡å…¥(recursive_mutex)ã€‚
 	DllExport extern void run(string func, lua_State* runL = nullptr) {
+		std::unique_lock<std::recursive_mutex> luaLock(LuaEngine::LuaMutex(), std::try_to_lock);
+		if (!luaLock.owns_lock())
+			return;
+
 		if (runL != nullptr) {
 			int err = 0;
 			int callBack = lua_gettop(runL);
@@ -153,7 +161,7 @@ namespace LuaCore {
 			}
 		}
 	}
-	//Îªlua×¢²áĞÂº¯Êı
+	//ä¸ºluaæ³¨å†Œæ–°å‡½æ•°
 	DllExport extern void Lua_register(string funcName, int(*func)(lua_State* pL)) {
 		for (string file_name : LuaCore::LuaFiles) {
 			if (LuaCore::LuaScript[file_name].start) {

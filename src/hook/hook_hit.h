@@ -1,4 +1,5 @@
 #pragma once
+#include "game_utils.h"
 
 #pragma region hit
 namespace hook_hit {
@@ -16,18 +17,21 @@ namespace hook_hit {
 	HitData Hit;
 	SafetyHookMid g_hook_HitPtr;
 	static void Hook() {
-		framework_logger->info("´´½¨ÊÜ»÷´¦Àí¹³×Ó");
+		framework_logger->info("åˆ›å»ºå—å‡»å¤„ç†é’©å­");
 
 		g_hook_HitPtr = safetyhook::create_mid(MH::Player::HitPtr,
 			+[](SafetyHookContext& ctx) {
 				Hit.HitCount += 1;
-				Hit.HitPlot = *((void**)(ctx.rdx + 0x8));
-				//Èç¹ûÉè¶¨ÁËÎÞµÐ£¬ÔòÉèÖÃrcxÎª0£¬ºóÐø½»¸ø³ÌÐò×Ô¼ºÖ´ÐÐ
+				// rdx å¯èƒ½ä¸ºç©ºæˆ–æŒ‡å‘å·²é‡Šæ”¾å¯¹è±¡,å…ˆæ ¡éªŒå†è§£å¼•ç”¨
+				if (ctx.rdx != 0 && utils::IsMemoryReadable((void*)ctx.rdx, 0x10)) {
+					Hit.HitPlot = *((void**)(ctx.rdx + 0x8));
+				}
+				//å¦‚æžœè®¾å®šäº†æ— æ•Œï¼Œåˆ™è®¾ç½®rcxä¸º0ï¼ŒåŽç»­äº¤ç»™ç¨‹åºè‡ªå·±æ‰§è¡Œ
 				if (Hit.Invulnerable) ctx.rcx = 0;
 			});
 	}
 	static void Registe(lua_State* L) {
-		engine_logger->info("×¢²áÊÜ»÷Ïà¹Øº¯Êý");
+		engine_logger->info("æ³¨å†Œå—å‡»ç›¸å…³å‡½æ•°");
 		lua_register(L, "Invulnerable", [](lua_State* pL) -> int
 			{
 				Hit.Invulnerable = (bool)lua_toboolean(pL, 1);

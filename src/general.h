@@ -1,211 +1,254 @@
 #pragma once
 #include <windows.h>
+#include <intrin.h>
 #include <iostream>
+#include <map>
+#include <unordered_map>
+#include <mutex>
+#include "core.h"
+#include "game_utils.h"
+
+// é€šç”¨ Lua é’©å­(luaHook / InstallHook)
+//
+// è®¾è®¡è¦ç‚¹(ä¿®å¤ v1.2.8 ä¹‹å‰çš„å®ç°ç¼ºé™·):
+// 1. hookMap çš„æ‰€æœ‰è¯»å†™éƒ½åœ¨ HookMapMutex ä¿æŠ¤ä¸‹,ç¦æ­¢åœ¨å›è°ƒçº¿ç¨‹ä¸­ç”¨
+//    operator[] æ’å…¥;
+// 2. å›è°ƒçº¿ç¨‹ä¸å†ç›´æ¥è£¸è°ƒ lua_pcall,è€Œæ˜¯å…ˆè·å–å…¨å±€ LuaEngine::LuaMutex,
+//    ä¸ä¸»çº¿ç¨‹/å…¶ä»–é’©å­çº¿ç¨‹çš„ Lua æ‰§è¡Œä¸²è¡ŒåŒ–,é¿å…åŒä¸€ lua_State è¢«å¹¶å‘è®¿é—®;
+// 3. ä¸å†æ‰«æ rip ä¹‹åçš„ 64 å­—èŠ‚çŒœæµ‹è·³è½¬ç›®æ ‡(æ—§å®ç°å¯èƒ½è¶Šé¡µè¯»å–å´©æºƒ,
+//    FF25 çš„ç›¸å¯¹ä½ç§»è§£æä¹Ÿæ˜¯é”™çš„)ã€‚æ¯ä¸ªé’©å­é€šè¿‡ stub è°ƒç”¨ç‚¹(è¿”å›åœ°å€)
+//    å”¯ä¸€æ˜ å°„å›ç›®æ ‡åœ°å€,ç”±åˆ›å»ºæ—¶éªŒè¯ä¿è¯æ­£ç¡®æ€§ã€‚
 namespace hook_general {
 
-    struct Registers {
-        uint64_t rax;
-        uint64_t rbx;
-        uint64_t rcx;
-        uint64_t rdx;
-        uint64_t rsi;
-        uint64_t rdi;
-        uint64_t r8;
-        uint64_t r9;
-        uint64_t r10;
-        uint64_t r11;
-        uint64_t r12;
-        uint64_t r13;
-        uint64_t r14;
-        uint64_t r15;
-    };
-
     struct HookData {
-        map<lua_State*, int> Lua;
+        std::map<lua_State*, int> Lua;
         SafetyHookMid hook{};
     };
 
+    // SafetyHook mid-hook stub ä¸­ "call ç›®æ ‡å›è°ƒ" æŒ‡ä»¤çš„ä¸‹ä¸€æ¡æŒ‡ä»¤åç§»ã€‚
+    // å›è°ƒå†… _ReturnAddress() == stub + kStubCallReturnOffsetã€‚
+    // è¯¥åç§»ç”± vendored çš„ deps/safetyhook/safetyhook.cpp ä¸­ asm_data å›ºå®š,
+    // åˆ›å»ºé’©å­æ—¶ä¼šéªŒè¯,è‹¥æœªæ¥ safetyhook å¸ƒå±€å˜åŒ–å°†æ‹’ç»å®‰è£…å¹¶è®°å½•é”™è¯¯ã€‚
+    constexpr uint64_t kStubCallReturnOffset = 207;
+
     std::unordered_map<uint64_t, HookData> hookMap;
+    // stub è°ƒç”¨ç‚¹è¿”å›åœ°å€ -> è¢«é’©ç›®æ ‡åœ°å€
+    std::unordered_map<uint64_t, uint64_t> dispatchMap;
+
+    inline std::mutex& HookMapMutex() {
+        static std::mutex mutex;
+        return mutex;
+    }
 
     void clearLuaHook(lua_State* L) {
+        std::lock_guard<std::mutex> lock(HookMapMutex());
         for (auto it = hookMap.begin(); it != hookMap.end(); ) {
-            // Ê¹ÓÃ std::remove_if É¾³ı Lua ÖĞµÄÖ¸¶¨Öµ
             auto& luaMap = it->second.Lua;
-            auto removedCount = luaMap.erase(L);
-            // Èç¹û Lua Îª¿Õ£¬Ôò´Ó hookMap ÖĞÉ¾³ı¸Ã HookData
+            luaMap.erase(L);
             if (luaMap.empty()) {
-                it = hookMap.erase(it); // erase ·µ»ØÏÂÒ»¸öÓĞĞ§µü´úÆ÷
+                dispatchMap.erase(it->second.hook.stub() ? (uint64_t)it->second.hook.stub() + kStubCallReturnOffset : 0);
+                it = hookMap.erase(it); // erase è¿”å›ä¸‹ä¸€ä¸ªæœ‰æ•ˆè¿­ä»£å™¨
             }
             else {
-                ++it; // ·ñÔò£¬¼ÌĞøÏÂÒ»¸öÔªËØ
+                ++it;
             }
         }
     }
 
-    std::vector<uint8_t> read_memory(uint64_t address, size_t max_size) {
-        std::vector<uint8_t> bytes;
-        uint8_t* func_addr = reinterpret_cast<uint8_t*>(address);
-        for (size_t i = 0; i < max_size; ++i) {
-            bytes.push_back(func_addr[i]);
-        }
-        return bytes;
+    // å°†å¯„å­˜å™¨ä¸Šä¸‹æ–‡æ‰“åŒ…ä¸º Lua è¡¨
+    static void PushRegistersTable(lua_State* L, SafetyHookContext& ctx) {
+        lua_newtable(L);
+        lua_pushstring(L, "rax"); lua_pushinteger(L, ctx.rax); lua_settable(L, -3);
+        lua_pushstring(L, "rbx"); lua_pushinteger(L, ctx.rbx); lua_settable(L, -3);
+        lua_pushstring(L, "rcx"); lua_pushinteger(L, ctx.rcx); lua_settable(L, -3);
+        lua_pushstring(L, "rdx"); lua_pushinteger(L, ctx.rdx); lua_settable(L, -3);
+        lua_pushstring(L, "rsi"); lua_pushinteger(L, ctx.rsi); lua_settable(L, -3);
+        lua_pushstring(L, "rdi"); lua_pushinteger(L, ctx.rdi); lua_settable(L, -3);
+        lua_pushstring(L, "r8"); lua_pushinteger(L, ctx.r8); lua_settable(L, -3);
+        lua_pushstring(L, "r9"); lua_pushinteger(L, ctx.r9); lua_settable(L, -3);
+        lua_pushstring(L, "r10"); lua_pushinteger(L, ctx.r10); lua_settable(L, -3);
+        lua_pushstring(L, "r11"); lua_pushinteger(L, ctx.r11); lua_settable(L, -3);
+        lua_pushstring(L, "r12"); lua_pushinteger(L, ctx.r12); lua_settable(L, -3);
+        lua_pushstring(L, "r13"); lua_pushinteger(L, ctx.r13); lua_settable(L, -3);
+        lua_pushstring(L, "r14"); lua_pushinteger(L, ctx.r14); lua_settable(L, -3);
+        lua_pushstring(L, "r15"); lua_pushinteger(L, ctx.r15); lua_settable(L, -3);
+        lua_pushstring(L, "rsp"); lua_pushinteger(L, ctx.rsp); lua_settable(L, -3);
+        lua_pushstring(L, "xmm0"); lua_pushnumber(L, ctx.xmm0.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm1"); lua_pushnumber(L, ctx.xmm1.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm2"); lua_pushnumber(L, ctx.xmm2.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm3"); lua_pushnumber(L, ctx.xmm3.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm4"); lua_pushnumber(L, ctx.xmm4.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm5"); lua_pushnumber(L, ctx.xmm5.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm6"); lua_pushnumber(L, ctx.xmm6.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm7"); lua_pushnumber(L, ctx.xmm7.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm8"); lua_pushnumber(L, ctx.xmm8.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm9"); lua_pushnumber(L, ctx.xmm9.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm10"); lua_pushnumber(L, ctx.xmm10.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm11"); lua_pushnumber(L, ctx.xmm11.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm12"); lua_pushnumber(L, ctx.xmm12.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm13"); lua_pushnumber(L, ctx.xmm13.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm14"); lua_pushnumber(L, ctx.xmm14.f32[0]); lua_settable(L, -3);
+        lua_pushstring(L, "xmm15"); lua_pushnumber(L, ctx.xmm15.f32[0]); lua_settable(L, -3);
     }
-    void LuaHandler(SafetyHookContext& ctx, map<lua_State*, int> Lua, uint64_t target) {
-        for (const auto& pair : Lua) {
+
+    // ä» Lua è¿”å›çš„è¡¨ä¸­è¯»å›å¯„å­˜å™¨ä¿®æ”¹
+    static void ReadRegistersTable(lua_State* L, SafetyHookContext& ctx) {
+        lua_pushstring(L, "rax"); lua_gettable(L, -2); ctx.rax = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "rbx"); lua_gettable(L, -2); ctx.rbx = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "rcx"); lua_gettable(L, -2); ctx.rcx = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "rdx"); lua_gettable(L, -2); ctx.rdx = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "rsi"); lua_gettable(L, -2); ctx.rsi = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "rdi"); lua_gettable(L, -2); ctx.rdi = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "r8"); lua_gettable(L, -2); ctx.r8 = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "r9"); lua_gettable(L, -2); ctx.r9 = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "r10"); lua_gettable(L, -2); ctx.r10 = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "r11"); lua_gettable(L, -2); ctx.r11 = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "r12"); lua_gettable(L, -2); ctx.r12 = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "r13"); lua_gettable(L, -2); ctx.r13 = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "r14"); lua_gettable(L, -2); ctx.r14 = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "r15"); lua_gettable(L, -2); ctx.r15 = lua_tointeger(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm0"); lua_gettable(L, -2); ctx.xmm0.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm1"); lua_gettable(L, -2); ctx.xmm1.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm2"); lua_gettable(L, -2); ctx.xmm2.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm3"); lua_gettable(L, -2); ctx.xmm3.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm4"); lua_gettable(L, -2); ctx.xmm4.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm5"); lua_gettable(L, -2); ctx.xmm5.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm6"); lua_gettable(L, -2); ctx.xmm6.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm7"); lua_gettable(L, -2); ctx.xmm7.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm8"); lua_gettable(L, -2); ctx.xmm8.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm9"); lua_gettable(L, -2); ctx.xmm9.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm10"); lua_gettable(L, -2); ctx.xmm10.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm11"); lua_gettable(L, -2); ctx.xmm11.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm12"); lua_gettable(L, -2); ctx.xmm12.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm13"); lua_gettable(L, -2); ctx.xmm13.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm14"); lua_gettable(L, -2); ctx.xmm14.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+        lua_pushstring(L, "xmm15"); lua_gettable(L, -2); ctx.xmm15.f32[0] = (float)lua_tonumber(L, -1); lua_pop(L, 1);
+    }
+
+    // åœ¨å‘½ä¸­é’©å­çš„çº¿ç¨‹ä¸Šæ‰§è¡Œ Lua å›è°ƒã€‚
+    // æŒæœ‰å…¨å±€ Lua äº’æ–¥ä½“,ç¡®ä¿ä¸ä¸»çº¿ç¨‹åŠå…¶ä»–é’©å­çº¿ç¨‹çš„ Lua æ‰§è¡Œä¸²è¡Œã€‚
+    // gen ä¸ºé’©å­è§¦å‘æ—¶æ•è·çš„çŠ¶æ€ä»£æ•°:æ‹¿åˆ°é”åè‹¥ä»£æ•°å·²å˜åŒ–,è¯´æ˜è„šæœ¬
+    // å·²è¢« reload å…³é—­é‡å»º,æ”¾å¼ƒæ‰§è¡Œ,é¿å…åœ¨å·²é”€æ¯çš„ lua_State ä¸Šè¿è¡Œã€‚
+    void DispatchLuaHook(SafetyHookContext& ctx, uint64_t target, uint64_t gen) {
+        std::map<lua_State*, int> snapshot;
+        {
+            std::lock_guard<std::mutex> lock(HookMapMutex());
+            auto it = hookMap.find(target);
+            if (it == hookMap.end())
+                return;
+            snapshot = it->second.Lua;
+        }
+
+        for (auto& pair : snapshot) {
             lua_State* L = pair.first;
             int luaFuncRef = pair.second;
-            lua_rawgeti(L, LUA_REGISTRYINDEX, luaFuncRef); // »ñÈ¡ Lua º¯Êı
-            lua_newtable(L); // ´´½¨Ò»¸ö Lua ±í£¬ÓÃÓÚ´«µİ¼Ä´æÆ÷Êı¾İ
-            lua_pushstring(L, "rax"); lua_pushinteger(L, ctx.rax); lua_settable(L, -3);
-            lua_pushstring(L, "rbx"); lua_pushinteger(L, ctx.rbx); lua_settable(L, -3);
-            lua_pushstring(L, "rcx"); lua_pushinteger(L, ctx.rcx); lua_settable(L, -3);
-            lua_pushstring(L, "rdx"); lua_pushinteger(L, ctx.rdx); lua_settable(L, -3);
-            lua_pushstring(L, "rsi"); lua_pushinteger(L, ctx.rsi); lua_settable(L, -3);
-            lua_pushstring(L, "rdi"); lua_pushinteger(L, ctx.rdi); lua_settable(L, -3);
-            lua_pushstring(L, "r8"); lua_pushinteger(L, ctx.r8); lua_settable(L, -3);
-            lua_pushstring(L, "r9"); lua_pushinteger(L, ctx.r9); lua_settable(L, -3);
-            lua_pushstring(L, "r10"); lua_pushinteger(L, ctx.r10); lua_settable(L, -3);
-            lua_pushstring(L, "r11"); lua_pushinteger(L, ctx.r11); lua_settable(L, -3);
-            lua_pushstring(L, "r12"); lua_pushinteger(L, ctx.r12); lua_settable(L, -3);
-            lua_pushstring(L, "r13"); lua_pushinteger(L, ctx.r13); lua_settable(L, -3);
-            lua_pushstring(L, "r14"); lua_pushinteger(L, ctx.r14); lua_settable(L, -3);
-            lua_pushstring(L, "r15"); lua_pushinteger(L, ctx.r15); lua_settable(L, -3);
-            lua_pushstring(L, "rsp"); lua_pushinteger(L, ctx.rsp); lua_settable(L, -3);
-            lua_pushstring(L, "xmm0"); lua_pushnumber(L, ctx.xmm0.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm1"); lua_pushnumber(L, ctx.xmm1.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm2"); lua_pushnumber(L, ctx.xmm2.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm3"); lua_pushnumber(L, ctx.xmm3.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm4"); lua_pushnumber(L, ctx.xmm4.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm5"); lua_pushnumber(L, ctx.xmm5.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm6"); lua_pushnumber(L, ctx.xmm6.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm7"); lua_pushnumber(L, ctx.xmm7.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm8"); lua_pushnumber(L, ctx.xmm8.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm9"); lua_pushnumber(L, ctx.xmm9.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm10"); lua_pushnumber(L, ctx.xmm10.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm11"); lua_pushnumber(L, ctx.xmm11.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm12"); lua_pushnumber(L, ctx.xmm12.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm13"); lua_pushnumber(L, ctx.xmm13.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm14"); lua_pushnumber(L, ctx.xmm14.f32[0]); lua_settable(L, -3);
-            lua_pushstring(L, "xmm15"); lua_pushnumber(L, ctx.xmm15.f32[0]); lua_settable(L, -3);
 
-            // µ÷ÓÃ Lua º¯Êı£¬´«µİ¼Ä´æÆ÷Êı¾İ±í
+            std::lock_guard<std::recursive_mutex> luaLock(LuaEngine::LuaMutex());
+            // é”å†…æ ¡éªŒ:reload éœ€è¦åŒä¸€æŠŠé”æ‰èƒ½å…³é—­çŠ¶æ€,æ­¤æ—¶æ£€æŸ¥æ˜¯å¯é çš„
+            if (gen != LuaEngine::StateGeneration().load())
+                return;
+            lua_rawgeti(L, LUA_REGISTRYINDEX, luaFuncRef); // è·å– Lua å‡½æ•°
+            PushRegistersTable(L, ctx);                    // å‹å…¥å¯„å­˜å™¨æ•°æ®è¡¨
+
             if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
-                // Èç¹ûµ÷ÓÃÊ§°Ü£¬´òÓ¡´íÎóĞÅÏ¢
                 const char* errMsg = lua_tostring(L, -1);
-                LOG(ERR) << "Error in Lua hook function:" << errMsg;
-                lua_pop(L, 1);  // µ¯³ö´íÎóĞÅÏ¢
-                hookMap[target].Lua.erase(L);
+                LOG(ERR) << "Error in Lua hook function: " << (errMsg ? errMsg : "unknown error");
+                lua_pop(L, 1); // å¼¹å‡ºé”™è¯¯ä¿¡æ¯
+                // å‡ºé”™åæ³¨é”€è¯¥å›è°ƒ,é¿å…æ¯å¸§åå¤æŠ¥é”™
+                std::lock_guard<std::mutex> hlock(HookMapMutex());
+                auto it = hookMap.find(target);
+                if (it != hookMap.end())
+                    it->second.Lua.erase(L);
+                continue;
             }
 
-            // »ñÈ¡ Lua ·µ»ØµÄ±í
+            // è¯»å– Lua è¿”å›çš„è¡¨å¹¶å›å†™å¯„å­˜å™¨
             if (lua_istable(L, -1)) {
-                lua_pushstring(L, "rax"); lua_gettable(L, -2); ctx.rax = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "rbx"); lua_gettable(L, -2); ctx.rbx = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "rcx"); lua_gettable(L, -2); ctx.rcx = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "rdx"); lua_gettable(L, -2); ctx.rdx = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "rsi"); lua_gettable(L, -2); ctx.rsi = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "rdi"); lua_gettable(L, -2); ctx.rdi = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "r8"); lua_gettable(L, -2); ctx.r8 = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "r9"); lua_gettable(L, -2); ctx.r9 = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "r10"); lua_gettable(L, -2); ctx.r10 = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "r11"); lua_gettable(L, -2); ctx.r11 = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "r12"); lua_gettable(L, -2); ctx.r12 = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "r13"); lua_gettable(L, -2); ctx.r13 = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "r14"); lua_gettable(L, -2); ctx.r14 = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "r15"); lua_gettable(L, -2); ctx.r15 = lua_tointeger(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm0"); lua_gettable(L, -2); ctx.xmm0.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm1"); lua_gettable(L, -2); ctx.xmm1.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm2"); lua_gettable(L, -2); ctx.xmm2.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm3"); lua_gettable(L, -2); ctx.xmm3.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm4"); lua_gettable(L, -2); ctx.xmm4.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm5"); lua_gettable(L, -2); ctx.xmm5.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm6"); lua_gettable(L, -2); ctx.xmm6.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm7"); lua_gettable(L, -2); ctx.xmm7.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm8"); lua_gettable(L, -2); ctx.xmm8.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm9"); lua_gettable(L, -2); ctx.xmm9.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm10"); lua_gettable(L, -2); ctx.xmm10.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm11"); lua_gettable(L, -2); ctx.xmm11.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm12"); lua_gettable(L, -2); ctx.xmm12.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm13"); lua_gettable(L, -2); ctx.xmm13.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm14"); lua_gettable(L, -2); ctx.xmm14.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
-                lua_pushstring(L, "xmm15"); lua_gettable(L, -2); ctx.xmm15.f32[0] = lua_tonumber(L, -1); lua_pop(L, 1);
+                ReadRegistersTable(L, ctx);
             }
-
-            lua_pop(L, 1); // µ¯³ö·µ»ØµÄ±í
+            lua_pop(L, 1); // å¼¹å‡ºè¿”å›çš„è¡¨
         }
     }
+
+    // æ‰€æœ‰é’©å­å…±ç”¨çš„å›è°ƒå…¥å£:é€šè¿‡è¿”å›åœ°å€è¯†åˆ«è§¦å‘é’©å­çš„ stub,å†åˆ†å‘åˆ°ç›®æ ‡
     void HookHandler(SafetyHookContext& ctx) {
-        std::vector<uint8_t> code = read_memory(ctx.rip, 64);
-        size_t offset = 0;
-        while (offset < code.size()) {
-            uint8_t opcode = code[offset];
-            // ¼ì²éÊÇ·ñÊÇ FF 25 £¨ÄÚ´æ¼ä½ÓÌø×ª£©
-            if (opcode == 0xFF && offset + 5 < code.size() && code[offset + 1] == 0x25) {
-                // »ñÈ¡Ö¸Áîºó4×Ö½ÚÄÚ´æµØÖ·
-                uint32_t mem_offset = *reinterpret_cast<uint32_t*>(&code[offset + 2]);
-                uint64_t jmp_target = *reinterpret_cast<uint64_t*>(mem_offset) - 5;
-                // ¼ì²éÌø×ªµØÖ·ÊÇ·ñÔÚ map ÖĞ
-                if (hookMap.find(jmp_target) != hookMap.end()) {
-                    LuaHandler(ctx, hookMap[jmp_target].Lua, jmp_target);
-                    break;
-                }
-                offset += 6;  // FF 25 Ö¸Áî³¤¶ÈÊÇ6×Ö½Ú
-            }
-            // ¼ì²éÊÇ·ñÊÇ E9 £¨Ïà¶ÔÌø×ª£©
-            else if (opcode == 0xE9 && offset + 5 <= code.size()) {
-                // »ñÈ¡Ö¸Áîºó4×Ö½ÚÏà¶ÔÆ«ÒÆ
-                int32_t rel_offset = *reinterpret_cast<int32_t*>(&code[offset + 1]);
-                uint64_t jmp_target = ctx.rip + offset + rel_offset;  // Ä¿±êµØÖ· = µ±Ç°Ö¸ÁîµØÖ· + Æ«ÒÆÁ¿
-                // ¼ì²éÌø×ªµØÖ·ÊÇ·ñÔÚ map ÖĞ
-                if (hookMap.find(jmp_target) != hookMap.end()) {
-                    LuaHandler(ctx, hookMap[jmp_target].Lua, jmp_target);
-                    break;
-                }
-                offset += 5;  // E9 Ö¸Áî³¤¶ÈÊÇ5×Ö½Ú
-            }
-            // ¼ì²éÊÇ·ñÊÇ ret Ö¸Áî
-            else if (opcode == 0xC3 || opcode == 0xC2) {
-                break;
-            }
-            else {
-                // ÆäËûÖ¸Áî£¬Ìø¹ı1×Ö½Ú
-                offset += 1;
-            }
+        uint64_t gen = LuaEngine::StateGeneration().load();
+        uint64_t retAddr = (uint64_t)_ReturnAddress();
+        uint64_t target = 0;
+        {
+            std::lock_guard<std::mutex> lock(HookMapMutex());
+            auto it = dispatchMap.find(retAddr);
+            if (it == dispatchMap.end())
+                return;
+            target = it->second;
         }
+        DispatchLuaHook(ctx, target, gen);
     }
+
     void InstallHook(lua_State* L, void* targetAddr, int luaFuncRef) {
+        uint64_t target = (uint64_t)targetAddr;
 
-        // Èç¹û¸ÃµØÖ·ÒÑ¾­±»¹³×¡£¬¸üĞÂluaFuncRef
-        if (hookMap.find((uint64_t)targetAddr) != hookMap.end()) {
-            if (hookMap[(uint64_t)targetAddr].Lua.find(L) != hookMap[(uint64_t)targetAddr].Lua.end())
-            {
-                hookMap[(uint64_t)targetAddr].Lua[L] = luaFuncRef;
-            }
-            else
-            {
-                hookMap[(uint64_t)targetAddr].Lua.insert({ L, luaFuncRef });
-            }
+        // ç›®æ ‡å¿…é¡»ä½äºå¯è¯»å¯æ‰§è¡Œçš„ä»£ç åŒºåŸŸ,å¦åˆ™ SafetyHook å†…éƒ¨è§£ç ä¼šå´©æºƒ
+        if (!utils::IsExecutableMemory(targetAddr) || !utils::IsMemoryReadable(targetAddr, 16)) {
+            framework_logger->error("InstallHook: invalid target address 0x{:X}", target);
+            return;
         }
-        else {
-            
-            hookMap[(uint64_t)targetAddr] = { map<lua_State*, int>{{L, luaFuncRef}}, safetyhook::create_mid(targetAddr, HookHandler) };
 
+        std::lock_guard<std::mutex> lock(HookMapMutex());
+        auto& data = hookMap[target];
+        data.Lua[L] = luaFuncRef;
+
+        if (!data.hook) {
+            data.hook = safetyhook::create_mid(targetAddr, HookHandler);
+            if (!data.hook) {
+                framework_logger->error("InstallHook: create_mid failed for 0x{:X}", target);
+                data.Lua.erase(L);
+                if (data.Lua.empty())
+                    hookMap.erase(target);
+                return;
+            }
+            // éªŒè¯ stub å¸ƒå±€å¹¶è®°å½•"è¿”å›åœ°å€ -> ç›®æ ‡"æ˜ å°„
+            uint8_t* stub = data.hook.stub();
+            if (!stub || stub[201] != 0xFF || stub[202] != 0x15) {
+                framework_logger->error("InstallHook: unexpected safetyhook stub layout, hook disabled");
+                data.hook.reset();
+                data.Lua.erase(L);
+                if (data.Lua.empty())
+                    hookMap.erase(target);
+                return;
+            }
+            dispatchMap[(uint64_t)stub + kStubCallReturnOffset] = target;
+            framework_logger->info("InstallHook: hooked 0x{:X}", target);
         }
     }
 
     static void Registe(lua_State* L) {
-        engine_logger->info("×¢²áÍ¨ÓÃ¹³×Óº¯Êı");
+        engine_logger->info("æ³¨å†Œé€šç”¨é’©å­å‡½æ•°");
         lua_register(L, "InstallHook", [](lua_State* L) -> int {
-            void* targetAddr = (void*)lua_tointeger(L, 1); // »ñÈ¡Ä¿±êµØÖ·
-            int luaFuncRef = luaL_ref(L, LUA_REGISTRYINDEX); // »ñÈ¡ Lua º¯ÊıÒıÓÃ
-            InstallHook(L, targetAddr, luaFuncRef); // µ÷ÓÃ°²×°¹³×Óº¯Êı
+            void* targetAddr = (void*)lua_tointeger(L, 1);  // è·å–ç›®æ ‡åœ°å€
+            int luaFuncRef = luaL_ref(L, LUA_REGISTRYINDEX); // è·å– Lua å‡½æ•°å¼•ç”¨
+            InstallHook(L, targetAddr, luaFuncRef);          // å®‰è£…é’©å­
             return 0;
-            });
+        });
 
         lua_register(L, "UninstallHook", [](lua_State* L) -> int {
-            void* targetAddr = (void*)lua_tointeger(L, 1); // »ñÈ¡Ä¿±êµØÖ·
-            lua_pushboolean(L, hookMap[(uint64_t)targetAddr].Lua.erase(L));
+            void* targetAddr = (void*)lua_tointeger(L, 1);
+            bool removed = false;
+            {
+                std::lock_guard<std::mutex> lock(HookMapMutex());
+                auto it = hookMap.find((uint64_t)targetAddr);
+                if (it != hookMap.end()) {
+                    removed = it->second.Lua.erase(L) != 0;
+                    if (it->second.Lua.empty()) {
+                        uint8_t* stub = it->second.hook.stub();
+                        if (stub)
+                            dispatchMap.erase((uint64_t)stub + kStubCallReturnOffset);
+                        hookMap.erase(it);
+                    }
+                }
+            }
+            lua_pushboolean(L, removed);
             return 1;
-            });
+        });
     }
 }

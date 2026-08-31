@@ -1,22 +1,29 @@
 #pragma once
+#include "game_utils.h"
 
 #pragma region frame
 namespace hook_frame {
 	map<void*, float> SpeedList;
 	SafetyHookInline g_hook_ActionFrameSpeed;
 	static void Hook() {
-		framework_logger->info("´´½¨¶¯×÷Ö¡ËÙÂÊµ÷½Ú¹³×Ó");
+		framework_logger->info("åˆ›å»ºåŠ¨ä½œå¸§é€Ÿç‡è°ƒèŠ‚é’©å­");
 
 		g_hook_ActionFrameSpeed = safetyhook::create_inline(MH::World::ActionFrameSpeed, reinterpret_cast<void*>(
 			+[](void* entity) {
 				for (auto [ptr, addSpeed] : SpeedList) {
 					if (entity == ptr) {
-						float now_speed = *(float*)((long long)*(long long*)(0x1451238C8) + (*(int*)((long long)entity + 0x10) * 0xf8) + 0xa0);
+						// å®ä½“å¯èƒ½å·²é”€æ¯,æ ¡éªŒç´¢å¼•ä¸ç›®æ ‡åœ°å€å¯è¯»åå†è¯»å†™
+						if (!utils::IsMemoryReadable((void*)((long long)entity + 0x10), 4))
+							break;
+						float* speedAddr = (float*)((long long)*(long long*)(0x1451238C8) + (*(int*)((long long)entity + 0x10) * 0xf8) + 0xa0);
+						if (!utils::IsMemoryReadable(speedAddr, 4))
+							break;
+						float now_speed = *speedAddr;
 						if (now_speed + addSpeed >= 0) {
-							*(float*)((long long)*(long long*)(0x1451238C8) + (*(int*)((long long)entity + 0x10) * 0xf8) + 0xa0) = now_speed + addSpeed;
+							*speedAddr = now_speed + addSpeed;
 						}
 						else {
-							*(float*)((long long)*(long long*)(0x1451238C8) + (*(int*)((long long)entity + 0x10) * 0xf8) + 0xa0) = 0;
+							*speedAddr = 0;
 						}
 					}
 				}
@@ -24,7 +31,7 @@ namespace hook_frame {
 			}));
 	}
 	static void Registe(lua_State* L) {
-		engine_logger->info("×¢²á¶¯×÷Ö¡ËÙÂÊÏà¹Øº¯Êı");
+		engine_logger->info("æ³¨å†ŒåŠ¨ä½œå¸§é€Ÿç‡ç›¸å…³å‡½æ•°");
 		lua_register(L, "AddFrameSpeed", [](lua_State* pL) -> int
 			{
 				SpeedList[(void*)(long long)lua_tointeger(pL, 1)] = (float)lua_tonumber(pL, 2);
