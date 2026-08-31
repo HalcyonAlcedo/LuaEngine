@@ -9,7 +9,9 @@
 using namespace loader;
 
 namespace LuaData {
-	map<string, int> IntVariable;
+	// 注意:必须是 lua_Integer(64 位)。地址值(如 0x145013950)会超出
+	// 32 位 int 范围,截断后所有依赖该值的脚本都会失效。
+	map<string, lua_Integer> IntVariable;
 	map<string, float> FloatVariable;
 	map<string, string> StringVariable;
 }
@@ -30,7 +32,7 @@ namespace LuaAudioData {
 //存入整数变量
 static int Lua_Variable_SaveIntVariable(lua_State* pL) {
 	string variableName = (string)lua_tostring(pL, 1);
-	int variableValue = (int)lua_tointeger(pL, 2);
+	lua_Integer variableValue = lua_tointeger(pL, 2); // 64 位,勿截断为 int
 	LuaData::IntVariable[variableName] = variableValue;
 	return 0;
 }
@@ -51,7 +53,7 @@ static int Lua_Variable_SaveStringVariable(lua_State* pL) {
 //读取整数变量
 static int Lua_Variable_ReadIntVariable(lua_State* pL) {
 	string variableName = (string)lua_tostring(pL, -1);
-	int ret;
+	lua_Integer ret;
 	if (LuaData::IntVariable.find(variableName) == LuaData::IntVariable.end())
 		ret = 0;
 	else
@@ -177,7 +179,11 @@ static int System_Message_ShowMessage(lua_State* pL) {
 		{"message", message},
 	};
 	LuaCore::logger.logOperation(script, "System_Message_ShowMessage", MsgLevel::INFO, "向游戏内发送消息", customData);
-	MH::Chat::ShowGameMessage(*(undefined**)MH::Chat::MainPtr, (undefined*)&message[0], -1, -1, 0);
+	// MainPtr 在游戏早期可能尚未初始化,先校验再调用游戏函数
+	void* MainPtr = *(undefined**)MH::Chat::MainPtr;
+	if (MainPtr == nullptr || !utils::IsMemoryReadable(MainPtr, sizeof(void*)))
+		return 0;
+	MH::Chat::ShowGameMessage((undefined*)MainPtr, (undefined*)&message[0], -1, -1, 0);
 	return 0;
 }
 static int System_SendChatMessage(lua_State* pL) {
@@ -391,7 +397,7 @@ static int System_Memory_SetAddressData(lua_State* pL) {
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 	string type = (string)lua_tostring(pL, 2);
 
-	if (ptr == 0 || !utils::IsMemoryReadable((void*)ptr, sizeof(void*))) {
+	if (ptr == 0 || !utils::IsMemoryWritable((void*)ptr, sizeof(void*))) {
 		lua_pushboolean(pL, false);
 		return 1;
 	}
@@ -428,7 +434,7 @@ static int System_Memory_SearchPattern(lua_State* pL) {
 	std::vector<std::pair<BYTE, bool>> pattern;
 
 	if (!lua_istable(pL, 1)) {
-		lua_pushboolean(pL, false); // 参数不是表时返回 false
+		lua_pushboolean(pL, false);
 		return 1;
 	}
 
@@ -454,7 +460,7 @@ static int System_Memory_SearchPattern(lua_State* pL) {
 		lua_pushinteger(pL, reinterpret_cast<ptrdiff_t>(foundAddress)); // 找到时返回地址
 	}
 	else {
-		lua_pushboolean(pL, false); // 未找到时返回 false
+		lua_pushboolean(pL, false);
 	}
 	return 1;
 }
@@ -556,7 +562,7 @@ static int System_Memory_SetAddressData_Safe(lua_State* pL) {
 	uintptr_t ptr = (uintptr_t)lua_tointeger(pL, 1);
 	string type = (string)lua_tostring(pL, 2);
 
-	if (ptr == 0 || !utils::IsMemoryReadable((void*)ptr, sizeof(ptr))) {
+	if (ptr == 0 || !utils::IsMemoryWritable((void*)ptr, sizeof(void*))) {
 		lua_pushboolean(pL, false);
 		return 1;
 	}
@@ -609,7 +615,7 @@ static int System_Memory_SearchPattern_Safe(lua_State* pL) {
 	std::vector<std::pair<BYTE, bool>> pattern;
 
 	if (!lua_istable(pL, 1)) {
-		lua_pushboolean(pL, false); // 参数不是表时返回 false
+		lua_pushboolean(pL, false);
 		return 1;
 	}
 
@@ -645,7 +651,7 @@ static int System_Memory_SearchPattern_Safe(lua_State* pL) {
 	}
 	else {
 		customData.push_back({ "back address","??" });
-		lua_pushboolean(pL, false); // 未找到时返回 false
+		lua_pushboolean(pL, false);
 	}
 
 	LuaCore::logger.logOperation(script, "System_Memory_GetAddress", MsgLevel::INFO, "搜索内存地址", customData);
@@ -676,10 +682,16 @@ static int Game_Player_AddEffect(lua_State* pL) {
 		Effects = (void*)effects;
 	}
 	else {
-		void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
-		PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+		// GetPlot 带 SEH 保护,场景切换等时刻指针失效时返回 nullptr
+		void* PlayerPlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50 });
+		// 只校验实际读取位置,避免大跨度前缀检查误拒跨内存区域的对象
+		if (PlayerPlot == nullptr || !utils::IsMemoryReadable((void*)((uintptr_t)PlayerPlot + 0x8808), sizeof(void*)))
+			return 0;
 		Effects = *offsetPtr<void*>(PlayerPlot, 0x8808);
 	}
+	// 特效对象指针必须有效,否则游戏函数内部会崩溃
+	if (Effects == nullptr || !utils::IsMemoryReadable(Effects, sizeof(void*)))
+		return 0;
 	MH::Player::Effects((undefined*)Effects, group, record);
 	return 0;
 }
@@ -698,8 +710,10 @@ static int Game_Player_RunFsmAction(lua_State* pL) {
 	};
 	LuaCore::logger.logOperation(script, "Game_Player_RunFsmAction", MsgLevel::INFO, "执行Fsm动作", customData);
 
-	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
-	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+	void* PlayerPlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50 });
+	// 只校验实际写入范围(0x6284 ~ 0x6294)
+	if (PlayerPlot == nullptr || !utils::IsMemoryReadable((void*)((uintptr_t)PlayerPlot + 0x6284), 0x10))
+		return 0;
 	*offsetPtr<int>(PlayerPlot, 0x6284) = type;
 	*offsetPtr<int>(PlayerPlot, 0x6288) = id;
 	*offsetPtr<int>(PlayerPlot, 0x628C) = type;
@@ -719,8 +733,9 @@ static int Game_Player_RunLmtAction(lua_State* pL) {
 	};
 	LuaCore::logger.logOperation(script, "Game_Player_RunLmtAction", MsgLevel::INFO, "执行Lmt动作", customData);
 
-	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
-	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+	void* PlayerPlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50 });
+	if (PlayerPlot == nullptr || !utils::IsMemoryReadable(PlayerPlot, sizeof(void*)))
+		return 0;
 	MH::Player::CallLmt((undefined*)PlayerPlot, id, 0);
 	return 0;
 }
@@ -730,9 +745,10 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
 	const char* script = lua_tostring(pL, -1);
 	lua_pop(pL, 1);
 
-	void* PlayerCountPlot = *(undefined**)MH::World::PlayerCount;
-	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x258);
-	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x10);
+	void* PlayerCountPlot = utils::GetPlot(*(undefined**)MH::World::PlayerCount, { 0x258, 0x10 });
+	// 只校验实际读取位置,避免大跨度前缀检查误拒跨内存区域的对象
+	if (PlayerCountPlot == nullptr || !utils::IsMemoryReadable((void*)((uintptr_t)PlayerCountPlot + 0x6574), sizeof(int)))
+		return 0;
 	int PlayerCount = *offsetPtr<int>(PlayerCountPlot, 0x6574);
 	if (PlayerCount > 1)
 	{
@@ -746,8 +762,9 @@ static int Game_Player_Weapon_ChangeWeapons(lua_State* pL) {
 	};
 	LuaCore::logger.logOperation(script, "Game_Player_Weapon_ChangeWeapons", MsgLevel::INFO, "切换武器", customData);
 	if (type <= 13 and type >= 0 and id >= 0) {
-		void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
-		PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
+		void* PlayerPlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50 });
+		if (PlayerPlot == nullptr || !utils::IsMemoryReadable(PlayerPlot, sizeof(void*)))
+			return 0;
 		if (lua_gettop(pL) > 3) {
 			*offsetPtr<int>(PlayerPlot, 0x13860) = type;
 			*offsetPtr<int>(PlayerPlot, 0x13864) = id;
@@ -764,9 +781,10 @@ static int Game_Player_RefreshEquip(lua_State* pL) {
 	const char* script = lua_tostring(pL, -1);
 	lua_pop(pL, 1);
 
-	void* PlayerCountPlot = *(undefined**)MH::World::PlayerCount;
-	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x258);
-	PlayerCountPlot = *offsetPtr<undefined**>((undefined(*)())PlayerCountPlot, 0x10);
+	void* PlayerCountPlot = utils::GetPlot(*(undefined**)MH::World::PlayerCount, { 0x258, 0x10 });
+	// 只校验实际读取位置,避免大跨度前缀检查误拒跨内存区域的对象
+	if (PlayerCountPlot == nullptr || !utils::IsMemoryReadable((void*)((uintptr_t)PlayerCountPlot + 0x6574), sizeof(int)))
+		return 0;
 	int PlayerCount = *offsetPtr<int>(PlayerCountPlot, 0x6574);
 	if (PlayerCount > 1)
 	{
@@ -774,9 +792,9 @@ static int Game_Player_RefreshEquip(lua_State* pL) {
 	}
 	std::vector<CustomDataEntry> customData = {};
 	LuaCore::logger.logOperation(script, "Game_Player_RefreshEquip", MsgLevel::INFO, "临时刷新装备", customData);
-	void* PlayerPlot = *(undefined**)MH::Player::PlayerBasePlot;
-	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x50);
-	PlayerPlot = *offsetPtr<undefined**>((undefined(*)())PlayerPlot, 0x12610);
+	void* PlayerPlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x12610 });
+	if (PlayerPlot == nullptr || !utils::IsMemoryReadable(PlayerPlot, sizeof(void*)))
+		return 0;
 	MH::Weapon::RefreshEquip(PlayerPlot);
 	return 0;
 }
@@ -878,11 +896,15 @@ static int Game_Player_CreateProjectiles(lua_State* pL) {
 	uintptr_t shlpList = (uintptr_t)lua_tointeger(pL, 9);
 	void* EntityAddress = (void*)entity;
 	void* ShlpListAddress = (void*)shlpList;
-	if (EntityAddress != nullptr) {
-		lua_pushboolean(pL, CreateProjectiles(
-			id, Vector3(startx, starty, startz), Vector3(endx, endy, endz), ShlpListAddress, EntityAddress
-		));
+	if (EntityAddress == nullptr || !utils::IsMemoryReadable(EntityAddress, sizeof(void*)) ||
+		(ShlpListAddress != nullptr && !utils::IsMemoryReadable(ShlpListAddress, sizeof(void*)))) {
+		// 无效指针不传入游戏函数(内部会直接解引用)
+		lua_pushboolean(pL, false);
+		return 1;
 	}
+	lua_pushboolean(pL, CreateProjectiles(
+		id, Vector3(startx, starty, startz), Vector3(endx, endy, endz), ShlpListAddress, EntityAddress
+	));
 	return 1;
 }
 //获取游戏版本

@@ -20,17 +20,29 @@ namespace hook_monster {
 
 		g_hook_ctor = safetyhook::create_inline(MH::Monster::ctor, reinterpret_cast<void*>(
 			+[](void* monster, int id, int subId) {
-				auto ret = g_hook_ctor.call<int>(monster, id, subId);
-				Monsters[monster] = MonsterData(
-					monster, id, subId
-				);
-				LuaCore::run("on_monster_create");
-				return ret;
+				try {
+					auto ret = g_hook_ctor.call<int>(monster, id, subId);
+					Monsters[monster] = MonsterData(
+						monster, id, subId
+					);
+					LuaCore::run("on_monster_create");
+					return ret;
+				}
+				catch (...) {
+					// 异常无法跨游戏帧展开,就地捕获防止 terminate
+					framework_logger->error("怪物生成钩子发生 C++ 异常,已捕获");
+					return 0;
+				}
 			}));
 		g_hook_dtor = safetyhook::create_inline(MH::Monster::dtor, reinterpret_cast<void*>(
 			+[](void* monster) {
-				Monsters.erase(monster);
-				LuaCore::run("on_monster_destroy");
+				try {
+					Monsters.erase(monster);
+					LuaCore::run("on_monster_destroy");
+				}
+				catch (...) {
+					framework_logger->error("怪物销毁钩子发生 C++ 异常,已捕获");
+				}
 				return g_hook_dtor.call<int>(monster);
 			}));
 	}

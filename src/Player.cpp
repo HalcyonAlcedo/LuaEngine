@@ -2,8 +2,6 @@
 
 Player::Player()
 {
-	const HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	comInitialized = SUCCEEDED(hr);
 }
 
 Player::~Player()
@@ -19,28 +17,15 @@ Player::~Player()
 		audioSourceVoice->DestroyVoice();
 		audioSourceVoice = nullptr;
 	}
-	if (audioMasteringVoice) {
-		audioMasteringVoice->DestroyVoice();
-		audioMasteringVoice = nullptr;
-	}
-	if (audioDriver) {
-		audioDriver->Release();
-		audioDriver = nullptr;
-	}
-	if (comInitialized) {
-		CoUninitialize();
-	}
+	// 驱动与主控语音由共享 AudioDevice 持有(进程生命周期),不在此销毁
 }
 
 bool Player::Create()
 {
-	if (FAILED(XAudio2Create(&audioDriver, 0, XAUDIO2_DEFAULT_PROCESSOR))) {
-		return false;
-	}
-	if (FAILED(audioDriver->CreateMasteringVoice(&audioMasteringVoice))) {
-		return false;
-	}
-	return true;
+	AudioDevice& device = AudioDevice::Instance();
+	audioDriver = device.Driver();
+	audioMasteringVoice = device.Mastering();
+	return audioDriver != nullptr && audioMasteringVoice != nullptr;
 }
 
 bool Player::SetSound(std::shared_ptr<Sound> sound)

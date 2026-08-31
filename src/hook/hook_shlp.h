@@ -21,17 +21,27 @@ namespace hook_shlp {
 
 		g_hook_ctor = safetyhook::create_mid(MH::Shlp::ctor,
 			+[](SafetyHookContext& ctx) {
-				int shlpid = (int)ctx.r12;
-				void* shlp = reinterpret_cast<void*>(ctx.rax);
-				// mid-hook 时 rax 不一定是已构造好的对象,校验有效性后再入表
-				if (shlp == nullptr || !utils::IsMemoryReadable(shlp, sizeof(void*)))
-					return;
-				ProjectilesList[shlp] = ProjectilesData(shlp, shlpid);
+				try {
+					int shlpid = (int)ctx.r12;
+					void* shlp = reinterpret_cast<void*>(ctx.rax);
+					// mid-hook 时 rax 不一定是已构造好的对象,校验有效性后再入表
+					if (shlp == nullptr || !utils::IsMemoryReadable(shlp, sizeof(void*)))
+						return;
+					ProjectilesList[shlp] = ProjectilesData(shlp, shlpid);
+				}
+				catch (...) {
+					framework_logger->error("投射物生成钩子发生 C++ 异常,已捕获");
+				}
 			});
 
 		g_hook_dtor = safetyhook::create_inline(MH::Shlp::dtor, reinterpret_cast<void*>(
 			+[](void* shlp) {
-				ProjectilesList.erase(shlp);
+				try {
+					ProjectilesList.erase(shlp);
+				}
+				catch (...) {
+					framework_logger->error("投射物销毁钩子发生 C++ 异常,已捕获");
+				}
 				return g_hook_dtor.call<int>(shlp);
 			}));
 	}

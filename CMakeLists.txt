@@ -2,7 +2,7 @@
 # 构建:cmake -S . -B build-cmake -G Ninja && cmake --build build-cmake
 # (VS2022 自带 Ninja 与 CMake;也可使用 Visual Studio 生成器)
 cmake_minimum_required(VERSION 3.21)
-project(LuaEngine VERSION 1.3.1 LANGUAGES C CXX)
+project(LuaEngine VERSION 1.3.2 LANGUAGES C CXX)
 
 # 单配置生成器默认 Release(与原 vcxproj 的 Release|x64 对齐)
 if(CMAKE_BUILD_TYPE STREQUAL "" AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -38,6 +38,15 @@ add_library(lua STATIC ${LUA_SOURCES})
 set_source_files_properties(${LUA_SOURCES} PROPERTIES LANGUAGE C)
 target_include_directories(lua PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/lua/src")
 target_compile_definitions(lua PRIVATE _CRT_SECURE_NO_WARNINGS)
+
+# ---------------------------------------------------------------------------
+# 可选:内置 lua 解释器,用于脚本语法检查(默认不参与构建)
+# 用法:cmake --build build-cmake --config Release --target luacheck
+#       build-cmake/Release/luacheck.exe -e "assert(loadfile('engine/Engine.lua'))"
+# ---------------------------------------------------------------------------
+add_executable(luacheck EXCLUDE_FROM_ALL deps/lua/src/lua.c)
+set_source_files_properties(deps/lua/src/lua.c PROPERTIES LANGUAGE C)
+target_link_libraries(luacheck PRIVATE lua)
 
 # ---------------------------------------------------------------------------
 # LuaEngine 主模块(DLL)

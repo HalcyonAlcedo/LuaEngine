@@ -20,24 +20,30 @@ namespace lua_thread {
 			// 此时捕获的 task_func 已被 move 为空引用,析构无害。
 			if (gen != LuaEngine::StateGeneration().load())
 				return;
-			// 将任务函数移动到锁作用域内,确保其引用在锁内释放
-			sol::protected_function protected_task_func(std::move(task_func));
-			// 新建一个 sol::thread
-			sol::thread t = sol::thread::create(lua);
-			// 从 sol::thread 中获取 sol::state_view
-			sol::state_view new_lua = t.state();
-			// 在新的 sol::state_view 中执行任务函数
-			sol::protected_function_result result = protected_task_func(new_lua);
-			// 检查执行是否成功
-			if (!result.valid()) {
-				// 获取错误信息
-				sol::error err = result;
-				std::string what = err.what();
-				lua_logger->error("LuaEngine Thread Error:\n" + what);
-				LOG(ERR) << "LuaEngine Thread Error:\n" + what;
+			try {
+				// 将任务函数移动到锁作用域内,确保其引用在锁内释放
+				sol::protected_function protected_task_func(std::move(task_func));
+				// 新建一个 sol::thread
+				sol::thread t = sol::thread::create(lua);
+				// 从 sol::thread 中获取 sol::state_view
+				sol::state_view new_lua = t.state();
+				// 在新的 sol::state_view 中执行任务函数
+				sol::protected_function_result result = protected_task_func(new_lua);
+				// 检查执行是否成功
+				if (!result.valid()) {
+					// 获取错误信息
+					sol::error err = result;
+					std::string what = err.what();
+					lua_logger->error("LuaEngine Thread Error:\n" + what);
+					LOG(ERR) << "LuaEngine Thread Error:\n" + what;
+				}
+				// 在锁内显式释放对 lua_State 的引用
+				protected_task_func = {};
 			}
-			// 在锁内显式释放对 lua_State 的引用
-			protected_task_func = {};
+			catch (...) {
+				// 工作线程异常就地捕获:未捕获异常会直接终止进程
+				lua_logger->error("LuaEngine Thread Error: task threw a C++ exception.");
+			}
 		});
 		t.detach();
 	}

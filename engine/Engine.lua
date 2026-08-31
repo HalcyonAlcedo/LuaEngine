@@ -1,7 +1,7 @@
 --[[
     LuaEngine游戏数据解析引擎
     版本: 1.7
-    适用于LuaEngine模组1.3.1版本
+    适用于LuaEngine模组1.3.2版本
 ]]
 
 

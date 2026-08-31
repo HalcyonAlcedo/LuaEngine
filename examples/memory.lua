@@ -33,19 +33,22 @@ end
 
 function on_time()
     if playerBasePtr ~= nil then
-        -- 获取玩家地址
+        -- 获取玩家地址(失败返回 false)
         local plaeyrPtr = GetAddress(playerBasePtr,{ 0x50 })
         if plaeyrPtr then
-            -- 如果成功获取，可以读取文件的血量
+            -- 获取血量数据地址:失败返回 false,必须先用 if 判断,
+            -- 否则 false 参与算术(+ 0x64)会报错
+            local healthPtr = GetAddress(plaeyrPtr, { 0x7630 })
+            if healthPtr then
+                -- 当前血量(读取失败时降级为 0,保证比较运算安全)
+                local current = GetAddressData(healthPtr + 0x64, 'float') or 0
+                -- 最大血量
+                local max = GetAddressData(healthPtr + 0x60, 'float') or 0
 
-            -- 当前血量
-            local current = GetAddressData(GetAddress(plaeyrPtr, { 0x7630 }) + 0x64, 'float')
-            -- 最大血量
-            local max = GetAddressData(GetAddress(plaeyrPtr, { 0x7630 }) + 0x60, 'float')
-
-            -- 如果当前血量小于最大血量，设置当前血量等于最大血量
-            if current < max then
-                SetAddressData(GetAddress(plaeyrPtr, { 0x7630 }) + 0x64, 'float', max)
+                -- 如果当前血量小于最大血量，设置当前血量等于最大血量
+                if current < max then
+                    SetAddressData(healthPtr + 0x64, 'float', max)
+                end
             end
         end
     end

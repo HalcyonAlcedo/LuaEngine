@@ -19,15 +19,26 @@ namespace hook_animals {
 		framework_logger->info("创建环境生物生成和销毁钩子");
 		g_hook_ctor = safetyhook::create_inline(MH::EnvironmentalBiological::ctor, reinterpret_cast<void*>(
 			+[](void* environmental, int id, int subId) {
-				auto ret = g_hook_ctor.call<int>(environmental, id, subId);
-				Animals[environmental] = AnimalsData(
-					environmental, id, subId
-				);
-				return ret;
+				try {
+					auto ret = g_hook_ctor.call<int>(environmental, id, subId);
+					Animals[environmental] = AnimalsData(
+						environmental, id, subId
+					);
+					return ret;
+				}
+				catch (...) {
+					framework_logger->error("环境生物生成钩子发生 C++ 异常,已捕获");
+					return 0;
+				}
 			}));
 		g_hook_dtor = safetyhook::create_inline(MH::EnvironmentalBiological::dtor, reinterpret_cast<void*>(
 			+[](void* environmental) {
-				Animals.erase(environmental);
+				try {
+					Animals.erase(environmental);
+				}
+				catch (...) {
+					framework_logger->error("环境生物销毁钩子发生 C++ 异常,已捕获");
+				}
 				return g_hook_dtor.call<int>(environmental);
 			}));
 	}

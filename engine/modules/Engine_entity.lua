@@ -8,6 +8,31 @@
 
     方法
 ]]
+
+--[[
+本模块内部使用的安全封装:GetAddress / GetAddressData 失败时返回 0(数字)
+而非 false,保证地址未初始化阶段(游戏启动/切图)所有算术表达式安全求值。
+仅遮蔽本模块作用域,对外注册的原始 API 与用户脚本不受影响;
+bool 类型在有效地址上读到的真实布尔值原样保留。
+]]
+local _GetAddress = GetAddress
+local GetAddress = function(base, ...)
+    local r = _GetAddress(base, ...)
+    if r == false then return 0 end
+    return r
+end
+local _GetAddressData = GetAddressData
+local GetAddressData = function(addr, t)
+    if type(addr) ~= 'number' or addr < 0x10000 then
+        return 0 -- 无效地址(失败链路的 0 值算术结果),直接降级为 0
+    end
+    local r = _GetAddressData(addr, t)
+    if r == false and t ~= 'bool' then
+        return 0 -- 有效地址但读取失败(指针悬挂等),降级为 0
+    end
+    return r
+end
+
 engine_entity = {
     info = {
         name = 'Entity'

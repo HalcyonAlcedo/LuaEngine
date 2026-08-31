@@ -42,7 +42,11 @@ SafetyHookInline g_hook_time;
 static void MassageCommand() {
 	void* MassagePlot = *(undefined**)MH::World::Message;
 	if (MassagePlot != nullptr) {
-		string Massage = offsetPtr<char>(MassagePlot, 0xC0);
+		// 有界读取聊天缓冲区:避免缓冲区异常时越页读取,且空消息直接跳过,
+		// 免去每帧无谓的字符串分配
+		string Massage = utils::ReadStringBounded((void*)((uintptr_t)MassagePlot + 0xC0), 1024);
+		if (Massage.empty())
+			return;
 		string::size_type idx;
 		//执行实时命令
 		idx = Massage.find("luac:");
@@ -99,7 +103,10 @@ static void MassageCommand() {
 				else {
 					engine_logger->info("脚本{}已完成重载操作，代码运行正常", luae);
 					string message = "脚本" + luae + "已完成重载操作";
-					MH::Chat::ShowGameMessage(*(undefined**)MH::Chat::MainPtr, (undefined*)&utils::string_To_UTF8(message)[0], -1, -1, 0);
+					// MainPtr 在游戏早期可能尚未初始化,先校验再调用游戏函数
+					void* MainPtr = *(undefined**)MH::Chat::MainPtr;
+					if (MainPtr != nullptr && utils::IsMemoryReadable(MainPtr, sizeof(void*)))
+						MH::Chat::ShowGameMessage((undefined*)MainPtr, (undefined*)&utils::string_To_UTF8(message)[0], -1, -1, 0);
 					LuaCore::LuaScript[luae].start = true;
 					LuaCore::run("on_init", LuaCore::LuaScript[luae].L);
 				}
@@ -108,11 +115,24 @@ static void MassageCommand() {
 		}
 	}
 }
+//场景切换检测:时间回退说明进入了新场景。
+// 单独拆出并加 SEH 保护,场景切换期间玩家数据可能正在销毁重建。
+static bool CheckSceneSwitch() {
+	__try {
+		void* TimePlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x7D20 });
+		if (TimePlot == nullptr)
+			return false;
+		return Chronoscope::NowTime > *offsetPtr<float>(TimePlot, 0xC24);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER) {
+		return false;
+	}
+}
+
 //数据更新程序
 static void updata() {
 	//地图更新时清理数据
-	void* TimePlot = utils::GetPlot(*(undefined**)MH::Player::PlayerBasePlot, { 0x50, 0x7D20 });
-	if (TimePlot != nullptr && Chronoscope::NowTime > *offsetPtr<float>(TimePlot, 0xC24)) {
+	if (CheckSceneSwitch()) {
 		framework_logger->info("游戏内发生场景变换，更新框架缓存数据");
 		//清除计时器数据
 		Chronoscope::ChronoscopeList.clear();
@@ -196,17 +216,24 @@ void ApplyTimeHooks() {
 	framework_logger->info("创建on_time钩子");
 	g_hook_time = safetyhook::create_inline(MH::World::MapClockLocal, reinterpret_cast<void*>(
 		+[](float* clock, float clock2) {
-		// 主线程帧更新:与工作线程(addTask/luaHook)的 Lua 执行串行化。
-		// 拿不到锁说明工作线程正在执行 Lua,跳过本帧的框架更新,
-		// 避免主线程阻塞等待工作线程(工作线程的 Lua 可能反过来
-		// 依赖主线程的进度,双向等待会造成游戏死锁)。
-		std::unique_lock<std::recursive_mutex> luaLock(LuaEngine::LuaMutex(), std::try_to_lock);
-		if (luaLock.owns_lock()) {
-			// 更新基础数据
-			updata();
+		try {
+			// 主线程帧更新:与工作线程(addTask/luaHook)的 Lua 执行串行化。
+			// 拿不到锁说明工作线程正在执行 Lua,跳过本帧的框架更新,
+			// 避免主线程阻塞等待工作线程(工作线程的 Lua 可能反过来
+			// 依赖主线程的进度,双向等待会造成游戏死锁)。
+			std::unique_lock<std::recursive_mutex> luaLock(LuaEngine::LuaMutex(), std::try_to_lock);
+			if (luaLock.owns_lock()) {
+				// 更新基础数据
+				updata();
 
-			// 运行 Lua 虚拟机
-			LuaCore::run("on_time");
+				// 运行 Lua 虚拟机
+				LuaCore::run("on_time");
+			}
+		}
+		catch (...) {
+			// 钩子回调中的 C++ 异常无法跨游戏代码帧展开,必须就地捕获,
+			// 否则直接 std::terminate 导致进程崩溃
+			framework_logger->error("时间钩子回调发生 C++ 异常,已捕获");
 		}
 		return g_hook_time.call<int>(clock, clock2);
 		}));

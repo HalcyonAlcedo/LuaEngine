@@ -4,6 +4,7 @@
 #include <tlhelp32.h>
 #include <Windows.h>
 #include <Psapi.h>
+#include <random>
 
 using namespace loader;
 using namespace std;
@@ -139,6 +140,46 @@ namespace utils {
 		return false;
 	}
 
+	// 检查指定范围的内存是否可写(供内存写入 API 使用)。
+	// 只读页(PAGE_READONLY,如 .rdata)是"可读"的,但写入会触发访问违例,
+	// 因此写路径必须单独用本函数校验。VirtualQuery 快路径 + SEH 写入探测兜底。
+	bool IsMemoryWritable(void* ptr, size_t size) {
+		if (ptr == nullptr || size == 0)
+			return false;
+
+		uintptr_t current = (uintptr_t)ptr;
+		uintptr_t end = current + size;
+		MEMORY_BASIC_INFORMATION mbi;
+		bool queryOk = true;
+		while (current < end) {
+			if (VirtualQuery((void*)current, &mbi, sizeof(mbi)) != sizeof(mbi)) {
+				queryOk = false;
+				break;
+			}
+			if (mbi.State != MEM_COMMIT ||
+				!(mbi.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_WRITECOPY))) {
+				queryOk = false;
+				break;
+			}
+			current = (uintptr_t)mbi.BaseAddress + mbi.RegionSize;
+		}
+		if (queryOk)
+			return true;
+
+		// 兜底:SEH 保护下的实际写入探测(写回原值,不改变内存内容)
+		__try {
+			volatile char* p = (volatile char*)ptr;
+			for (size_t i = 0; i < size; i++) {
+				char v = p[i];
+				p[i] = v;
+			}
+			return true;
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			return false;
+		}
+	}
+
 	// 检查指定地址所在内存是否为可执行代码区域(用于钩子地址校验)
 	bool IsExecutableMemory(void* ptr) {
 		if (ptr == nullptr)
@@ -224,8 +265,9 @@ namespace utils {
 	//获取随机数
 	static float GetRandom(float min, float max)
 	{
-		std::random_device rd;
-		std::mt19937 eng(rd());
+		// thread_local 缓存随机引擎,避免每次调用重新构造
+		// random_device 并重新播种 mt19937(2.5KB 状态初始化)
+		thread_local std::mt19937 eng(std::random_device{}());
 		std::uniform_real_distribution<float> dist(min, max);
 		return dist(eng);
 	}
@@ -593,17 +635,29 @@ namespace Chat
 	};
 
 	template <class T>
-	T* resolvePtrs(long long* base, std::vector<int> offsets)
+	T* resolvePtrs(long long* base, const std::vector<int>& offsets)
 	{
-		for (int offset : offsets)
-			base = ((long long*)(*base + offset));
-
+		// 聊天 UI 指针链可能尚未初始化或已失效,SEH 保护逐级解引用
+		__try {
+			for (int offset : offsets) {
+				base = (long long*)(*base + offset);
+				if (base == nullptr)
+					return nullptr;
+			}
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			return nullptr;
+		}
 		return reinterpret_cast<T*>(base);
 	}
 
 	bool SendChatMessage(char message[256]) {
 		uGUIChat* chat = resolvePtrs<uGUIChat>(MH::Chat::uGuiChatBase, { 0x13FD0, 0x28F8 });
 		bool* sendMessage = resolvePtrs<bool>(MH::Chat::uGuiChatBase, { 0x13FD0, 0x325E });
+		if (chat == nullptr || !utils::IsMemoryReadable(chat, sizeof(uGUIChat)) ||
+			sendMessage == nullptr || !utils::IsMemoryReadable(sendMessage, sizeof(bool))) {
+			return false;
+		}
 
 		memcpy(chat->chatBuffer, message, 256);
 		*sendMessage = true;
