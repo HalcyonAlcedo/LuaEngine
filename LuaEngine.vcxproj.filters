@@ -36,6 +36,12 @@
     <ClCompile Include="src\CircularBufferLogger.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Player.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sound.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="deps\safetyhook\Zydis.c">
       <Filter>头文件\safetyhook</Filter>
     </ClCompile>
@@ -87,6 +93,12 @@
       <Filter>头文件\lua</Filter>
     </ClInclude>
     <ClInclude Include="src\CircularBufferLogger.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sound.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\general.h">
